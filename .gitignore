@@ -1,0 +1,64 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+*.dll
+*.exe
+
+# Rider and VS folders
+.vs/
+.idea/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# DotCover
+*.dotCover
+
+# Debug / Release folders
+**/Debug/
+**/Release/
+
+# NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Visual Studio profiler
+*.vsp
+*.vspx
+*.sap
+
+# Logs
+*.log
+
+# Database files
+*.mdf
+*.ldf
+
+# OS junk files
+.DS_Store
+Thumbs.db
+
+# Publish output
+publish/
+
+# Resharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+
+# Crash dumps
+*.dmp
+
+# Others
+*.cache
+*.bak
+*.tmp
+*.old
+*.orig
