@@ -1,0 +1,71 @@
+@inherits LayoutComponentBase
+@using Radzen
+@using Radzen.Blazor
+
+<RadzenLayout>
+    <RadzenHeader>
+        <div class="rz-toolbar">
+            <RadzenIcon Icon="fitness_center" />
+            <span class="app-title">FireFit</span>
+        </div>
+    </RadzenHeader>
+
+    <RadzenBody>
+        <RadzenContent>
+            @Body
+        </RadzenContent>
+    </RadzenBody>
+
+    <RadzenFooter>
+        <RadzenMenu>
+            <RadzenMenuItem Text="Home" Icon="home" Path="/" />
+            <RadzenMenuItem Text="Goals" Icon="flag" Path="/goals" />
+            <RadzenMenuItem Text="Progress" Icon="trending_up" Path="/progress" />
+            <RadzenMenuItem Text="Profile" Icon="person" Path="/profile" />
+        </RadzenMenu>
+    </RadzenFooter>
+</RadzenLayout>
+
+<style>
+    .app-title {
+        margin-left: 8px;
+        font-size: 1.2rem;
+        font-weight: 500;
+    }
+
+    .rz-layout {
+        min-height: 100vh;
+    }
+
+    .rz-layout-header {
+        background-color: #1976d2;
+        color: white;
+        padding: 0.5rem 1rem;
+    }
+
+    .rz-layout-footer {
+        background-color: #f5f5f5;
+        padding: 0.5rem;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+
+    .rz-layout-content {
+        padding-bottom: 4rem; /* Space for fixed footer */
+    }
+
+    .rz-menu {
+        display: flex;
+        justify-content: space-around;
+    }
+
+    .rz-menu-item {
+        flex: 1;
+        text-align: center;
+    }
+
+    .rz-menu-item-icon {
+        font-size: 1.5rem;
+    }
+</style> 

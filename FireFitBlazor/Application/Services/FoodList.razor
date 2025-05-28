@@ -1,0 +1,81 @@
+﻿@page "/food-list"
+@inject IFoodLogService FoodLogService
+@inject NavigationManager Navigation
+@using FireFitBlazor.Domain.Models
+@using Microsoft.AspNetCore.Components.Web
+@using Radzen.Blazor
+@using Microsoft.JSInterop;
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+
+<input class="search-bar" @bind="searchTerm" @bind:event="oninput" placeholder="Search ingredients..." />
+
+<ul class="ingredient-list">
+    @foreach (var ingredient in FilteredIngredients)
+    {
+        <li @onclick="() => GoToIngredient(ingredient.Name)">
+            <img src="@ingredient.IconUrl" class="ingredient-icon" />
+            <span>@ingredient.Name</span>
+        </li>
+    }
+</ul>
+
+@code {
+    private string searchTerm = "";
+    private List<DetectedIngredient> allIngredients = new();
+    private List<DetectedIngredient> FilteredIngredients =>
+        string.IsNullOrWhiteSpace(searchTerm)
+            ? allIngredients
+            : allIngredients.Where(i => i.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)).ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // You may want to use a different model for the list, but this works for demo
+        var names = await FoodLogService.GetAllIngredientNames();
+       // allIngredients = names.Select(n => new DetectedIngredient(n, 50, 50, "/images/default.png")).ToList();
+    }
+
+    private void GoToIngredient(string name)
+    {
+        Navigation.NavigateTo($"/ingredient-details/{Uri.EscapeDataString(name)}");
+    }
+}
+<style>
+    .search-bar {
+        width: 100%;
+        padding: 1em;
+        font-size: 1.1em;
+        border-radius: 12px;
+        border: 1.5px solid #ffe0b2;
+        margin: 1.5em 0 1em 0;
+        box-sizing: border-box;
+    }
+
+    .ingredient-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .ingredient-list li {
+            display: flex;
+            align-items: center;
+            gap: 1em;
+            padding: 1em;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+            .ingredient-list li:hover {
+                background: #fff7f0;
+            }
+
+    .ingredient-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        object-fit: contain;
+        background: #f7f7f7;
+    }
+</style>

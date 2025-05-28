@@ -1,0 +1,157 @@
+﻿using FireFitBlazor.Domain.Models;
+using FireFitBlazor.Domain.ValueObjects;
+using FireFitBlazor.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
+
+namespace FireFitBlazor.Application.Services
+{
+    public class FoodLogService : IFoodLogService
+    {
+        private readonly ApplicationDbContext _db;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        string userId { get; set; }
+
+        public FoodLogService(ApplicationDbContext db, IHttpContextAccessor httpContextAccessor)
+        {
+            _db = db;
+            _httpContextAccessor = httpContextAccessor;
+            
+        }
+
+        public async Task<List<FoodLog>> SearchFoodsAsync(string query)
+        {
+            return await _db.Ingredients
+                .Where(i => i.Name.Contains(query))
+                .Select(i => new FoodLog(
+                    i.Name,
+                    i.Nutrition.Calories,
+                    i.Nutrition.Proteins,
+                    i.Nutrition.Carbs,
+                    i.Nutrition.Fats
+                ))
+                .ToListAsync();
+        }
+
+        public async Task<List<string>> GetAllIngredientNames()
+        {
+            return await _db.Ingredients
+                .Select(i => i.Name)
+                .Distinct()
+                .OrderBy(name => name)
+                .ToListAsync();
+        }
+
+        public async Task LogFoodAsync(FoodLog item)
+        {
+    
+            if (item.UserId == null)
+                throw new UnauthorizedAccessException("User not logged in.");
+
+            var log = FoodLog.Create(
+                userId: item.UserId, 
+                foodName: item.FoodName,
+                calories: (int)item.NutritionalInfo.Calories,
+                proteins: item.NutritionalInfo.Proteins,
+                carbs: item.NutritionalInfo.Carbs,
+                fats: item.NutritionalInfo.Fats
+            );
+
+            _db.FoodLogs.Add(log);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<List<FoodLog>> GetLogsForDate(string userId, DateTime date)
+        {
+            return await _db.FoodLogs
+                .Where(f => f.UserId == userId && f.Timestamp.Date == date.Date)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetDailyGoalCalories(string userId)
+        {
+            var goal = await _db.Goals
+                .Where(g => g.UserId == userId)
+                .OrderByDescending(g => g.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            return (int)(goal?.NutritionalGoal.Calories ?? 2000);
+        }
+
+        //public async Task<List<DetectedIngredient>> DetectIngredientsFromImage(string base64)
+        //{
+        //    // Simulated detection (replace with real model call)
+        //    return new List<DetectedIngredient>
+        //    {
+        //new("Spinach", 20, 30, "/images/spinach.png"),
+        //new("Tomato", 70, 35, "/images/tomato.png"),
+        //new("Egg", 25, 60, "/images/egg.png"),
+        //new("Olive oil", 55, 75, "/images/oil.png")
+        //    };
+        //}
+
+
+        public async Task<NutritionalSummary> GetMacrosForIngredients(List<string> ingredientNames)
+        {
+            var matched = await _db.Ingredients
+                .Where(i => ingredientNames.Contains(i.Name))
+                .ToListAsync();
+
+            return new NutritionalSummary
+            {
+                TotalCalories = (int)matched.Sum(i => i.Nutrition.Calories),
+                Fats = matched.Sum(i => i.Nutrition.Fats),
+                Proteins = matched.Sum(i => i.Nutrition.Proteins),
+                Carbs = matched.Sum(i => i.Nutrition.Carbs),
+            };
+        }
+
+        public async Task<List<Ingredient>> GetIngredientDetails(List<string> names)
+        {
+            return await _db.Ingredients
+                .Where(i => names.Contains(i.Name))
+                .ToListAsync();
+        }
+
+        public async Task SaveFoodLogAsync(FoodLog log)
+        {
+            _db.FoodLogs.Add(log);
+            await _db.SaveChangesAsync();
+        }
+
+
+        public async Task SaveMealAsync(string mealName, string userId, List<DetectedIngredient> ingredients)
+        {
+            var meal = new Meal
+            {
+                MealId = Guid.NewGuid(),
+                Name = mealName,
+                UserId = userId,
+                CreatedAt = DateTime.UtcNow,
+                Ingredients = ingredients.Select(i => new MealIngredient
+                {
+                    MealIngredientId = Guid.NewGuid(),
+                    IngredientName = i.Name,
+                    QuantityGrams = i.QuantityGrams
+                }).ToList()
+            };
+
+            //_db.Meals.Add(meal);
+            //await _db.SaveChangesAsync();
+        }
+    }
+
+    public class FoodItem {
+        [Key]
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public int Calories { get; set; }
+        public decimal Fats { get; set; }
+        public decimal Protein { get; set; }
+        public decimal Carbs { get; set; }
+        public decimal Fibers { get; set; }
+
+    }
+
+}

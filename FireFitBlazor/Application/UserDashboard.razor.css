@@ -1,0 +1,385 @@
+﻿    .mobile-container {
+        max-width: 100%;
+        min-height: 100vh;
+        background-color: #FFFFFF;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        position: relative;
+        padding-bottom: 60px; /* Space for bottom nav */
+    }
+
+    .top-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        font-size: 1.2rem;
+        background-color: #FFFFFF;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+
+    .date-section {
+        padding: 0.5rem 1rem;
+    }
+
+    .month-label {
+        font-size: 1rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .circular-progress {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 1rem 0;
+        position: relative;
+    }
+
+    .progress-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .progress-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .progress-label {
+        font-size: 0.8rem;
+        color: #666;
+    }
+
+    .days-scroll {
+        display: flex;
+        overflow-x: auto;
+        gap: 1rem;
+        padding: 0.5rem 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .days-scroll::-webkit-scrollbar {
+        display: none;
+    }
+.date-section {
+    padding: 16px;
+    background: white;
+}
+
+.today-label {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 16px;
+}
+
+.days-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+}
+
+::deep .day-button {
+    background-color: #FF5722 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 8px 16px !important;
+    min-width: 60px !important;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+    ::deep .day-button:not(.active) {
+        background-color: #FFE5E0 !important;
+        color: #FF5722 !important;
+    }
+.summary-card {
+    filter: drop-shadow(1px 1px 10px #f1f1f1);
+    background-color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin: 1rem;
+}
+
+    .summary-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .title-section {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .fire-icon {
+        font-size: 1.2rem;
+    }
+
+    .details-link {
+        color: #FF9800;
+        font-size: 0.9rem;
+    }
+
+    .summary-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stats-section {
+        flex: 1;
+    }
+
+    .stats-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-label {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .stat-value {
+        font-weight: 500;
+    }
+
+        .stat-value.light {
+            color: #666;
+        }
+
+    .circular-progress {
+        margin-left: 1rem;
+    }
+
+    .progress-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .progress-value {
+        font-size: 1rem;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .progress-label {
+        font-size: 0.7rem;
+        color: #666;
+    }
+
+
+    .macro-grid {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .macro-item {
+        flex: 1;
+    }
+
+    .macro-label {
+        display: block;
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+    }
+
+    .macro-values {
+        display: block;
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.3rem;
+    }
+
+    ::deep .protein-progress .rz-progressbar {
+        background-color: #E8F5E9;
+    }
+
+    ::deep .protein-progress .rz-progressbar-value {
+        background-color: #4CAF50;
+    }
+
+    ::deep .fats-progress .rz-progressbar {
+        background-color: #E8F5E9;
+    }
+
+    ::deep .fats-progress .rz-progressbar-value {
+        background-color: #4CAF50;
+    }
+
+    ::deep .carbs-progress .rz-progressbar {
+        background-color: #E8F5E9;
+    }
+
+    ::deep .carbs-progress .rz-progressbar-value {
+        background-color: #4CAF50;
+    }
+
+    ::deep .rz-arc-gauge {
+        background-color: #E8F5E9;
+    }
+
+    ::deep .rz-arc-gauge-scale {
+        stroke: #E0E0E0;
+        stroke-width: 12;
+    }
+
+    ::deep .rz-arc-gauge-scale-value {
+        stroke: #4CAF50;
+        stroke-width: 12;
+    }
+
+    .details-link {
+        color: #FF9800;
+    }
+
+    .calorie-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+
+    .stat-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .progress-container {
+        position: relative;
+    }
+
+    .macros-section {
+        padding: 1rem;
+    }
+
+    .macro-item {
+        margin-bottom: 1rem;
+    }
+
+    .macro-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .protein-progress ::deep .rz-progressbar {
+        height: 8px;
+        background-color: #E0E0E0;
+    }
+
+    .protein-progress ::deep .rz-progressbar-value {
+        background-color: #4CAF50;
+    }
+
+    .fats-progress ::deep .rz-progressbar-value {
+        background-color: #FFA726;
+    }
+
+    .carbs-progress ::deep .rz-progressbar-value {
+        background-color: #42A5F5;
+    }
+
+    .meals-list {
+        padding: 1rem;
+    }
+
+.meal-item {
+    filter: drop-shadow(1px 1px 10px #f1f1f1);
+    background-color: white;
+    display: flex;
+    align-items: center;
+    padding: 2rem;    
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+    .meal-icon {
+        font-size: 1.5rem;
+        margin-right: 1rem;
+    }
+
+    .meal-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .meal-calories {
+        color: #666;
+        font-size: 0.9rem;
+    }
+
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-around;
+        background-color: #FFFFFF;
+        padding: 0.8rem;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+
+    .nav-item {
+        padding: 0.5rem;
+        color: #666;
+    }
+
+    .nav-item.active {
+        color: #4CAF50;
+    }
+
+    ::deep .rz-arc-gauge {
+        background-color: #E8F5E9;
+    }
+
+    ::deep .rz-arc-gauge-scale {
+        stroke: #E0E0E0;
+        stroke-width: 20;
+    }
+
+    ::deep .rz-arc-gauge-scale-value {
+        stroke: #4CAF50;
+        stroke-width: 20;
+    }
+
+    /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .stat-value {
+                font-size: 1.2rem;
+                font-weight: bold;
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+                color: #666;
+            }
+
+            .progress-label {
+                font-size: 0.8rem;
+                color: #666;
+            }
+        }

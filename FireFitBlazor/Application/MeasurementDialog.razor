@@ -1,0 +1,40 @@
+﻿@page "/measurement-dialog"
+@using FireFitBlazor.Domain.Models
+@using Radzen.Blazor
+@using Radzen
+
+           <div class="measurement-dialog">
+    <RadzenTemplateForm TItem="BodyMeasurement" Data="@Measurements" Submit="@SubmitMeasurement">
+                   <div class="form-group">
+
+            <RadzenNumeric TValue="decimal?" @bind-Value="Measurements.Weight" Placeholder="Weight (kg)" Class="w-100 mb-2" />
+            <RadzenNumeric TValue="decimal?" @bind-Value="Measurements.BodyFatPercentage" Placeholder="Body Fat %" Class="w-100 mb-2" />
+            <RadzenNumeric TValue="decimal?" @bind-Value="Measurements.Chest" Placeholder="Chest (cm)" Class="w-100 mb-2" />
+            <RadzenNumeric TValue="decimal?" @bind-Value="Measurements.Waist" Placeholder="Waist (cm)" Class="w-100 mb-2" />
+            <RadzenNumeric TValue="decimal?" @bind-Value="Measurements.Hips" Placeholder="Hips (cm)" Class="w-100 mb-2" />
+
+            <RadzenTextArea TValue="string" @bind-Value="Measurements.Notes" Placeholder="Notes" Class="w-100 mb-2" />
+                   </div>
+
+                   <div class="dialog-buttons">
+            <RadzenButton Text="Cancel" Click="@Cancel" ButtonStyle="Radzen.ButtonStyle.Light" Class="mr-2" />
+                       <RadzenButton Text="Save" ButtonType="Radzen.ButtonType.Submit" ButtonStyle="Radzen.ButtonStyle.Primary" />
+                   </div>
+               </RadzenTemplateForm>
+           </div>
+
+           @code {
+    [Inject] DialogService DialogService { get; set; }
+
+    private BodyMeasurement Measurements = new();
+
+    private void Cancel()
+    {
+        DialogService.Close();
+    }
+
+    private void SubmitMeasurement()
+    {
+        DialogService.Close(Measurements);
+    }
+}

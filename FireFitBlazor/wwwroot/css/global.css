@@ -1,0 +1,155 @@
+:root {
+    /* Primary Colors */
+    --primary-orange: #FF6B35;
+    --primary-orange-light: #FF8C5A;
+    --primary-orange-dark: #E55A24;
+    
+    /* Secondary Colors */
+    --secondary-orange: #FFA07A;
+    --secondary-orange-light: #FFB89A;
+    --secondary-orange-dark: #E58A5A;
+    
+    /* Accent Colors */
+    --accent-orange: #FFD166;
+    --accent-orange-light: #FFE0A3;
+    --accent-orange-dark: #E5B95C;
+    
+    /* Neutral Colors */
+    --white: #FFFFFF;
+    --off-white: #F8F9FA;
+    --light-gray: #E9ECEF;
+    --medium-gray: #DEE2E6;
+    --dark-gray: #6C757D;
+    --black: #212529;
+    
+    /* Text Colors */
+    --text-primary: var(--black);
+    --text-secondary: var(--dark-gray);
+    --text-light: var(--white);
+    
+    /* Background Colors */
+    --bg-primary: var(--white);
+    --bg-secondary: var(--off-white);
+    --bg-accent: var(--light-gray);
+    
+    /* Border Colors */
+    --border-color: var(--medium-gray);
+    
+    /* Shadow Colors */
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    
+    /* Success/Error Colors */
+    --success-color: #28A745;
+    --error-color: #DC3545;
+    --warning-color: #FFC107;
+    --info-color: #17A2B8;
+}
+
+/* Global Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    color: var(--text-primary);
+    background-color: var(--bg-secondary);
+}
+
+/* Card Styles */
+.card {
+    background-color: var(--bg-primary);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px var(--shadow-color);
+    border: none;
+}
+
+/* Button Styles */
+.btn-primary {
+    background-color: var(--primary-orange);
+    border-color: var(--primary-orange);
+    color: var(--white);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-orange-dark);
+    border-color: var(--primary-orange-dark);
+}
+
+.btn-secondary {
+    background-color: var(--secondary-orange);
+    border-color: var(--secondary-orange);
+    color: var(--white);
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-orange-dark);
+    border-color: var(--secondary-orange-dark);
+}
+
+/* Form Styles */
+.form-control {
+    border-color: var(--border-color);
+}
+
+.form-control:focus {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+}
+
+/* Link Styles */
+a {
+    color: var(--primary-orange);
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--primary-orange-dark);
+    text-decoration: underline;
+}
+
+/* Alert Styles */
+.alert-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    color: var(--white);
+}
+
+.alert-danger {
+    background-color: var(--error-color);
+    border-color: var(--error-color);
+    color: var(--white);
+}
+
+.alert-warning {
+    background-color: var(--warning-color);
+    border-color: var(--warning-color);
+    color: var(--black);
+}
+
+.alert-info {
+    background-color: var(--info-color);
+    border-color: var(--info-color);
+    color: var(--white);
+}
+
+/* Utility Classes */
+.text-primary {
+    color: var(--primary-orange) !important;
+}
+
+.text-secondary {
+    color: var(--secondary-orange) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-orange) !important;
+}
+
+.bg-secondary {
+    background-color: var(--secondary-orange) !important;
+}
+
+.border-primary {
+    border-color: var(--primary-orange) !important;
+}
+
+.border-secondary {
+    border-color: var(--secondary-orange) !important;
+} 

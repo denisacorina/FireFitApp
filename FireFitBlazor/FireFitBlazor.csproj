@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Infrastructure\Persistence\**" />
+    <Content Remove="Infrastructure\Persistence\**" />
+    <EmbeddedResource Remove="Infrastructure\Persistence\**" />
+    <None Remove="Infrastructure\Persistence\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Domain\Models\EmailSettings.cs" />
+    <Compile Remove="Domain\Services\EmailService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Domain\Contexts\GoalContexts\" />
+    <Folder Include="Domain\Contexts\ProgressContexts\UserProgress\" />
+    <Folder Include="NewFolder\" />
+    <Folder Include="Presentaton\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="CsvHelper" Version="33.0.1" />
+    <PackageReference Include="FuzzySharp" Version="2.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.4" />
+    <PackageReference Include="Microsoft.ML" Version="4.0.0" />
+    <PackageReference Include="Microsoft.ML.ImageAnalytics" Version="4.0.0" />
+    <PackageReference Include="Microsoft.ML.TorchSharp" Version="0.22.0" />
+    <PackageReference Include="Radzen.Blazor" Version="6.6.1" />
+    <PackageReference Include="System.Drawing.Common" Version="9.0.4" />
+    <PackageReference Include="TorchSharp-cuda-windows" Version="0.102.7" />
+	  <PackageReference Include="SciSharp.TensorFlow.Redist" Version="2.16.0" />
+	  <PackageReference Include="TensorFlow.NET" Version="0.150.0" />
+	  <PackageReference Include="TorchSharp-cuda-windows" Version="0.101.5" />
+  </ItemGroup>
+</Project>

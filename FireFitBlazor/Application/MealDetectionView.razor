@@ -1,0 +1,853 @@
+﻿@page "/meal-detect-demo"
+@using FireFitBlazor.Application.Components
+@using FireFitBlazor.Application.Services
+@using FireFitBlazor.Domain.ValueObjects;
+@inject IFoodLogService FoodLogService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+@inject IFoodLogService FoodLogService
+@inject NavigationManager Navigation
+@using FireFitBlazor.Domain.Models
+@using Microsoft.AspNetCore.Components.Web
+@using Radzen.Blazor
+@using Microsoft.JSInterop;
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+@inject ImageTransferService ImageTransferService
+@using FoodObjectDetection;
+@using Microsoft.ML.Data;
+@using System.Drawing
+@using System.Text.Json
+@using CsvHelper;
+@using System.Globalization;
+@using System.IO;
+@using System.Linq;
+@using CsvHelper.Configuration.Attributes;
+
+@if (isLoading)
+{
+    <LoadingPage />
+}
+else
+{
+    <div class="meal-detect-card">
+        <!-- Camera Upload -->
+        @* <div class="camera-upload">
+            <label class="upload-btn">
+                <span>Take Picture</span>
+                <InputFile OnChange="OnImageSelected" accept="image/*" capture="environment" style="display: none;" />
+            </label>
+        </div> *@
+
+        <!-- Meal Photo with Bounding Boxes -->
+        <div class="meal-photo-section">
+            <div class="meal-photo-wrapper">
+                <img src="@capturedImage" class="meal-photo" />
+                @foreach (var ingredient in detectedIngredients)
+                {
+                    // Center coordinates as percent
+                    var centerX = ingredient.X + ingredient.Width / 2;
+                    var centerY = ingredient.Y + ingredient.Height / 2;
+
+                    <div class="ingredient-icon-block" style="position: absolute; left:@centerX%; top:@centerY%; transform: translate(-50%, -50%);">
+                        <span>@ingredient.Name</span>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Meal Info Card -->
+        <div class="meal-info-section">
+            <h3>@MealName</h3>
+
+            <div class="macros-row">
+                @foreach (var m in Macros)
+                {
+                    <div class="macro">
+                        <span class="macro-value @(m.Label == "Calories" ? "calories" : "")">@m.Value</span>
+                        <span class="macro-label">@m.Label</span>
+
+                    </div>
+                }
+            </div>
+            <div class="ingredients-list">
+                <h4>Ingredients</h4>
+                <div class="ingredients-management">
+                    @foreach (var ingredient in detectedIngredients)
+                    {
+                        <div class="ingredient-item">
+                            <div class="ingredient-info">
+                                <span class="ingredient-name">@ingredient.Name</span>
+                                <div class="quantity-controls">
+                                    <RadzenButton Icon="remove" ButtonStyle="Radzen.ButtonStyle.Light" Click="@(() => AdjustQuantity(ingredient, -10))" />
+                                    <span class="quantity">@ingredient.QuantityGrams g</span>
+                                    <RadzenButton Icon="add" ButtonStyle="Radzen.ButtonStyle.Light" Click="@(() => AdjustQuantity(ingredient, 10))" />
+                                </div>
+                            </div>
+                            <RadzenButton Icon="delete" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@(() => RemoveIngredient(ingredient))" />
+                        </div>
+                    }
+                    <div class="add-ingredient">
+                        <RadzenTextBox @bind-Value="manualEntry" Placeholder="Add ingredient..." Style="width: 100%;" />
+                        <RadzenButton Text="Add" Click="AddManualIngredient" Style="width: 100%; margin-top: 0.5rem;" />
+                    </div>
+                </div>
+            </div>
+            
+            <div class="actions">
+                @*  <RadzenButton Text="Validate My Meal" Style="width: 100%; margin-top: 1rem;" Click="ValidateMeal" /> *@
+                <RadzenTextBox @bind-Value="mealName" Placeholder="Name this meal..." Style="width: 100%; margin-top: 1rem;" />
+                <RadzenButton Text="Save Meal" Style="width: 100%; margin-top: 0.5rem;" Click="SaveAsMeal" />
+            </div>
+        </div>
+    </div>
+}
+
+<FireFitBlazor.Components.Layout.BottomNav></FireFitBlazor.Components.Layout.BottomNav>
+
+@code {
+    [Inject] IHttpClientFactory Http { get; set; }
+    private string? capturedImage = null;
+    private List<DetectedIngredient> detectedIngredients = new();
+    private string MealName = "Nutritional Values";
+    private float TotalCalories = 0;
+    private float TotalProtein = 0;
+    private float TotalCarbs = 0;
+    private float TotalFats = 0;
+    private string manualEntry;
+    private List<string> allIngredients = new();
+    private string mealName = string.Empty;
+    private string PrepTime = "11-15 min";
+
+    [Inject]
+    public HttpClient HttpClient { get; set; } = default!;
+    private string? currentUserId;
+    private User? currentUser;
+
+
+    private string UserId; // Replace with real user logic
+
+    private IHttpContextAccessor _httpContextAccessor;
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+
+    private List<(string Label, string Value)> Macros = new();
+
+    private bool isLoading = true;
+
+    private List<CsvFoodRecord> foodDatabase;
+    private Dictionary<string, CsvFoodRecord> nameToFoodEntry;
+
+    private async Task OnImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        try
+        {
+            using var stream = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024) // 5 MB
+                   .CopyToAsync(stream);
+
+            var base64 = Convert.ToBase64String(stream.ToArray());
+            capturedImage = $"data:{file.ContentType};base64,{base64}";
+            Console.WriteLine("got here!");
+            await LoadDetectedIngredients(capturedImage);
+            Console.WriteLine("got here!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+
+    private bool shouldLoad = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && shouldLoad)
+        {
+            isLoading = true;
+            StateHasChanged();
+            await Task.Yield();
+
+            capturedImage = ImageTransferService.CapturedImage;
+            if (string.IsNullOrEmpty(capturedImage))
+            {
+                Navigation.NavigateTo("/add-food");
+                return;
+            }
+
+            // Start food detection
+            detectedIngredients = await LoadDetectedIngredients(capturedImage);
+
+            // Hide loading page after detection is complete
+            isLoading = false;
+            StateHasChanged();
+            await RecalculateMacros();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
+        if (!response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
+        if (currentUser == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        // Load food database from CSV
+        var csvPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "food.csv");
+        using var reader = new StreamReader(csvPath);
+        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+        foodDatabase = csv.GetRecords<CsvFoodRecord>().ToList();
+        nameToFoodEntry = foodDatabase.ToDictionary(
+            x => NormalizeName(x.Ingredient),
+            x => x,
+            StringComparer.OrdinalIgnoreCase
+        );
+
+        allIngredients = await FoodLogService.GetAllIngredientNames();
+    }
+
+    private async Task<List<DetectedIngredient>> LoadDetectedIngredients(string imageBase64)
+    {
+        // 1. Save base64 image to temp file
+        var tempFilePath = SaveBase64ToTempFileAndResize(imageBase64, 800, 600);
+
+        // 2. Create MLImage from file
+        var mlImage = MLImage.CreateFromFile(tempFilePath);
+
+        // 3. Prepare model input
+        var input = new ObjectDetection.ModelInput
+            {
+                Image = mlImage
+            };
+
+        // 4. Predict
+        var result = ObjectDetection.Predict(input);
+
+        // 5. Parse results
+        detectedIngredients = new List<DetectedIngredient>();
+        var labels = result.PredictedLabel;
+        var boxes = result.PredictedBoundingBoxes;
+
+        bool fallbackToApi = labels == null || labels.Length < 2;
+        if (labels == null || labels.Length < 2)
+        {
+            using var retryStream = new MemoryStream(File.ReadAllBytes(tempFilePath)); // Reload image
+
+            var (apiLabel, apiScore) = await CallFallbackPredictionAPI(retryStream);
+
+            if (!string.IsNullOrWhiteSpace(apiLabel) && apiScore > 0.25f &&
+                !detectedIngredients.Any(i => i.Name.Equals(apiLabel, StringComparison.OrdinalIgnoreCase)))
+            {
+                // Add fallback result as a generic ingredient (position defaults)
+                detectedIngredients.Add(new DetectedIngredient(
+                    apiLabel,
+                    50, 50, 10, 10,
+                    "/images/default.png"
+                ));
+            }
+        }
+        // If your boxes are [x, y, width, height, ...] for each label:
+        int boxStride = 4; // Change to 2 if your model outputs [x, y] only
+        if (labels != null)
+        {
+
+
+
+            for (int i = 0; i < labels.Length; i++)
+            {
+                int boxIndex = i * boxStride;
+                float x = boxes[boxIndex];
+                float y = boxes[boxIndex + 1];
+                float width = boxes[boxIndex + 2];
+                float height = boxes[boxIndex + 3];
+
+                // Convert to percent for CSS positioning (assuming image size is known)
+                float xPercent = x / mlImage.Width * 100f;
+                float yPercent = y / mlImage.Height * 100f;
+                float widthPercent = width / mlImage.Width * 100f;
+                float heightPercent = height / mlImage.Height * 100f;
+
+                detectedIngredients.Add(
+         new DetectedIngredient(
+             labels[i],              // name
+             xPercent,               // x
+             yPercent,               // y
+             widthPercent,           // width
+             heightPercent,          // height
+             "/images/default.png"   // iconUrl
+         )
+         );
+            }
+        }
+
+        // 6. Clean up temp file
+        File.Delete(tempFilePath);
+
+        // 7. Update macros, etc.
+        var names = detectedIngredients.Select(i => i.Name).ToList();
+        TotalCalories = 0;
+        TotalProtein = 0;
+        TotalFats = 0;
+        TotalCarbs = 0;
+
+        foreach (var ingredient in detectedIngredients)
+        {
+            ingredient.QuantityGrams = 100; // Default to 100g
+
+            if (nameToFoodEntry.TryGetValue(NormalizeName(ingredient.Name), out var match))
+            {
+                ingredient.Calories = float.TryParse(match.Calories, out var cal) ? cal : 0;
+                ingredient.Protein = float.TryParse(match.Protein, out var pro) ? pro : 0;
+                ingredient.Fat = float.TryParse(match.Fat, out var fat) ? fat : 0;
+                ingredient.Carbs = float.TryParse(match.Carbs, out var carb) ? carb : 0;
+
+                TotalCalories += (int)(ingredient.Calories);
+                TotalProtein += ingredient.Protein;
+                TotalFats += ingredient.Fat;
+                TotalCarbs += ingredient.Carbs;
+            }
+        }
+
+        Macros = new()
+        {
+            ("Calories", $"{TotalCalories}"),
+            ("Protein", $"{TotalProtein:F1}g"),
+            ("Fats", $"{TotalFats:F1}g"),
+            ("Carbs", $"{TotalCarbs:F1}g")
+        };
+        return detectedIngredients;
+    }
+
+    public static string SaveBase64ToTempFileAndResize(string base64, int width, int height)
+    {
+        var base64Data = base64.Substring(base64.IndexOf(',') + 1);
+        byte[] bytes = Convert.FromBase64String(base64Data);
+        using var ms = new MemoryStream(bytes);
+        using var original = new System.Drawing.Bitmap(ms);
+        using var resized = new System.Drawing.Bitmap(original, new System.Drawing.Size(width, height));
+        var tempPath = Path.GetTempFileName() + ".png";
+        resized.Save(tempPath, System.Drawing.Imaging.ImageFormat.Png);
+        return tempPath;
+    }
+
+    // private async Task ValidateMeal()
+    // {
+    //     var ingredientNames = detectedIngredients.Select(i => i.Name).ToList();
+    //     var baseData = await FoodLogService.GetIngredientDetails(ingredientNames);
+
+    //     foreach (var item in detectedIngredients)
+    //     {
+    //         var match = baseData.FirstOrDefault(x => x.Name == item.Name);
+    //         if (match == null) continue;
+
+    //         var ratio = item.QuantityGrams / 100f;
+
+    //         var log = FoodLog.Create(
+    //   userId: userId,
+    //   foodName: match.Name,
+    //   calories: (int)(match.Nutrition.Calories * ratio),
+    //   proteins: match.Nutrition.Proteins * ratio,
+    //   carbs: match.Nutrition.Carbs * ratio,
+    //   fats: match.Nutrition.Fats * ratio
+    //   );
+
+    //         await FoodLogService.SaveFoodLogAsync(log);
+    //     }
+
+    //     Navigation.NavigateTo("/daily-food-log");
+    // }
+
+    public async Task<(string predictedLabel, float score)> CallFallbackPredictionAPI(Stream imageStream)
+    {
+        using var client = new HttpClient();
+        using var content = new MultipartFormDataContent();
+
+        var streamContent = new StreamContent(imageStream);
+        streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/png");
+        content.Add(streamContent, "file", "image.png");
+        var http = Http.CreateClient("MLAPI");
+        var response = await http.PostAsync("http://192.168.100.87:6000/predict", content);
+        if (!response.IsSuccessStatusCode)
+        {
+            return ("", 0f);
+        }
+
+        var json = await response.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<PredictionResponse>(json, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+
+        return (result.PredictedLabel, result.Score);
+    }
+
+    public class PredictionResponse
+    {
+        public string PredictedLabel { get; set; }
+        public float Score { get; set; }
+    }
+
+    private async Task SaveAsMeal()
+    {
+        // if (string.IsNullOrWhiteSpace(mealName))
+        // {
+        //     await JS.InvokeVoidAsync("alert", "Please enter a name for your meal");
+        //     return;
+        // }
+
+        // if (!detectedIngredients.Any())
+        // {
+        //     await JS.InvokeVoidAsync("alert", "Please add at least one ingredient to your meal");
+        //     return;
+        // }
+
+        try
+        {
+
+
+          
+            var log = FoodLog.Create(
+         userId: currentUser.UserId,
+         foodName: mealName.Trim(),
+         calories: (int)(TotalCalories),
+         proteins: TotalProtein,
+         carbs: TotalCarbs,
+         fats: TotalFats
+     );
+
+            await FoodLogService.SaveFoodLogAsync(log);
+            // Clear the form
+            mealName = string.Empty;
+            detectedIngredients.Clear();
+
+            // Navigate to dashboard
+            Navigation.NavigateTo("/dashboard");
+        }
+        catch (Exception ex)
+        {
+            await JS.InvokeVoidAsync("alert", $"Error saving meal: {ex.Message}");
+        }
+    }
+
+    private async Task RemoveIngredient(DetectedIngredient ingredient)
+    {
+        detectedIngredients.Remove(ingredient);
+        await RecalculateMacros();
+    }
+
+    private async Task AddManualIngredient()
+    {
+        if (string.IsNullOrWhiteSpace(manualEntry)) return;
+
+        var normalizedName = NormalizeName(manualEntry.Trim());
+
+        // Try to find exact match first
+        if (!nameToFoodEntry.TryGetValue(normalizedName, out var foodEntry))
+        {
+            // Try partial match
+            foodEntry = foodDatabase.FirstOrDefault(x =>
+                NormalizeName(x.Ingredient).Contains(normalizedName) ||
+                normalizedName.Contains(NormalizeName(x.Ingredient))
+            );
+        }
+
+        if (foodEntry != null)
+        {
+            var ingredient = new DetectedIngredient(
+                foodEntry.Ingredient, // Use the original name from CSV
+                50, // default x position
+                50, // default y position
+                10, // default width
+                10, // default height
+                "/images/default.png"
+            )
+                {
+                    QuantityGrams = 100, // default quantity
+                    Calories = float.Parse(foodEntry.Calories),
+                    Protein = float.Parse(foodEntry.Protein),
+                    Fat = float.Parse(foodEntry.Fat),
+                    Carbs = float.Parse(foodEntry.Carbs)
+                };
+
+            detectedIngredients.Add(ingredient);
+            manualEntry = string.Empty;
+            await RecalculateMacros();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Ingredient not found in database. Please try a different name.");
+        }
+    }
+
+    private static string NormalizeName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+            return "";
+
+        return name
+            .ToLowerInvariant()
+            .Replace(",", " ")
+            .Replace("&", " and ")
+            .Replace("(", " ")
+            .Replace(")", " ")
+            .Replace("'", "")
+            .Replace(".", " ")
+            .Replace("/", " ")
+            .Replace("-", " ")
+            .Trim()
+            .Replace("  ", " "); // Collapse multiple spaces
+    }
+
+    private async Task RecalculateMacros()
+    {
+        TotalCalories = 0;
+        TotalProtein = 0;
+        TotalFats = 0;
+        TotalCarbs = 0;
+
+        var csvPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "food.csv");
+        var (foodData, nameToEntry) = LoadFoodEntries(csvPath);
+
+        foreach (var ingredient in detectedIngredients)
+        {
+            var normalized = NormalizeName(ingredient.Name);
+            FoodEntry match = null;
+
+            // Try exact match first
+            if (!nameToEntry.TryGetValue(normalized, out match))
+            {
+                // Fallback: try partial match
+                match = nameToEntry
+                    .FirstOrDefault(kvp => NormalizeName(kvp.Key).Contains(normalized))
+                    .Value;
+            }
+
+            if (match != null)
+            {
+                float ratio = ingredient.QuantityGrams / 100f;
+
+                ingredient.Calories = match.Calories;
+                ingredient.Protein = match.Protein;
+                ingredient.Fat = match.Fat;
+                ingredient.Carbs = match.Carbs;
+
+                TotalCalories += (int)(match.Calories * ratio);
+                TotalProtein += match.Protein * ratio;
+                TotalFats += match.Fat * ratio;
+                TotalCarbs += match.Carbs * ratio;
+            }
+        }
+
+        Macros = new()
+    {
+        ("Calories", $"{TotalCalories}"),
+        ("Protein", $"{TotalProtein:F1}g"),
+        ("Fats", $"{TotalFats:F1}g"),
+        ("Carbs", $"{TotalCarbs:F1}g"),
+    };
+    }
+
+
+    public static (List<FoodEntry> entries, Dictionary<string, FoodEntry> nameToEntry) LoadFoodEntries(string path)
+    {
+        using var reader = new StreamReader(path);
+        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+        var records = csv.GetRecords<CsvFoodRecord>().ToList();
+
+        var entries = new List<FoodEntry>();
+        var nameToEntry = new Dictionary<string, FoodEntry>();
+
+        foreach (var record in records)
+        {
+            string originalName = record.Ingredient;
+            //string normalized = NormalizeName(originalName);
+
+            bool parsedCalories = float.TryParse(record.Calories, out float calories);
+            bool parsedProtein = float.TryParse(record.Protein, out float protein);
+            bool parsedFat = float.TryParse(record.Fat, out float fat);
+            bool parsedCarbs = float.TryParse(record.Carbs, out float carbs);
+
+            if (parsedCalories && parsedProtein && parsedFat && parsedCarbs)
+            {
+                var entry = new FoodEntry
+                    {
+                        Name = originalName,
+                        Calories = calories,
+                        Protein = protein,
+                        Fat = fat,
+                        Carbs = carbs
+                    };
+
+                entries.Add(entry);
+                nameToEntry[originalName] = entry;
+            }
+        }
+
+        return (entries, nameToEntry);
+    }
+    public class CsvFoodRecord
+    {
+        [Name("Ingredient")]
+        public string Ingredient { get; set; }
+
+        [Name("Calories")]
+        public string Calories { get; set; }
+
+        [Name("Protein")]
+        public string Protein { get; set; }
+
+        [Name("Carbohydrates")]
+        public string Carbs { get; set; }
+
+        [Name("Fat")]
+        public string Fat { get; set; }
+    }
+
+    public class FoodEntry
+    {
+        public string Name { get; set; }
+        public float Calories { get; set; }
+        public float Protein { get; set; }
+        public float Fat { get; set; }
+        public float Carbs { get; set; }
+    }
+
+    private void AdjustQuantity(DetectedIngredient ingredient, int adjustment)
+    {
+        ingredient.QuantityGrams = Math.Max(0, ingredient.QuantityGrams + adjustment);
+        RecalculateMacros();
+    }
+}
+
+<style>
+    .meal-detect-card {
+        max-width: 420px;
+        margin: 2rem auto;
+        background: #fff;
+        border-radius: 28px;
+        box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+        overflow: hidden;
+        font-family: 'Inter', Arial, sans-serif;
+    }
+
+    .camera-upload {
+        padding: 1.2rem 1.5rem 0.5rem 1.5rem;
+        text-align: center;
+    }
+
+    .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: #7ED957;
+        color: #fff;
+        border-radius: 18px;
+        padding: 0.7em 2em;
+        font-size: 1.1em;
+        font-weight: 600;
+        margin-bottom: 1em;
+    }
+
+    .meal-photo-section {
+        background: #f7f7f7;
+        padding: 0;
+        border-top-left-radius: 28px;
+        border-top-right-radius: 28px;
+        position: relative;
+    }
+
+    .meal-photo-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+    }
+
+    .meal-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .bounding-box {
+        position: absolute;
+        border: 2px solid #7ED957;
+        border-radius: 10px;
+        pointer-events: none;
+        box-sizing: border-box;
+        z-index: 2;
+        min-width: 60px;
+        min-height: 30px;
+    }
+
+    .bounding-label {
+        position: absolute;
+        top: -1.8em;
+        left: 0;
+        background: #7ED957;
+        color: #fff;
+        font-size: 0.85em;
+        padding: 2px 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .meal-info-section {
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+    }
+
+    .meal-tags {
+        margin: 0.5rem 0 1rem 0;
+    }
+
+    .meal-tag {
+        display: inline-block;
+        background: #eafbe6;
+        color: #4caf50;
+        border-radius: 16px;
+        padding: 0.25em 1em;
+        font-size: 0.95em;
+        margin-right: 0.5em;
+        font-weight: 500;
+    }
+
+    .macros-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+        margin-top: 0.5rem;
+    }
+
+    .macro {
+        text-align: center;
+        flex: 1;
+    }
+
+    .macro-label {
+        display: block;
+        font-size: 0.85em;
+        color: #888;
+    }
+
+    .macro-value {
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #222;
+    }
+
+        .macro-value.calories {
+            color: #4caf50;
+        }
+
+    .ingredients-list {
+        margin-bottom: 1.2rem;
+    }
+
+    .ingredient-icons {
+        display: flex;
+        gap: 1.5em;
+        margin-top: 0.5em;
+    }
+
+    .ingredient-icon-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(255,255,255,0.92);
+        border-radius: 12px;
+        padding: 0.2em 0.7em;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        font-size: 0.95em;
+        color: #444;
+        pointer-events: none; /* so it doesn't block the image */
+        z-index: 3;
+    }
+
+    .ingredient-icon {
+        width: 28px;
+        height: 28px;
+        margin-bottom: 0.2em;
+        border-radius: 8px;
+        object-fit: contain;
+        background: #f7f7f7;
+    }
+
+    .prep-time {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1em;
+        color: #888;
+        margin-top: 1.2em;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 0.8em;
+    }
+
+    .prep-value {
+        color: #222;
+        font-weight: 600;
+    }
+
+    .ingredients-management {
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+
+    .ingredient-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem;
+        background: #f8f8f8;
+        border-radius: 12px;
+    }
+
+    .ingredient-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .ingredient-name {
+        font-weight: 500;
+        color: #333;
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .quantity {
+        min-width: 60px;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .add-ingredient {
+        margin-top: 1rem;
+        padding: 0.8rem;
+        background: #f8f8f8;
+        border-radius: 12px;
+    }
+</style>

@@ -1,0 +1,49 @@
+﻿<nav class="bottom-nav">
+    <NavLink href="/dashboard" class="nav-button" Match="NavLinkMatch.All">
+        <i class="bi bi-house-door-fill"></i>
+        <span>Home</span>
+    </NavLink> 
+    <NavLink href="/recipe-chat" class="nav-button">
+        <i class="bi bi-card-checklist"></i>
+        <span>Get Recipe</span>
+    </NavLink>
+    <NavLink href="/add-food" class="nav-button">
+        <i class="bi bi-egg-fried"></i>
+        <span>Log Food</span>
+    </NavLink>
+   
+</nav>
+
+<style>
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 60px;
+        background: #fff;
+        border-top: 1px solid #ccc;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        z-index: 999;
+    }
+
+    .nav-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        color: #444;
+        font-size: 0.75rem;
+    }
+
+        .nav-button i {
+            font-size: 1.2rem;
+        }
+
+        .nav-button.active {
+            color: #ff5722;
+        }
+</style>

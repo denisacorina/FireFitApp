@@ -1,0 +1,77 @@
+﻿@page "/ingredient-details/{Name}"
+@inject IFoodLogService FoodLogService
+@inject NavigationManager Navigation
+@using FireFitBlazor.Domain.Models
+@using Microsoft.AspNetCore.Components.Web
+@using Radzen.Blazor
+@using Microsoft.JSInterop;
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+
+<h2>@ingredient?.Name</h2>
+@if (ingredient != null)
+{
+    <div class="ingredient-macros">
+        <div><b>Protein:</b> @ingredient.Nutrition.Proteins g</div>
+        <div><b>Fats:</b> @ingredient.Nutrition.Fats g</div>
+        <div><b>Carbs:</b> @ingredient.Nutrition.Carbs g</div>
+        <div><b>Calories:</b> @ingredient.Nutrition.Calories</div>
+    </div>
+    <div>
+        <label>Quantity (g):</label>
+        <input type="number" min="1" max="1000" @bind="quantity" />
+    </div>
+    <button @onclick="LogIngredient">Log Ingredient</button>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    [Parameter] public string Name { get; set; }
+    private Ingredient ingredient;
+    private decimal quantity = 100;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var details = await FoodLogService.GetIngredientDetails(new List<string> { Name });
+        ingredient = details.FirstOrDefault();
+    }
+
+    private async Task LogIngredient()
+    {
+        // Implement your logging logic here
+        // e.g., call FoodLogService.SaveFoodLogAsync(...)
+        Navigation.NavigateTo("/daily-food-log");
+    }
+}
+<style>
+    .ingredient-macros {
+        margin: 1.5em 0;
+        font-size: 1.1em;
+        background: #fff7f0;
+        border-radius: 12px;
+        padding: 1em;
+    }
+
+    input[type="number"] {
+        width: 80px;
+        padding: 0.5em;
+        border-radius: 8px;
+        border: 1.5px solid #ffe0b2;
+        margin-left: 1em;
+    }
+
+    button {
+        margin-top: 1.5em;
+        background: #ff5722;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 0.8em 2em;
+        font-size: 1.1em;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>

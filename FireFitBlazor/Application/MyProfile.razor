@@ -1,0 +1,391 @@
+﻿@page "/my-profile"
+@using FireFitBlazor.Application.Services
+@using FireFitBlazor.Components.Layout
+@using FireFitBlazor.Domain.ContextInterfaces
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Domain.Enums
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject IUserProgressContext UserProgressContext
+@inject IPhotoUploadService PhotoUploadService
+@inject IUserPreferencesContext UserPreferencesContext
+@inject IFoodLogService FoodLogService
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using FireFitBlazor.Domain.Interfaces
+@using Microsoft.AspNetCore.Identity
+@using Radzen.Blazor
+@using Radzen
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Security.Claims;
+@inject ICurrentUserService CurrentUserService
+
+
+<div class="profile-container">
+    @if (currentUser == null)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="Basic Info">
+                    <div class="profile-section">
+                        <div class="profile-header">
+                            <div class="profile-picture">
+                                @if (!string.IsNullOrEmpty(currentUser.ProfilePicturePath))
+                                {
+                                    <RadzenImage Path="@currentUser.ProfilePicturePath" Style="width: 150px; height: 150px; border-radius: 50%;" />
+                                }
+                                else
+                                {
+                                    <RadzenIcon Icon="account_circle" Style="width: 150px; height: 150px;" />
+                                }
+                                <InputFile OnChange="OnProfilePhotoSelected" accept="image/*" class="mt-2" />
+                            </div>
+                            <div class="profile-info">
+                                <RadzenTextBox @bind-Value="currentUser.Name" Placeholder="Name" Class="w-100 mb-2" />
+                                <RadzenNumeric @bind-Value="currentUser.Age" Placeholder="Age" Class="w-100 mb-2" />
+                                <RadzenNumeric @bind-Value="currentUser.Height" Placeholder="Height (cm)" Class="w-100 mb-2" />
+                                <RadzenDropDown Data="@WeightGoalOptions"
+                                                @bind-Value="currentUser.WeightGoal"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                Class="w-100 mb-2" />
+
+                                                  <RadzenDropDown Data="@ActivityLevels"
+                                                @bind-Value="currentUser.ActivityLevel"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                Class="w-100 mb-2" />
+                                <RadzenDropDown Data="@ExperienceLevels"
+                                                @bind-Value="currentUser.FitnessExperience"
+                                                TextProperty="Text"
+                                                ValueProperty="Value"
+                                                Class="w-100 mb-2" />
+
+                                <!-- Dietary Preferences -->
+                                <RadzenCheckBoxList @bind-Value="selectedDietaryPreferences"
+                                                    Data="@(Enum.GetValues<DietaryPreference>()
+                        .Cast<DietaryPreference>()
+                        .Select(d => new KeyValuePair<string, DietaryPreference>(d.ToString(), d)))"
+                                                    TValue="DietaryPreference"
+                                                    TextProperty="Key"
+                                                    ValueProperty="Value"
+                                                    Name="DietaryPreferences"
+                                                    Style="width: 100%" />
+
+                                <!-- Workout Preferences -->
+                                <RadzenCheckBoxList @bind-Value="selectedWorkoutTypes"
+                                                    Data="@(Enum.GetValues<WorkoutType>().Cast<WorkoutType>().Select(w => new { Text = w.ToString(), Value = w }))"
+                                                    TValue="WorkoutType"
+                                                    TextProperty="Text"
+                                                    ValueProperty="Value"
+                                                    Name="WorkoutPreferences"
+                                                    Style="width: 100%" />
+                            </div>
+                        </div>
+                    </div>
+                </RadzenTabsItem>
+
+                <RadzenTabsItem Text="Today's Progress">
+                    <div class="profile-section">
+                        <div class="measurements">
+                            <h4>Today's Food Log</h4>
+                            <div class="meal-sections">
+                                @foreach (var mealType in Enum.GetValues<MealType>())
+                                {
+                                    <div class="meal-section">
+                                        <h5>@mealType</h5>
+                                        <RadzenDataGrid Data="@GetMealsForType(mealType)"
+                                                      TItem="FoodLog"
+                                                      AllowPaging="true"
+                                                      PageSize="5">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="FoodName" Title="Food" />
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="Calories" Title="Calories" />
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="Proteins" Title="Protein" />
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="Carbs" Title="Carbs" />
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="Fats" Title="Fats" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                        <RadzenButton Text="Add Food" Click="@(() => NavigateToAddFood(mealType))" 
+                                                    ButtonStyle="ButtonStyle.Primary" Class="mt-2" />
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+
+        <div class="profile-actions">
+            <RadzenButton Text="Save Changes" Click="@SaveChanges" 
+                         ButtonStyle="ButtonStyle.Primary" Class="w-100 mb-2" />
+        </div>
+    }
+</div>
+<BottomNav />
+<style>
+    .profile-container {
+        padding: 1rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .profile-section {
+        padding: 1rem;
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 1rem;
+    }
+
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .profile-picture {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .profile-info {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .meal-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .meal-section {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .meal-section h5 {
+        margin-bottom: 1rem;
+        color: #333;
+    }
+
+    /* Mobile Responsive Styles */
+    @@media (max-width: 768px) {
+        .profile-container {
+            padding: 0.5rem;
+        }
+
+        .profile-section {
+            padding: 0.5rem;
+        }
+    }
+
+   @@media (min-width: 768px) {
+        .profile-header {
+            flex-direction: row;
+            justify-content: space-around;
+        }
+    }
+</style>
+
+@code {
+    [Inject]
+    public HttpClient Http { get; set; } = default!;
+    private string? currentUserId;
+    private User? currentUser;
+    private UserProgress? userProgress;
+    private IEnumerable<DietaryPreference> selectedDietaryPreferences = new List<DietaryPreference>();
+    private IEnumerable<WorkoutType> selectedWorkoutTypes = new List<WorkoutType>();
+    private IEnumerable<Gender> Genders => Enum.GetValues<Gender>();
+    private IEnumerable<WeightChangeType> WeightGoals => Enum.GetValues<WeightChangeType>();
+    private List<FoodLog> todayFoodLogs = new();
+
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+
+    private IEnumerable<DietaryPreference> DietaryPreferences => Enum.GetValues<DietaryPreference>();
+    private IEnumerable<WorkoutType> WorkoutTypes => Enum.GetValues<WorkoutType>(); 
+
+      private IEnumerable<object> ActivityLevels => Enum
+    .GetValues<ActivityLevel>()
+    .Cast<ActivityLevel>()
+    .Select(w => new { Text = w.ToString(), Value = w });
+    
+    private IEnumerable<object> WeightGoalOptions => Enum
+    .GetValues<WeightChangeType>()
+    .Cast<WeightChangeType>()
+    .Select(w => new { Text = w.ToString(), Value = w });
+    private IEnumerable<object> ExperienceLevels => Enum
+       .GetValues<ExperienceLevel>()
+       .Cast<ExperienceLevel>()
+       .Select(w => new { Text = w.ToString(), Value = w });
+
+    private bool isLoading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
+        if (!response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        // Load user and their progress
+        userProgress = await UserProgressContext.GetUserProgressAsync(currentUser.UserId);
+
+        // Load preferences
+        selectedDietaryPreferences = currentUser.DietaryPreferences;
+        selectedWorkoutTypes = currentUser.WorkoutPreferences
+            .Select(wp => wp.Type)
+            .ToList();
+
+        // Load today's food logs
+        todayFoodLogs = await FoodLogService.GetLogsForDate(currentUser.UserId, DateTime.Today);
+
+        if (userProgress == null)
+        {
+            userProgress = UserProgress.Create(
+                currentUser.UserId,
+                currentUser.CurrentWeight,
+                currentUser.CurrentWeight
+            );
+        }
+    }
+
+    private IEnumerable<FoodLog> GetMealsForType(MealType mealType)
+    {
+        return todayFoodLogs.Where(f => f.MealType == mealType);
+    }
+
+    private void NavigateToAddFood(MealType mealType)
+    {
+        NavigationManager.NavigateTo($"/meal-detect-demo?mealType={mealType}");
+    }
+
+    private async Task OnProfilePhotoSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            if (file != null)
+            {
+                var photoPath = await PhotoUploadService.UploadFileAsync(currentUser.UserId, file);
+                currentUser.ProfilePicturePath = photoPath;
+
+                NotificationService.Notify(
+                    NotificationSeverity.Success,
+                    "Success",
+                    "Profile picture updated!"
+                );
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(
+                NotificationSeverity.Error,
+                "Error",
+                "Failed to upload profile photo."
+            );
+        }
+    }
+
+    private async Task OnDietaryPreferencesChange(IEnumerable<DietaryPreference> values)
+    {
+        selectedDietaryPreferences = values.ToList();
+        currentUser.DietaryPreferences = (List<DietaryPreference>)selectedDietaryPreferences;
+        await UserPreferencesContext.UpdateDietaryPreferencesAsync(currentUser.UserId, selectedDietaryPreferences);
+        NotificationService.Notify(NotificationSeverity.Success, "Success", "Dietary preferences updated!");
+    }
+
+    private async Task OnWorkoutPreferencesChange(IEnumerable<WorkoutType> values)
+    {
+        selectedWorkoutTypes = values.ToList();
+        var workoutPreferences = selectedWorkoutTypes.Select(type =>
+            WorkoutPreference.Create(currentUser.UserId, type, DayOfWeek.Monday, TimeSpan.FromHours(9), 60, 5)
+        ).ToList();
+
+        currentUser.WorkoutPreferences = workoutPreferences;
+        await UserPreferencesContext.UpdateWorkoutPreferencesAsync(currentUser.UserId, workoutPreferences);
+        NotificationService.Notify(NotificationSeverity.Success, "Success", "Workout preferences updated!");
+    }
+
+    private async Task SaveChanges()
+    {
+        try
+        {
+            isLoading = true;
+
+            // Update progress if weight changed
+            if (userProgress.CurrentWeight != currentUser.CurrentWeight)
+            {
+                userProgress.UpdateWeight(currentUser.CurrentWeight);
+            }
+
+            // Update preferences
+            await UserPreferencesContext.UpdateDietaryPreferencesAsync(
+                currentUser.UserId,
+                selectedDietaryPreferences
+            );
+
+            await UserPreferencesContext.UpdateWorkoutPreferencesAsync(
+                currentUser.UserId,
+                currentUser.WorkoutPreferences
+            );
+
+            NotificationService.Notify(
+                NotificationSeverity.Success,
+                "Success",
+                "Profile updated successfully!"
+            );
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(
+                NotificationSeverity.Error,
+                "Error",
+                "Failed to update profile."
+            );
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    // Helper method to show loading state
+    private void ShowLoading(string message = "Loading...")
+    {
+        isLoading = true;
+        StateHasChanged();
+    }
+
+    // Helper method to hide loading state
+    private void HideLoading()
+    {
+        isLoading = false;
+        StateHasChanged();
+    }
+}

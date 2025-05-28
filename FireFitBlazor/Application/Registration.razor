@@ -1,0 +1,161 @@
+﻿@page "/register"
+@using Radzen
+@using Radzen.Blazor
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+@inherits UserRegistration
+
+
+
+<RadzenTemplateForm TItem="UserRegistrationModel" Data="@FormModel" Submit="@CreateUser" Style="width: 100%">
+
+    @if (CurrentStep == 1)
+    {
+        <!-- Step 1: Email, Password, Name -->
+        <div class="form-step">
+            <div class="form-group">
+                <RadzenTextBox @bind-Value="FormModel.Email" Name="Email" Placeholder="Email" Style="width: 100%" />
+                <RadzenRequiredValidator Component="Email" Text="Email is required" />
+            </div>
+
+            <div class="form-group">
+                <RadzenPassword @bind-Value="FormModel.Password" Name="Password" Placeholder="Password" Style="width: 100%" />
+                <RadzenRequiredValidator Component="Password" Text="Password is required" />
+            </div>
+
+            <div class="form-group">
+                <RadzenTextBox @bind-Value="FormModel.Name" Name="Name" Placeholder="Name" Style="width: 100%" />
+                <RadzenRequiredValidator Component="Name" Text="Name is required" />
+            </div>
+
+            <div class="form-group">
+                <RadzenDropDown id="gender"
+                                Data="@Genders"
+                                TextProperty="Key"
+                                ValueProperty="Value"
+                                @bind-Value="FormModel.Gender"
+                                Placeholder="Select Gender"
+                                Style="width: 100%;"
+                                Change="OnGenderChange" />
+                <RadzenRequiredValidator Component="Gender" Text="Gender is required" />
+            </div>
+
+            <div class="form-group">
+                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 100%" Click="NextStep" />
+            </div>
+        </div>
+    }
+
+    @if (CurrentStep == 2)
+    {
+        <!-- Step 2: Age, Weight, Goal Weight, Height -->
+        <div class="form-step">
+            <div class="form-group">
+                <RadzenNumeric @bind-Value="FormModel.Age" Name="Age" Placeholder="Age" Style="width: 100%" />
+                <RadzenRequiredValidator Component="Age" Text="Age is required" />
+            </div>
+
+            <div class="form-group">
+                <RadzenNumeric @bind-Value="FormModel.CurrentWeight" Name="CurrentWeight" Placeholder="Current Weight (kg)" Style="width: 100%" />
+                <RadzenRequiredValidator Component="CurrentWeight" Text="Current weight is required" />
+            </div>
+
+            <div class="form-group">
+                <RadzenNumeric @bind-Value="FormModel.TargetWeight" Name="TargetWeight" Placeholder="Target Weight (kg)" Style="width: 100%" />
+                <RadzenRequiredValidator Component="TargetWeight" Text="Target weight is required" />
+            </div>
+
+            <div class="form-group">
+                <RadzenNumeric @bind-Value="FormModel.Height" Name="Height" Placeholder="Height (cm)" Style="width: 100%" />
+                <RadzenRequiredValidator Component="Height" Text="Height is required" />
+            </div>
+            
+            <div class="form-group">
+
+
+                <RadzenDropDown id="activityLevel"
+                                Data="@ActivityLevels"
+                                TextProperty="Key"
+                                ValueProperty="Value"
+                                @bind-Value="FormModel.ActivityLevel"
+                                Placeholder="Select Activity Level"
+                                Style="width: 100%;"
+                                Change="OnActivityLevelChange" />
+
+            </div>
+
+            <div class="form-group">
+                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
+                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
+            </div>
+        </div>
+    }
+
+    @if (CurrentStep == 3)
+    {
+        <!-- Step 3: Dietary Preferences -->
+        <div class="form-step">
+            <div class="form-group">
+                @foreach (var pref in Enum.GetValues<DietaryPreference>().Cast<DietaryPreference>())
+                {
+                    <div>
+                        <RadzenCheckBox TValue="bool"
+                                        TriState="false"
+                                        Value="@FormModel.SelectedDietary.Contains(pref)"
+                                        Change="@((bool value) => OnDietaryPreferenceChanged(pref, value))" />
+                        <label>@pref.ToString()</label>
+
+                    </div>
+                }
+
+            </div>
+
+            <div class="form-group">
+                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
+                <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" />
+            </div>
+        </div>
+    }
+
+</RadzenTemplateForm>
+<style>
+
+    /* General Styles for the Form */
+    .form-step {
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    /* Ensure the inputs take full width on mobile devices */
+    @@media only screen and (max-width: 768px) {
+        .form-group {
+            width: 100%;
+        }
+
+        .radzen-button {
+            width: 100% !important;
+            margin-bottom: 10px;
+        }
+
+        .radzen-input, .radzen-numeric, .radzen-textbox {
+            width: 100% !important;
+        }
+
+        .form-step {
+            padding: 10px;
+        }
+        /* Ensure buttons stack vertically on mobile */
+        .form-group .radzen-button {
+            width: 100% !important;
+            margin-bottom: 15px;
+        }
+        /* Adjust spacing between form groups */
+        .form-group {
+            margin-bottom: 20px;
+        }
+    }
+</style>

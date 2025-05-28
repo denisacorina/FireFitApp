@@ -1,0 +1,110 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <article class="content">
+            @Body
+        </article>
+    </main>
+
+    <AuthorizeView>
+        <Authorized>
+            <BottomNav />
+        </Authorized>
+    </AuthorizeView>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+
+<style>
+    .page {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        padding-bottom: 60px; /* Add padding for bottom nav */
+    }
+
+    main {
+        flex: 1;
+    }
+
+    .sidebar {
+        background-color: white !important;
+    }
+
+    main, .content, .page {
+        padding-bottom: 70px; /* or more if needed */
+    }
+    .top-row {
+        justify-content: flex-end;
+        height: 3.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    .top-row ::deep a, .top-row ::deep .btn-link {
+        white-space: nowrap;
+        margin-left: 1.5rem;
+        text-decoration: none;
+    }
+
+    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
+        text-decoration: underline;
+    }
+
+    .top-row ::deep a:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    @@media (max-width: 640.98px) {
+        .top-row {
+            justify-content: space-between;
+        }
+
+        .top-row ::deep a, .top-row ::deep .btn-link {
+            margin-left: 0;
+        }
+    }
+
+    @@media (min-width: 641px) {
+        .page {
+            flex-direction: row;
+        }
+
+        .sidebar {
+            width: 250px;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+        }
+
+        .top-row {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .top-row.auth ::deep a:first-child {
+            flex: 1;
+            text-align: right;
+            width: 0;
+        }
+
+    /*     .top-row, article {
+            padding-left: 2rem !important;
+            padding-right: 1.5rem !important;
+        } */
+    }
+</style>

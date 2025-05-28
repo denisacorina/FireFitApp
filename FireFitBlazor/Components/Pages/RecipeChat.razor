@@ -1,0 +1,297 @@
+@page "/recipe-chat"
+@using Newtonsoft.Json
+@using RecipeRecommendation
+@using FireFitBlazor.Application.Services
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Domain.ContextInterfaces
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@using Radzen
+@using Radzen.Blazor
+@using Microsoft.AspNetCore.Components.Web
+@inject RecipeGeneratorService RecipeService
+@inject ICurrentUserService CurrentUserService
+@inject IUserPreferencesContext UserPreferencesContext
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject IJSRuntime JS
+@rendermode RenderMode.InteractiveServer
+
+<PageTitle>Recipe Chat</PageTitle>
+
+<RadzenStack Orientation="Orientation.Vertical" Gap="1rem" Class="recipe-chat-container">
+    <RadzenCard Class="chat-card">
+        <RadzenStack Orientation="Orientation.Vertical" Gap="1rem" Class="chat-messages" @ref="chatContainer">
+            @foreach (var message in chatMessages)
+            {
+                <RadzenStack Orientation="Orientation.Vertical" 
+                Class="@($"message-wrapper {(message.IsUser ? "user-message-wrapper" : "bot-message-wrapper")}")">
+                    <RadzenCard Class="@($"message {(message.IsUser ? "user-message" : "bot-message")}")">
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            @message.Content
+                        </RadzenText>
+                    </RadzenCard>
+                </RadzenStack>
+            }
+        </RadzenStack>
+    </RadzenCard>
+
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem" Class="chat-input">
+        <RadzenTextBox @bind-Value="userInput" 
+        Placeholder="Ask for a recipe or make changes..."
+        Class="chat-textbox"
+        @onkeyup="HandleKeyPress" />
+        <RadzenButton Text="Send" 
+        ButtonStyle="ButtonStyle.Primary"
+        Icon="send"
+        Click="SendMessage" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    private string userInput = "";
+    private List<ChatMessage> chatMessages = new();
+    private RadzenStack chatContainer;
+    private RecipeGeneratorService.UpdatedRecipeResultJson currentRecipe;
+    private bool isFirstInteraction = true;
+    private bool isSelectingPreference = false;
+    private List<DietaryPreference> userDietaryPreferences = new();
+    private User? currentUser;
+    private RecipeJson originalRecipe;
+
+    private class ChatMessage
+    {
+        public string Content { get; set; }
+        public bool IsUser { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // currentUser = await CurrentUserService.GetUserAsync();
+        // if (currentUser != null)
+        // {
+        //     userDietaryPreferences = currentUser.DietaryPreferences;
+        // }
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (userDietaryPreferences.Count > 1)
+            {
+                isSelectingPreference = true;
+                AddBotMessage("👋 Hi! I see you have multiple dietary preferences set. Which one would you like to use for this recipe?\n\n" +
+                            string.Join("\n", userDietaryPreferences.Select(p => $"- {p}")));
+            }
+            else if (userDietaryPreferences.Count == 1)
+            {
+                AddBotMessage($"👋 Hi! I see you prefer {userDietaryPreferences[0]} recipes. Would you like me to find a recipe for you?");
+            }
+            else
+            {
+                AddBotMessage("👋 Hi! I can help you find recipes. Would you like a normal, vegan, vegetarian, or lactose-free recipe?");
+            }
+        }
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrWhiteSpace(userInput)) return;
+
+        // Add user message
+        AddUserMessage(userInput);
+
+        if (isSelectingPreference)
+        {
+            // Handle preference selection
+            if (Enum.TryParse<DietaryPreference>(userInput, true, out var selectedPreference) &&
+                userDietaryPreferences.Contains(selectedPreference))
+            {
+                isSelectingPreference = false;
+                AddBotMessage($"Great! I'll find a {selectedPreference} recipe for you. What kind of recipe would you like?");
+            }
+            else
+            {
+                AddBotMessage("Please select one of your dietary preferences from the list above.");
+            }
+        }
+        else if (isFirstInteraction)
+        {
+            // Handle initial recipe request
+            var recipes = await LoadRecipes();
+            var recipe = RecipeService.HandleUserRequest(userInput, recipes);
+
+            if (recipe != null)
+            {
+                originalRecipe = recipe;
+                //currentRecipe = RecipeService.GenerateUpdatedRecipe(userInput, originalRecipe);
+
+                AddBotMessage($"Here's a recipe for {originalRecipe.Name}:\n\n" +
+                    $"Ingredients:\n" +
+                    string.Join("\n", originalRecipe.Ingredients.Select(i => $"- {i.Quantity} {i.Unit} {i.Ingredient}")) +
+                    $"\n\nNutrition per serving:\n" +
+                    $"Calories: {originalRecipe.TotalNutrition.Calories:F0} kcal\n" +
+                    $"Protein: {originalRecipe.TotalNutrition.Protein:F1}g\n" +
+                    $"Carbs: {originalRecipe.TotalNutrition.Carbs:F1}g\n" +
+                    $"Fat: {originalRecipe.TotalNutrition.Fat:F1}g\n\n" +
+                    $"Would you like to make any changes to this recipe?");
+
+                isFirstInteraction = false;
+            }
+            else
+            {
+                AddBotMessage("I couldn't find a suitable recipe. Could you please try again with different preferences?");
+            }
+        }
+        else
+        {
+            // Handle recipe modifications
+            if (originalRecipe != null)
+            {
+                var updatedRecipe = RecipeService.GenerateUpdatedRecipe(userInput, originalRecipe);
+                if (updatedRecipe != null)
+                {
+                    currentRecipe = updatedRecipe;
+                    // currentRecipe.Calories = updatedRecipe.Calories;
+                    AddBotMessage($"Here's your updated recipe:\n\n" +
+                        $"Ingredients:\n" +
+                        string.Join("\n", currentRecipe.Ingredients.Select(i => $"- {i.Quantity} {i.Unit} {i.Ingredient}")) +
+                        $"\n\nUpdated nutrition per serving:\n" +
+                        $"Calories: {currentRecipe.Calories:F0} kcal\n" +
+                        $"Protein: {currentRecipe.Protein:F1}g\n" +
+                        $"Carbs: {currentRecipe.Carbs:F1}g\n" +
+                        $"Fat: {currentRecipe.Fat:F1}g\n\n" +
+                        $"Would you like to make any other changes?");
+                }
+                else
+                {
+                    AddBotMessage("I couldn't understand the changes you wanted to make. Could you please try again?");
+                }
+            }
+        }
+
+        userInput = "";
+        //await ScrollToBottom();
+    }
+
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SendMessage();
+        }
+    }
+
+    private void AddUserMessage(string message)
+    {
+        chatMessages.Add(new ChatMessage { Content = message, IsUser = true });
+        StateHasChanged();
+    }
+
+    private void AddBotMessage(string message)
+    {
+        chatMessages.Add(new ChatMessage { Content = message, IsUser = false });
+        StateHasChanged();
+    }
+
+    // private async Task ScrollToBottom()
+    // {
+    //     await Task.Delay(100); // Wait for render
+    //     await JS.InvokeVoidAsync("recipeChat.scrollToBottom", chatContainer);
+    // }
+
+    private async Task<List<RecipeJson>> LoadRecipes()
+    {
+        // Load recipes from your JSON file
+        var json = await File.ReadAllTextAsync("C:\\Users\\DENI\\Downloads\\updated_recipes_with_nutrition_v2.json");
+        return JsonConvert.DeserializeObject<List<RecipeJson>>(json);
+    }
+}
+
+<style>
+    .recipe-chat-container {
+        max-width: 800px;
+        margin: 1rem auto;
+        padding: 0.5rem;
+        height: calc(100vh - 2rem);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-card {
+        flex: 1;
+        overflow: hidden;
+        margin: 0 !important;
+    }
+
+    .chat-messages {
+        height: 100%;
+        overflow-y: auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .message-wrapper {
+        display: flex;
+        width: 100%;
+    }
+
+    .user-message-wrapper {
+        justify-content: flex-end;
+    }
+
+    .bot-message-wrapper {
+        justify-content: flex-start;
+    }
+
+    .message {
+        max-width: 85%;
+        padding: 0.8rem !important;
+        margin: 0 !important;
+        white-space: pre-line;
+    }
+
+    .user-message {
+        background: var(--rz-primary) !important;
+        color: white !important;
+    }
+
+    .bot-message {
+        background: var(--rz-surface-card) !important;
+        color: var(--rz-text-color) !important;
+    }
+
+    .chat-input {
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        background: var(--rz-surface-card);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .chat-textbox {
+        flex: 1;
+    }
+
+    @@media (max-width: 600px) {
+        .recipe-chat-container {
+            margin: 0;
+            padding: 0.5rem;
+            height: 100vh;
+        }
+
+        .message {
+            max-width: 90%;
+        }
+
+        .chat-input {
+            padding: 0.5rem;
+        }
+    }
+</style>
+
+<script src="js/recipeChat.js"></script> 

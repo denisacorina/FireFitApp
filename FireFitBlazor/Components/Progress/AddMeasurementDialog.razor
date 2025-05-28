@@ -1,0 +1,118 @@
+@* @using FireFitBlazor.Application.DTOs
+@using FireFitBlazor.Application.Services
+@using Radzen
+@using Radzen.Blazor
+@inject IProgressContext ProgressService
+@inject DialogService DialogService
+
+<RadzenCard>
+    <CardHeader>
+        <h3>Add New Measurement</h3>
+    </CardHeader>
+    <CardContent>
+        <RadzenTemplateForm TItem="BodyMeasurementDto" Data="@measurement" Submit="@OnSubmit">
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Weight (kg)" Component="Weight" />
+                    <RadzenNumeric @bind-Value="@measurement.Weight" TValue="decimal?" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Body Fat %" Component="BodyFatPercentage" />
+                    <RadzenNumeric @bind-Value="@measurement.BodyFatPercentage" TValue="decimal?" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Chest (cm)" Component="Chest" />
+                    <RadzenNumeric @bind-Value="@measurement.Chest" TValue="decimal?" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Waist (cm)" Component="Waist" />
+                    <RadzenNumeric @bind-Value="@measurement.Waist" TValue="decimal?" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Hips (cm)" Component="Hips" />
+                    <RadzenNumeric @bind-Value="@measurement.Hips" TValue="decimal?" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Left Arm (cm)" Component="LeftArm" />
+                    <RadzenNumeric @bind-Value="@measurement.LeftArm" TValue="decimal?" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Right Arm (cm)" Component="RightArm" />
+                    <RadzenNumeric @bind-Value="@measurement.RightArm" TValue="decimal?" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Left Thigh (cm)" Component="LeftThigh" />
+                    <RadzenNumeric @bind-Value="@measurement.LeftThigh" TValue="decimal?" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Right Thigh (cm)" Component="RightThigh" />
+                    <RadzenNumeric @bind-Value="@measurement.RightThigh" TValue="decimal?" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Left Calf (cm)" Component="LeftCalf" />
+                    <RadzenNumeric @bind-Value="@measurement.LeftCalf" TValue="decimal?" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Right Calf (cm)" Component="RightCalf" />
+                    <RadzenNumeric @bind-Value="@measurement.RightCalf" TValue="decimal?" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <RadzenLabel Text="Notes" Component="Notes" />
+                    <RadzenTextArea @bind-Value="@measurement.Notes" Style="width: 100%" Rows="3" />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <RadzenButton ButtonType="ButtonType.Submit" Text="Save Measurement" ButtonStyle="ButtonStyle.Primary" />
+                    <RadzenButton ButtonType="ButtonType.Button" Text="Cancel" Click="@OnCancel" ButtonStyle="ButtonStyle.Secondary" />
+                </div>
+            </div>
+        </RadzenTemplateForm>
+    </CardContent>
+</RadzenCard>
+
+@code {
+    [Parameter]
+    public Guid UserId { get; set; }
+
+    private BodyMeasurementDto measurement = new BodyMeasurementDto
+    {
+        UserId = Guid.Empty,
+        MeasurementDate = DateTime.UtcNow
+    };
+
+    protected override void OnInitialized()
+    {
+        measurement.UserId = UserId;
+    }
+
+    private async Task OnSubmit(BodyMeasurementDto measurement)
+    {
+        await ProgressService.AddBodyMeasurementAsync(measurement);
+        DialogService.Close(true);
+    }
+
+    private void OnCancel()
+    {
+        DialogService.Close(false);
+    }
+}  *@

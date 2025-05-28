@@ -1,0 +1,126 @@
+@page "/login"
+@using FireFitBlazor.Components.Layout
+@using Radzen
+@using Radzen.Blazor
+@using FireFitBlazor.Application
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+
+<div   style="background: url('/images/login-bg.jpg') no-repeat bottom center; height: 300px; background-size: contain;" class="login-mobile-bg">
+    <img src="/images/fire-flame-logo-design-template-vector.png" style="width: 100px; height: 100px;" />
+<div  class="login-container">
+    <RadzenCard Class="login-card" Style="margin-top: -150px!important;">
+        <div class="login-header">
+            <h1>Welcome Back</h1>
+            <p>Sign in to continue to FireFit</p>
+        </div>
+
+        <RadzenTemplateForm Data="@UserLogin" Submit="@HandleValidSubmit" TItem="LoginModel">
+            <div class="form-group">
+                <RadzenLabel Text="Email" Component="Email" />
+                <RadzenTextBox @bind-Value="@UserLogin.Email" Name="Email" Style="width: 100%" />
+                <RadzenRequiredValidator Component="Email" Text="Email is required" />
+                <RadzenEmailValidator Component="Email" Text="Invalid email address" />
+            </div>
+
+            <div class="form-group">
+                <RadzenLabel Text="Password" Component="Password" />
+                <RadzenPassword @bind-Value="@UserLogin.Password" Name="Password" Style="width: 100%" />
+                <RadzenRequiredValidator Component="Password" Text="Password is required" />
+            </div>
+
+            @if (!string.IsNullOrEmpty(Message))
+            {
+                <div class="alert @(IsError ? "alert-danger" : "alert-success")">
+                    @Message
+                </div>
+            }
+
+            <div class="form-group">
+                <RadzenButton ButtonType="ButtonType.Submit" Text="Sign In" ButtonStyle="ButtonStyle.Primary" 
+                            Disabled="@IsLoading" Style="width: 100%">Login
+                    @if (IsLoading)
+                    {
+                        <RadzenIcon Icon="refresh" Class="spin" />
+                    }
+                </RadzenButton>
+            </div>
+        </RadzenTemplateForm>
+    </RadzenCard>
+</div>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-color: #f5f5f5;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 400px;
+        padding: 2rem;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+        color: #666;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .alert {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        border-radius: 0.25rem;
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+        color: #721c24;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        border: 1px solid #c3e6cb;
+        color: #155724;
+    }
+
+    .spin {
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+
+    @@media only screen and (max-width: 768px) {
+     .login-mobile-bg {
+        background-image: url('/images/login_bg.jpg')!important;
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: bottom;
+        background-attachment: fixed;
+        min-height: 100vh;
+        background-color: white; 
+    }
+    }
+}
+</style>
+

@@ -1,0 +1,143 @@
+﻿@page "/add-food"
+@inject NavigationManager Navigation
+@using FireFitBlazor.Application.Services
+@using Microsoft.AspNetCore.Components.Forms
+@using Radzen.Blazor
+@using FireFitBlazor.Domain.Models
+@using Microsoft.JSInterop;
+@inject IJSRuntime JS
+@using Microsoft.AspNetCore.Components.Web
+@rendermode RenderMode.InteractiveServer
+@inject ImageTransferService ImageTransferService
+
+<RadzenCard Style="max-width: 400px; margin: 3rem auto; text-align: center; padding: 2rem 1rem; border-radius: 24px; box-shadow: 0 2px 12px rgba(255,87,34,0.07);">
+    <h2 style="margin-bottom: 2.5rem;">How do you want to log your food?</h2>
+   @*  <RadzenButton Style="width: 100%; margin-bottom: 1.5em; font-size: 1.2em; font-weight: 600; border-radius: 16px; padding: 1.2em 0; background: #ff5722; color: #fff;"
+    Click="@(() => Navigation.NavigateTo("/food-list"))">
+        <RadzenIcon Icon="list_alt" Style="font-size: 1.7em; margin-right: 1em; vertical-align: middle;" />
+        <span style="vertical-align: middle;">Choose from List</span>
+    </RadzenButton> *@
+
+    <label class="rz-button rz-button-md rz-button-text rz-button-primary" style="width: 100%;">
+        <span class="rz-button-text">Take Picture</span>
+        <InputFile OnChange="OnImageSelected" accept="image/*" capture="environment" style="display: none;" />
+    </label>
+    <label class="rz-button rz-button-md rz-button-text rz-button-primary upload-btn" style="width: 100%;">
+        <span class="rz-button-text">Select from Gallery</span>
+        <InputFile OnChange="OnImageSelected" accept="image/*" style="display: none;" />
+    </label>
+</RadzenCard>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? MealType { get; set; }
+
+    private string mealType = "breakfast";
+    private bool isLoading = false;
+    private async Task OnImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        try
+        {
+            mealType = MealType ?? mealType;
+            isLoading = true;
+            StateHasChanged();
+            using var stream = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(stream);
+            var base64 = Convert.ToBase64String(stream.ToArray());
+            // Store the image in a shared service or state
+            ImageTransferService.CapturedImage = $"data:{file.ContentType};base64,{base64}";
+            await Task.Delay(50);
+            Navigation.NavigateTo($"/meal-detect-demo?mealType={mealType}");
+        }
+        catch(Exception ex)
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}
+
+            <style>
+    .rz-card, .rz-card-content {
+        background: #fff;
+        border-radius: 24px;
+        box-shadow: 0 4px 24px rgba(255,87,34,0.10);
+        max-width: 400px;
+        margin: 2.5rem auto;
+        padding: 2.2rem 1.2rem 1.5rem 1.2rem;
+        text-align: center;
+    }
+
+        /* Title */
+        .rz-card h2, .rz-card-content h2 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2.2rem;
+            color: #222;
+            letter-spacing: 0.01em;
+        }
+
+    /* Main button */
+    .rz-button-primary, .rz-button[style*='background: #ff5722'] {
+        background: #ff5722 !important;
+        color: #fff !important;
+        border-radius: 16px !important;
+        font-size: 1.15rem !important;
+        font-weight: 600 !important;
+        padding: 1.1em 0 !important;
+        margin-bottom: 1.2em !important;
+        box-shadow: 0 2px 8px rgba(255,87,34,0.08);
+        transition: filter 0.15s;
+    }
+
+        .rz-button-primary:active, .rz-button[style*='background: #ff5722']:active {
+            filter: brightness(0.95);
+        }
+
+    /* Secondary (gallery) button */
+    .upload-btn {
+        background: #ffe0b2 !important;
+        color: #ff9800 !important;
+        border-radius: 16px !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        padding: 1.1em 0 !important;
+        margin-top: 0.7em !important;
+        margin-bottom: 0.2em !important;
+        box-shadow: 0 2px 8px rgba(255,152,0,0.08);
+        transition: filter 0.15s;
+    }
+
+        .upload-btn:active {
+            filter: brightness(0.97);
+        }
+
+    /* Hide the native file input */
+    input[type='file'] {
+        display: none !important;
+    }
+
+    /* Icon styling */
+    .rz-button .rz-icon, .rz-button .material-icons {
+        font-size: 1.5em !important;
+        margin-right: 0.7em;
+        vertical-align: middle;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 500px) {
+        .rz-card, .rz-card-content
+
+    {
+        padding: 1.2rem 0.5rem 1rem 0.5rem;
+        margin: 1.2rem 0.2rem;
+    }
+
+    .rz-card h2, .rz-card-content h2 {
+        font-size: 1.1rem;
+    }
+
+    }
+            </style>

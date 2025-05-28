@@ -1,0 +1,143 @@
+ @using FireFitBlazor.Application.DTOs
+@using FireFitBlazor.Application.Services
+@using Radzen
+@using Radzen.Blazor
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenCard>
+    <CardHeader>
+        <h3>Progress Tracking</h3>
+    </CardHeader>
+    <CardContent>
+        <RadzenButton Text="Add New Measurement" Click="@AddNewMeasurement" ButtonStyle="ButtonStyle.Primary" />
+
+        <RadzenTabs>
+            <Tabs>
+                <RadzenTabsItem Text="Current Progress">
+                    @if (currentProgress != null)
+                    {
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <RadzenCard>
+                                    <CardHeader>
+                                        <h4>Weight Progress</h4>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div class="progress-info">
+                                            <div>Starting Weight: @currentProgress.StartingWeight.ToString("N1") kg</div>
+                                            <div>Current Weight: @currentProgress.CurrentWeight.ToString("N1") kg</div>
+                                            <div>Weight Change: @currentProgress.WeightChange.ToString("N1") kg</div>
+                                        </div>
+                                    </CardContent>
+                                </RadzenCard>
+                            </div>
+                            <div class="col-md-4">
+                                <RadzenCard>
+                                    <CardHeader>
+                                        <h4>Body Fat Progress</h4>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div class="progress-info">
+                                            <div>Starting Body Fat: @(currentProgress.StartingBodyFatPercentage?.ToString("N1") ?? "N/A")%</div>
+                                            <div>Current Body Fat: @(currentProgress.CurrentBodyFatPercentage?.ToString("N1") ?? "N/A")%</div>
+                                            <div>Body Fat Change: @(currentProgress.BodyFatChange?.ToString("N1") ?? "N/A")%</div>
+                                        </div>
+                                    </CardContent>
+                                </RadzenCard>
+                            </div>
+                            <div class="col-md-4">
+                                <RadzenCard>
+                                    <CardHeader>
+                                        <h4>Last Update</h4>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div class="progress-info">
+                                            <div>Last Measurement: @(currentProgress.LastMeasurementDate?.ToString("d") ?? "N/A")</div>
+                                            <div>Notes: @(currentProgress.Notes ?? "No notes")</div>
+                                        </div>
+                                    </CardContent>
+                                </RadzenCard>
+                            </div>
+                        </div>
+                    }
+                </RadzenTabsItem>
+                <RadzenTabsItem Text="Measurement History">
+                    <RadzenDataGrid @ref="grid" Data="@measurements" TItem="BodyMeasurementDto" AllowPaging="true" PageSize="5" AllowSorting="true">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="MeasurementDate" Title="Date" FormatString="{0:d}" />
+                            <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="Weight" Title="Weight" FormatString="{0:N1} kg" />
+                            <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="BodyFatPercentage" Title="Body Fat %" FormatString="{0:N1}%" />
+                            <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="Chest" Title="Chest" FormatString="{0:N1} cm" />
+                            <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="Waist" Title="Waist" FormatString="{0:N1} cm" />
+                            <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="Hips" Title="Hips" FormatString="{0:N1} cm" />
+                            <RadzenDataGridColumn TItem="BodyMeasurementDto" Context="data">
+                                <Template>
+                                   @*  <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditMeasurement(data))" /> *@
+                                  @*   <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@(args => DeleteMeasurement(data))" /> *@
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+    </CardContent>
+</RadzenCard>
+
+@code {
+    private RadzenDataGrid<BodyMeasurementDto> grid;
+    private ProgressDto currentProgress;
+    private IEnumerable<BodyMeasurementDto> measurements = new List<BodyMeasurementDto>();
+    private Guid userId = Guid.Parse("your-user-id"); // Replace with actual user ID
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        // currentProgress = await ProgressService.GetUserProgressAsync(userId);
+        // measurements = await ProgressService.GetBodyMeasurementsAsync(userId);
+    }
+
+    private async Task AddNewMeasurement()
+    {
+        var result = await DialogService.OpenAsync<AddMeasurementDialog>("Add New Measurement",
+            new Dictionary<string, object> { { "UserId", userId } },
+            new DialogOptions() { Width = "700px", Height = "600px" });
+
+        if (result == true)
+        {
+            await LoadData();
+            NotificationService.Notify(NotificationSeverity.Success, "Measurement added successfully");
+        }
+    }
+
+    // private async Task EditMeasurement(BodyMeasurementDto measurement)
+    // {
+    //     var result = await DialogService.OpenAsync<EditMeasurementDialog>("Edit Measurement",
+    //         new Dictionary<string, object> { { "Measurement", measurement } },
+    //         new DialogOptions() { Width = "700px", Height = "600px" });
+
+    //     if (result == true)
+    //     {
+    //         await LoadData();
+    //         NotificationService.Notify(NotificationSeverity.Success, "Measurement updated successfully");
+    //     }
+    // }
+
+    // private async Task DeleteMeasurement(BodyMeasurementDto measurement)
+    // {
+    //     var result = await DialogService.Confirm("Are you sure you want to delete this measurement?", "Delete Measurement",
+    //         new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+
+    //     if (result == true)
+    //     {
+    //         await ProgressService.DeleteBodyMeasurementAsync(measurement.MeasurementId);
+    //         await LoadData();
+    //         NotificationService.Notify(NotificationSeverity.Success, "Measurement deleted successfully");
+    //     }
+    // }
+}  

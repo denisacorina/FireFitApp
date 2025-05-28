@@ -1,0 +1,420 @@
+﻿@page "/detect-meal"
+@using FireFitBlazor.Application.Services
+@inject IJSRuntime JS
+@inject IFoodLogService FoodLogService
+@inject NavigationManager Navigation
+@using FireFitBlazor.Domain.Models
+@using Radzen.Blazor
+@rendermode InteractiveServer
+@inject ImageTransferService ImageTransferService
+
+<div class="camera-upload">
+    <label class="rz-button rz-button-md rz-button-text rz-button-primary" style="width: 100%;">
+        <span class="rz-button-text">Take Picture</span>
+        <InputFile OnChange="OnImageSelected" accept="image/*" capture="environment" style="display: none;" />
+    </label>
+</div>
+
+<RadzenCard Style="padding: 0; max-width: 450px; margin: auto;">
+    <div class="meal-photo-container">
+        <img src="@capturedImage" class="meal-photo" />
+
+        @foreach (var ingredient in detectedIngredients)
+        {
+            <div class="ingredient-tag" style="top: @ingredient.Y%; left: @ingredient.X%;">
+                <img src="@ingredient.IconUrl" class="ingredient-icon" />
+                <span>@ingredient.Name</span>
+            </div>
+        }
+    </div>
+
+    <div class="meal-summary">
+        <h4>@MealName (@MoodText)</h4>
+        <h5>@TotalCalories kcal</h5>
+
+        <div class="macros">
+            @foreach (var m in Macros)
+            {
+                <div class="macro">
+                    <strong>@m.Value</strong>
+                    <span>@m.Label</span>
+                </div>
+            }
+        </div>
+        @if (detectedIngredients.Any())
+        {
+            <h5 class="mt-4">Adjust Quantities</h5>
+            <ul class="ingredient-list">
+                @foreach (var ingredient in detectedIngredients)
+                {
+                    <li>
+                        @ingredient.Name
+                        <RadzenNumeric style="margin-left: 1rem; width: 100px;"
+                        @bind-Value="ingredient.QuantityGrams"
+                        Name="Quantity"
+                        Min="1"
+                        Max="1000"
+                        Placeholder="Grams" />
+                        <RadzenButton Icon="close" Size="Radzen.ButtonSize.Small" ButtonStyle="Radzen.ButtonStyle.Danger" Click="@(() => RemoveIngredient(ingredient))" />
+                    </li>
+                }
+            </ul>
+        }
+        <RadzenAutoComplete TItem="string"
+        @bind-Value="manualEntry"
+        Data="@allIngredients"
+        Placeholder="Search ingredient..."
+        Style="width: 100%;" />
+      @*   <RadzenButton Text="Add" Style="margin-top: 0.5rem;" Click="AddManualIngredient" /> *@
+
+        <RadzenButton Text="Validate My Meal" Style="width: 100%; margin-top: 1rem;" Click="ValidateMeal" />
+        <RadzenTextBox @bind-Value="mealName" Placeholder="Name this meal..." Style="width: 100%; margin-top: 1rem;" />
+        <RadzenButton Text="Save Meal" Style="width: 100%; margin-top: 0.5rem;" Click="SaveAsMeal" />
+    </div>
+</RadzenCard>
+
+@code {
+    private string? capturedImage = null;
+    private List<DetectedIngredient> detectedIngredients = new();
+    private string MealName = "Lunch";
+    private string MoodText = "Very Good";
+    private int TotalCalories = 0;
+    private string manualEntry; 
+    private List<string> allIngredients = new();
+    private string mealName = string.Empty;
+
+    private IHttpContextAccessor _httpContextAccessor;
+    string userId { get; set; }
+
+    private List<(string Label, string Value)> Macros = new()
+    {
+        ("Fats", "24g"),
+        ("Proteins", "9g"),
+        ("Carbs", "7g"),
+        ("Fibres", "4g")
+    };
+
+    private async Task OnImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        try{
+            using var stream = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024) // 5 MB
+                   .CopyToAsync(stream);
+
+            var base64 = Convert.ToBase64String(stream.ToArray());
+            capturedImage = $"data:{file.ContentType};base64,{base64}";
+            Console.WriteLine("got here!");
+            await LoadDetectedIngredients(capturedImage);
+            Console.WriteLine("got here!");
+        }
+        catch(Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrEmpty(capturedImage))
+        {
+            capturedImage = ImageTransferService.CapturedImage;
+            if (!string.IsNullOrEmpty(capturedImage))
+            {
+                await LoadDetectedIngredients(capturedImage);
+            }
+        }
+        allIngredients = await FoodLogService.GetAllIngredientNames();
+        // Normally you'd fetch this from object detection API
+        // detectedIngredients = new()
+        // {
+        //     new DetectedIngredient("Spinach", 20, 30, "/images/spinach.png"),
+        //     new DetectedIngredient("Tomato", 70, 35, "/images/tomato.png"),
+        //     new DetectedIngredient("Egg", 25, 60, "/images/egg.png"),
+        //     new DetectedIngredient("Olive oil", 55, 75, "/images/oil.png")
+        // };
+        await RecalculateMacros();
+
+        // userId = _httpContextAccessor.HttpContext?.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    }
+
+    private async Task CaptureAndDetect()
+    {
+        capturedImage = await JS.InvokeAsync<string>("cameraInterop.openCamera");
+        await LoadDetectedIngredients(capturedImage);
+    }
+
+
+    private async Task ValidateMeal()
+    {
+        var ingredientNames = detectedIngredients.Select(i => i.Name).ToList();
+        var baseData = await FoodLogService.GetIngredientDetails(ingredientNames);
+
+        foreach (var item in detectedIngredients)
+        {
+            var match = baseData.FirstOrDefault(x => x.Name == item.Name);
+            if (match == null) continue;
+
+            var ratio = item.QuantityGrams / 100f;
+
+            var log = FoodLog.Create(
+                userId: userId,
+                foodName: match.Name,
+                calories: (int)(match.Nutrition.Calories * ratio),
+                proteins: match.Nutrition.Proteins * ratio,
+                carbs: match.Nutrition.Carbs * ratio,
+                fats: match.Nutrition.Fats * ratio
+            );
+
+            await FoodLogService.SaveFoodLogAsync(log);
+        }
+
+        Navigation.NavigateTo("/daily-food-log");
+    }
+
+    private async Task SaveAsMeal()
+    {
+        if (string.IsNullOrWhiteSpace(mealName))
+        {
+            // optionally show warning
+            return;
+        }
+
+        await FoodLogService.SaveMealAsync(mealName.Trim(), userId, detectedIngredients);
+
+        mealName = string.Empty;
+    }
+
+    private async Task LoadDetectedIngredients(string imageBase64)
+    {
+        //detectedIngredients = await FoodLogService.DetectIngredientsFromImage(imageBase64);
+
+        var names = detectedIngredients.Select(i => i.Name).ToList();
+        var macros = await FoodLogService.GetMacrosForIngredients(names);
+
+        TotalCalories = macros.TotalCalories;
+        Macros = new()
+    {
+        ("Fats", $"{macros.Fats}g"),
+        ("Proteins", $"{macros.Proteins}g"),
+        ("Carbs", $"{macros.Carbs}g")
+    };
+    }
+    private async Task RemoveIngredient(DetectedIngredient ingredient)
+    {
+        detectedIngredients.Remove(ingredient);
+        await RecalculateMacros();
+    }
+
+    // private async Task AddManualIngredient()
+    // {
+    //     if (string.IsNullOrWhiteSpace(manualEntry)) return;
+
+    //     var ingredient = new DetectedIngredient(manualEntry.Trim(), 50, 50, "/images/default.png");
+    //     detectedIngredients.Add(ingredient);
+    //     manualEntry = string.Empty;
+
+    //     await RecalculateMacros();
+    // }
+
+    private async Task RecalculateMacros()
+    {
+        var names = detectedIngredients.Select(i => i.Name).ToList();
+        var baseData = await FoodLogService.GetIngredientDetails(names);
+
+        var totalCalories = 0;
+        float fats = 0, protein = 0, carbs = 0, fibres = 0;
+
+        foreach (var item in detectedIngredients)
+        {
+            var dbEntry = baseData.FirstOrDefault(x => x.Name == item.Name);
+            if (dbEntry == null) continue;
+
+            var ratio = item.QuantityGrams / 100f; 
+
+            totalCalories += (int)(dbEntry.Nutrition.Calories * ratio);
+            fats += dbEntry.Nutrition.Fats * ratio;
+            protein += dbEntry.Nutrition.Proteins * ratio;
+            carbs += dbEntry.Nutrition.Carbs * ratio;
+        }
+
+        TotalCalories = totalCalories;
+        Macros = new()
+    {
+        ("Fats", $"{fats:F1}g"),
+        ("Proteins", $"{protein:F1}g"),
+        ("Carbs", $"{carbs:F1}g"),
+    };
+    }
+
+
+}
+
+<style>
+    .meal-detect-card {
+        max-width: 420px;
+        margin: 2rem auto;
+        background: #fff;
+        border-radius: 28px;
+        box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+        overflow: hidden;
+        font-family: 'Inter', Arial, sans-serif;
+    }
+
+    .camera-upload {
+        padding: 1.2rem 1.5rem 0.5rem 1.5rem;
+        text-align: center;
+    }
+
+    .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: #7ED957;
+        color: #fff;
+        border-radius: 18px;
+        padding: 0.7em 2em;
+        font-size: 1.1em;
+        font-weight: 600;
+        margin-bottom: 1em;
+    }
+
+    .meal-photo-section {
+        background: #f7f7f7;
+        padding: 0;
+        border-top-left-radius: 28px;
+        border-top-right-radius: 28px;
+        position: relative;
+    }
+
+    .meal-photo-wrapper {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1/1;
+        overflow: hidden;
+    }
+
+    .meal-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .bounding-box {
+        position: absolute;
+        border: 2px solid #7ED957;
+        border-radius: 10px;
+        pointer-events: none;
+        box-sizing: border-box;
+        z-index: 2;
+        min-width: 60px;
+        min-height: 30px;
+    }
+
+    .bounding-label {
+        position: absolute;
+        top: -1.8em;
+        left: 0;
+        background: #7ED957;
+        color: #fff;
+        font-size: 0.85em;
+        padding: 2px 10px;
+        border-radius: 8px;
+        font-weight: 600;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .meal-info-section {
+        padding: 1.5rem 1.5rem 1rem 1.5rem;
+    }
+
+    .meal-tags {
+        margin: 0.5rem 0 1rem 0;
+    }
+
+    .meal-tag {
+        display: inline-block;
+        background: #eafbe6;
+        color: #4caf50;
+        border-radius: 16px;
+        padding: 0.25em 1em;
+        font-size: 0.95em;
+        margin-right: 0.5em;
+        font-weight: 500;
+    }
+
+    .macros-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.2rem;
+        margin-top: 0.5rem;
+    }
+
+    .macro {
+        text-align: center;
+        flex: 1;
+    }
+
+    .macro-label {
+        display: block;
+        font-size: 0.85em;
+        color: #888;
+    }
+
+    .macro-value {
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #222;
+    }
+
+        .macro-value.calories {
+            color: #4caf50;
+        }
+
+    .ingredients-list {
+        margin-bottom: 1.2rem;
+    }
+
+    .ingredient-icons {
+        display: flex;
+        gap: 1.5em;
+        margin-top: 0.5em;
+    }
+
+    .ingredient-icon-block {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-size: 0.95em;
+        color: #444;
+    }
+
+    .ingredient-icon {
+        width: 38px;
+        height: 38px;
+        margin-bottom: 0.3em;
+        border-radius: 10px;
+        background: #f7f7f7;
+        object-fit: contain;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+
+    .prep-time {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1em;
+        color: #888;
+        margin-top: 1.2em;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 0.8em;
+    }
+
+    .prep-value {
+        color: #222;
+        font-weight: 600;
+    }
+    </style>

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "FoodObjectDetection_WebApi": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:63301;http://localhost:63302"
+    }
+  }
+}
