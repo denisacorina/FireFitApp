@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using static FireFitBlazor.Domain.Enums.FoodTrackingEnums;
 using Microsoft.AspNetCore.Components;
 using Radzen;
@@ -19,6 +19,7 @@ namespace FireFitBlazor.Application
     {
         [Inject]
         public HttpClient Http { get; set; } = default!;
+
         [Inject]
         private IAuthenticationService AuthenticationService { get; set; } = default!;
 
@@ -39,11 +40,18 @@ namespace FireFitBlazor.Application
         public bool IsError = false;
         public bool IsLoading = false;
         public int CurrentStep = 1;
+        public int ProteinGrams => (int)(0.3 * DailyCalories / 4);
+        public int CarbsGrams => (int)(0.4 * DailyCalories / 4);
+        public int FatsGrams => (int)(0.3 * DailyCalories / 9);
+        public IEnumerable<object> GoalIntensityOptions =>
+    Enum.GetValues<GoalIntensity>()
+        .Cast<GoalIntensity>()
+        .Select(i => new { Key = i.ToString(), Value = i });
         public IEnumerable<KeyValuePair<string, Gender>> Genders =>
          Enum.GetValues<Gender>()
          .Cast<Gender>()
          .Select(g => new KeyValuePair<string, Gender>(g.ToString(), g));
-     
+
 
         public IEnumerable<KeyValuePair<string, ActivityLevel>> ActivityLevels =>
       Enum.GetValues<ActivityLevel>()
@@ -54,10 +62,13 @@ namespace FireFitBlazor.Application
     Enum.GetValues<WeightChangeType>()
     .Cast<WeightChangeType>()
     .Select(g => new KeyValuePair<string, WeightChangeType>(g.ToString(), g));
-     
+
         public List<DietaryPreference> SelectedDietary { get; set; } = new List<DietaryPreference>();
+        public List<WorkoutType> SelectedWorkoutTypes { get; set; } = new List<WorkoutType>();
 
         public IEnumerable<DietaryPreference>? DietaryPreferences { get; set; }
+        public IEnumerable<WorkoutType>? WorkoutTypes { get; set; }
+        public GoalIntensity GoalIntensity { get; set; } = GoalIntensity.Moderate;
 
         public void UpdateSelectedDietary()
         {
@@ -67,12 +78,24 @@ namespace FireFitBlazor.Application
             }
         }
 
+        public void UpdateSelectedWorkoutTypes()
+        {
+            if (FormModel.SelectedWorkoutTypes != null)
+            {
+                SelectedWorkoutTypes = FormModel.SelectedWorkoutTypes.ToList();
+            }
+        }
+
         protected override void OnInitialized()
         {
             base.OnInitialized();
             DietaryPreferences = Enum.GetValues(typeof(DietaryPreference)).Cast<DietaryPreference>();
+            WorkoutTypes = Enum.GetValues(typeof(WorkoutType)).Cast<WorkoutType>();
             FormModel.SelectedDietary = new List<DietaryPreference>();
+            FormModel.SelectedWorkoutTypes = new List<WorkoutType>();
             UpdateSelectedDietary();
+            UpdateSelectedWorkoutTypes();
+            UseCalorieOverride = false;
         }
 
         public void OnGenderChange(object value)
@@ -88,6 +111,128 @@ namespace FireFitBlazor.Application
             FormModel.ActivityLevel = (ActivityLevel)value;
             Console.WriteLine($"Activity Level selected: {FormModel.ActivityLevel}");
         }
+        public void OnWeightChangeTypeChange(object value)
+        {
+            // Handle the change when activity level selection changes
+            FormModel.WeightGoal = (WeightChangeType)value;
+            Console.WriteLine($"Weight Goal selected: {FormModel.WeightGoal}");
+        }
+
+        public double GetWeeklyRate() => FormModel.GoalIntensity switch
+        {
+            GoalIntensity.Extreme => 1.0,
+            GoalIntensity.Moderate => 0.75,
+            GoalIntensity.Slow => 0.5,
+            _ => 0.75
+        };
+
+        public string GetWeeklyChangeText()
+        {
+            var rate = GetWeeklyRate();
+            return FormModel.WeightGoal switch
+            {
+                WeightChangeType.Lose => $"Lose ~{rate} kg/week",
+                WeightChangeType.Gain => $"Gain ~{rate} kg/week",
+                _ => "Maintain current weight"
+            };
+        }
+
+        public double CalculateBMR()
+        {
+            return FormModel.Gender == Gender.Male
+                ? 10 * (double)FormModel.CurrentWeight + 6.25 * FormModel.Height - 5 * FormModel.Age + 5
+                : 10 * (double)FormModel.CurrentWeight + 6.25 * FormModel.Height - 5 * FormModel.Age - 161;
+        }
+
+
+
+        //public int EstimatedWeeks
+        //{
+        //    get
+        //    {
+        //        var diff = Math.Abs(FormModel.CurrentWeight - FormModel.TargetWeight);
+        //        var rate = GetWeeklyRate();
+        //        return rate > 0 ? (int)Math.Ceiling((double)diff / rate) : 0;
+        //    }
+        //}
+
+        public int EstimatedWeeks
+        {
+            get
+            {
+                if (FormModel.CurrentWeight <= 0 || FormModel.TargetWeight <= 0 || FormModel.Age <= 0 || FormModel.Height <= 0)
+                    return 0;
+
+                if (FormModel.WeightGoal == WeightChangeType.Maintain)
+                    return 0;
+
+                var current = (double)FormModel.CurrentWeight;
+                var target = (double)FormModel.TargetWeight;
+                var diff = Math.Abs(current - target);
+
+                double bmr = CalculateBMR();
+                double multiplier = FormModel.ActivityLevel switch
+                {
+                    ActivityLevel.Sedentary => 1.2,
+                    ActivityLevel.Light => 1.375,
+                    ActivityLevel.Moderate => 1.55,
+                    ActivityLevel.Active => 1.725,
+                    ActivityLevel.VeryActive => 1.9,
+                    _ => 1.2
+                };
+                double maintenance = bmr * multiplier;
+
+                double adjustedCalories = UseCalorieOverride && ManualCalorieOverride >= 1000
+                    ? ManualCalorieOverride
+                    : CalculateDailyCalories(bmr, multiplier); // reuse values
+
+                double dailyChangeKcal = FormModel.WeightGoal switch
+                {
+                    WeightChangeType.Lose => maintenance - adjustedCalories,
+                    WeightChangeType.Gain => adjustedCalories - maintenance,
+                    _ => 0
+                };
+
+                double kgPerDay = Math.Round(dailyChangeKcal / 7700.0, 3);
+                if (kgPerDay <= 0.005)
+                    return 0;
+
+                return (int)Math.Ceiling(diff / (kgPerDay * 7));
+            }
+        }
+
+
+        public double CalculateDailyCalories(double? bmrOverride = null, double? multiplierOverride = null)
+        {
+            double bmr = bmrOverride ?? CalculateBMR();
+            double multiplier = multiplierOverride ?? FormModel.ActivityLevel switch
+            {
+                ActivityLevel.Sedentary => 1.2,
+                ActivityLevel.Light => 1.375,
+                ActivityLevel.Moderate => 1.55,
+                ActivityLevel.Active => 1.725,
+                ActivityLevel.VeryActive => 1.9,
+                _ => 1.2
+            };
+
+            double maintenance = bmr * multiplier;
+            double adjustment = GetWeeklyRate() * 7700 / 7.0;
+
+            return FormModel.WeightGoal switch
+            {
+                WeightChangeType.Lose => Math.Max(maintenance - adjustment, 1000),
+                WeightChangeType.Gain => maintenance + adjustment,
+                _ => maintenance
+            };
+        }
+
+        public int ManualCalorieOverride { get; set; } = 0; // value when override is active
+        public bool UseCalorieOverride { get; set; } = false; // default: use calculated
+                                                              //public int DailyCalories => (int)Math.Max(CalculateDailyCalories(), 0); 
+        public int DailyCalories =>
+      UseCalorieOverride && ManualCalorieOverride >= 1000
+          ? ManualCalorieOverride
+          : (int)Math.Round(CalculateDailyCalories());
 
         public void OnDietaryPreferenceChanged(DietaryPreference pref, object checkedValue)
         {
@@ -98,17 +243,59 @@ namespace FireFitBlazor.Application
                     FormModel.SelectedDietary.Add(pref);
             }
             else
-            {
-                if (FormModel.SelectedDietary.Contains(pref))
-                    FormModel.SelectedDietary.Remove(pref);
-            }
+                FormModel.SelectedDietary.Remove(pref);
+
             UpdateSelectedDietary();
         }
 
+        public void OnWorkoutTypeChanged(WorkoutType pref, object checkedValue)
+        {
+            bool isChecked = checkedValue is bool b && b;
+            if (isChecked)
+            {
+                if (!FormModel.SelectedWorkoutTypes.Contains(pref))
+                    FormModel.SelectedWorkoutTypes.Add(pref);
+            }
+            else
+                FormModel.SelectedWorkoutTypes.Remove(pref);
+
+            UpdateSelectedWorkoutTypes();
+        }
+
+        protected void OnWorkoutPreferenceChanged(WorkoutType type, bool selected)
+        {
+            if (selected && !FormModel.SelectedWorkoutTypes.Contains(type))
+                FormModel.SelectedWorkoutTypes.Add(type);
+            else if (!selected && FormModel.SelectedWorkoutTypes.Contains(type))
+                FormModel.SelectedWorkoutTypes.Remove(type);
+        }
+
+        public void OnManualCalorieChange(int value)
+        {
+            if (value != -1 && value < 1000)
+            {
+                ManualCalorieOverride = 1000;
+            }
+            else
+            {
+                ManualCalorieOverride = value;
+                UseCalorieOverride = true;
+            }
+
+            StateHasChanged();
+        }
+
+        protected void OnDietaryPreferenceChanged(DietaryPreference pref, bool selected)
+        {
+            if (selected && !FormModel.SelectedDietary.Contains(pref))
+                FormModel.SelectedDietary.Add(pref);
+            else if (!selected && FormModel.SelectedDietary.Contains(pref))
+                FormModel.SelectedDietary.Remove(pref);
+        }
 
         public void NextStep()
         {
-            if (CurrentStep < 3)
+            if (CurrentStep < 6)
             {
                 CurrentStep++;
             }
@@ -137,12 +324,15 @@ namespace FireFitBlazor.Application
                     Password = FormModel.Password,
                     Age = FormModel.Age,
                     Height = FormModel.Height,
+                    StartingWeight = FormModel.CurrentWeight,
                     CurrentWeight = FormModel.CurrentWeight,
                     TargetWeight = FormModel.TargetWeight,
                     Gender = FormModel.Gender,
                     ActivityLevel = FormModel.ActivityLevel,
                     WeightGoal = FormModel.WeightGoal,
-                    DietaryPreferences = SelectedDietary
+                    DietaryPreferences = FormModel.SelectedDietary,
+                    WorkoutTypes = FormModel.SelectedWorkoutTypes,
+                    DailyCalorieGoal = DailyCalories
                 };
                 var http = HttpClientFactory.CreateClient("ServerAPI");
 
@@ -161,19 +351,6 @@ namespace FireFitBlazor.Application
                     Message = $"Registration failed: {error}";
                 }
 
-                //var result = CreateUserContext.Execute(
-                //    FormModel.Email,
-                //    FormModel.Password,
-                //    FormModel.Name,
-                //    FormModel.Age,
-                //    FormModel.Height,
-                //    FormModel.CurrentWeight,
-                //    FormModel.TargetWeight,
-                //    FormModel.Gender,
-                //    FormModel.ActivityLevel,
-                //    FormModel.WeightGoal,
-                //    SelectedDietary
-                //);
             }
             catch (Exception ex)
             {
@@ -192,6 +369,13 @@ namespace FireFitBlazor.Application
         {
             NavigationManager.NavigateTo("/api/account/external-login?provider=Google");
         }
+        public void ResetToRecommended()
+        {
+            ManualCalorieOverride = 0;   
+            UseCalorieOverride = false;  
+            StateHasChanged();           
+        }
+
 
         public class UserRegistrationModel
         {
@@ -234,14 +418,23 @@ namespace FireFitBlazor.Application
             [Required(ErrorMessage = "Weight goal is required")]
             public WeightChangeType WeightGoal { get; set; }
 
-            public Dictionary<DietaryPreference, bool>? DietaryPreferences { get; set; } = new();
-            public List<DietaryPreference> SelectedDietary { get; set; } = new List<DietaryPreference>();
+            [Required(ErrorMessage = "Goal intensity is required")]
+            public GoalIntensity GoalIntensity { get; set; }
 
+            public Dictionary<DietaryPreference, bool>? DietaryPreferences { get; set; } = new();
+            public List<DietaryPreference> SelectedDietary { get; set; } = new();
+            public Dictionary<WorkoutType, bool>? WorkoutTypes { get; set; } = new();
+            public List<WorkoutType>? SelectedWorkoutTypes { get; set; } = new();
             public UserRegistrationModel()
             {
                 foreach (var preference in Enum.GetValues<DietaryPreference>())
                 {
                     DietaryPreferences[preference] = false;
+                }
+
+                foreach (var workoutType in Enum.GetValues<WorkoutType>())
+                {
+                    WorkoutTypes[workoutType] = false;
                 }
             }
         }

@@ -485,29 +485,26 @@ namespace FireFitBlazor.Migrations
                     b.Property<string>("ProfilePicturePath")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<decimal>("StartingWeight")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TargetWeight")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("UserId");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("FireFitBlazor.Domain.Models.UserPreferences", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("DailyCalorieGoal")
-                        .HasColumnType("int");
-
-                    b.PrimitiveCollection<string>("DietaryPreferences")
+                    b.PrimitiveCollection<string>("WorkoutTypes")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("UserId");
 
-                    b.ToTable("UserPreferences");
+                    b.ToTable("Users", t =>
+                        {
+                            t.Property("TargetWeight")
+                                .HasColumnName("User_TargetWeight");
+                        });
                 });
 
             modelBuilder.Entity("FireFitBlazor.Domain.Models.UserProgress", b =>
@@ -545,15 +542,12 @@ namespace FireFitBlazor.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("WeightChange")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ProgressId");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
 
                     b.ToTable("UserProgress");
                 });
@@ -605,7 +599,7 @@ namespace FireFitBlazor.Migrations
                     b.Property<int>("DurationMinutes")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("EndTime")
+                    b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("IntensityLevel")
@@ -635,6 +629,20 @@ namespace FireFitBlazor.Migrations
                     b.HasIndex("UserProgressProgressId");
 
                     b.ToTable("WorkoutSession");
+                });
+
+            modelBuilder.Entity("UserPreferences", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.PrimitiveCollection<string>("DietaryPreferences")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("UserId");
+
+                    b.ToTable("UserPreferences");
                 });
 
             modelBuilder.Entity("FireFitBlazor.Domain.Models.Achievement", b =>
@@ -886,24 +894,6 @@ namespace FireFitBlazor.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("FireFitBlazor.Domain.Models.UserPreferences", b =>
-                {
-                    b.HasOne("FireFitBlazor.Domain.Models.User", null)
-                        .WithOne("Preferences")
-                        .HasForeignKey("FireFitBlazor.Domain.Models.UserPreferences", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("FireFitBlazor.Domain.Models.UserProgress", b =>
-                {
-                    b.HasOne("FireFitBlazor.Domain.Models.User", null)
-                        .WithOne("Progress")
-                        .HasForeignKey("FireFitBlazor.Domain.Models.UserProgress", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FireFitBlazor.Domain.Models.WorkoutPreference", b =>
                 {
                     b.HasOne("FireFitBlazor.Domain.Models.User", null)
@@ -938,12 +928,6 @@ namespace FireFitBlazor.Migrations
             modelBuilder.Entity("FireFitBlazor.Domain.Models.User", b =>
                 {
                     b.Navigation("CalorieLogs");
-
-                    b.Navigation("Preferences")
-                        .IsRequired();
-
-                    b.Navigation("Progress")
-                        .IsRequired();
 
                     b.Navigation("WorkoutPreferences");
                 });

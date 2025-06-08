@@ -27,6 +27,7 @@ namespace FireFitBlazor.Domain.Resources
         public static string Error_DuplicateRecipe => ResourceManager.GetString("Error_DuplicateRecipe");
         public static string Error_DuplicateWorkout => ResourceManager.GetString("Error_DuplicateWorkout");
         public static string Error_DuplicateEmail => ResourceManager.GetString("Error_DuplicateEmail");
+        public static string Error_UserNotFound => ResourceManager.GetString("Error_UserNotFound");
 
         // Success Messages
         public static string Success_EntityAdded => ResourceManager.GetString("Success_EntityAdded");

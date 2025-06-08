@@ -14,16 +14,12 @@ public class UserGateway : BaseGateway<User>, IUserGateway
     public async Task<User> GetByIdAsync(string id)
     {
         return await _dbSet
-            .Include(u => u.Progress)
-            .Include(u => u.Preferences)
             .FirstOrDefaultAsync(u => u.UserId == id);
     }
 
     public async Task<User> GetByEmailAsync(string email)
     {
         return await _dbSet
-             .Include(u => u.Progress)
-            .Include(u => u.Preferences)
             .FirstOrDefaultAsync(u => u.Email == email);
     }
 }

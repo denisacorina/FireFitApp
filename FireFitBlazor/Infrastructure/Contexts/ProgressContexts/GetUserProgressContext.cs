@@ -5,9 +5,9 @@ namespace FireFitBlazor.Infrastructure.Contexts.ProgressContexts
 {
     public class GetUserProgressContext : IGetUserProgressContext
     {
-        private readonly ProgressGateway _progressGateway;
+        private readonly IProgressGateway _progressGateway;
 
-        public GetUserProgressContext(ProgressGateway progressGateway)
+        public GetUserProgressContext(IProgressGateway progressGateway)
         {
             _progressGateway = progressGateway;
         }

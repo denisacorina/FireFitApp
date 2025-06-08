@@ -55,4 +55,7 @@
   <data name="Login_Required" xml:space="preserve">
     <value>Please log in to view your food log.</value>
   </data>
+  <data name="Error_UserNotFound" xml:space="preserve">
+    <value>User not found.</value>
+  </data>
 </root> 

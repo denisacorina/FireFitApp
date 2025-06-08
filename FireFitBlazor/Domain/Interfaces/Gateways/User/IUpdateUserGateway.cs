@@ -3,5 +3,6 @@ using FireFitBlazor.Domain.Models;
 
 public interface IUpdateUserGateway
 {
-    Task<bool> UpdateAsync(User user);
+    Task<User> GetUserById(string userId);
+    Task UpdateAsync(User user);
 }

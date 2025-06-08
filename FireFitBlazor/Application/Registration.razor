@@ -1,4 +1,5 @@
 ﻿@page "/register"
+@using Microsoft.AspNetCore.Components.Web
 @using Radzen
 @using Radzen.Blazor
 @using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
@@ -6,13 +7,29 @@
 @rendermode InteractiveServer
 @inherits UserRegistration
 
-
+<div style="margin-bottom: 150px!important;">
+    <img src="/images/fire-flame-logo-design-template-vector.png"
+         style="width: 200px; height: 200px; display: block; margin-left: auto; margin-right: auto;  margin-top: auto;  margin-bottom: -30px;" />
+    <h2 style="color: #db5e16; text-align: center;">FireFit</h2>
+</div>
+<div class="step-indicator-container">
+    @for (int i = 1; i <= 6; i++)
+    {
+        <div class="step @(i <= CurrentStep ? "active" : "")">
+            <div class="circle">@i</div>
+        </div>
+    }
+</div>
 
 <RadzenTemplateForm TItem="UserRegistrationModel" Data="@FormModel" Submit="@CreateUser" Style="width: 100%">
-
     @if (CurrentStep == 1)
     {
         <!-- Step 1: Email, Password, Name -->
+        <div class="form-group">
+            <RadzenTextBox @bind-Value="FormModel.Name" Name="Name" Placeholder="Name" Style="width: 100%" />
+            <RadzenRequiredValidator Component="Name" Text="Name is required" />
+        </div>
+
         <div class="form-step">
             <div class="form-group">
                 <RadzenTextBox @bind-Value="FormModel.Email" Name="Email" Placeholder="Email" Style="width: 100%" />
@@ -22,11 +39,6 @@
             <div class="form-group">
                 <RadzenPassword @bind-Value="FormModel.Password" Name="Password" Placeholder="Password" Style="width: 100%" />
                 <RadzenRequiredValidator Component="Password" Text="Password is required" />
-            </div>
-
-            <div class="form-group">
-                <RadzenTextBox @bind-Value="FormModel.Name" Name="Name" Placeholder="Name" Style="width: 100%" />
-                <RadzenRequiredValidator Component="Name" Text="Name is required" />
             </div>
 
             <div class="form-group">
@@ -51,41 +63,31 @@
     {
         <!-- Step 2: Age, Weight, Goal Weight, Height -->
         <div class="form-step">
+            <h3>Physical Stats</h3>
             <div class="form-group">
-                <RadzenNumeric @bind-Value="FormModel.Age" Name="Age" Placeholder="Age" Style="width: 100%" />
+                <RadzenLabel Text="Age" Component="Age" Style="font-weight: bold;" />
+                <RadzenNumeric @bind-Value="FormModel.Age" Name="Age" Placeholder="Enter your age" Style="width: 100%" />
                 <RadzenRequiredValidator Component="Age" Text="Age is required" />
             </div>
 
             <div class="form-group">
-                <RadzenNumeric @bind-Value="FormModel.CurrentWeight" Name="CurrentWeight" Placeholder="Current Weight (kg)" Style="width: 100%" />
+                <RadzenLabel Text="Current Weight (kg)" Component="CurrentWeight" Style="font-weight: bold;" />
+                <RadzenNumeric @bind-Value="FormModel.CurrentWeight" Name="CurrentWeight" Placeholder="e.g. 100" Style="width: 100%" />
                 <RadzenRequiredValidator Component="CurrentWeight" Text="Current weight is required" />
             </div>
 
             <div class="form-group">
-                <RadzenNumeric @bind-Value="FormModel.TargetWeight" Name="TargetWeight" Placeholder="Target Weight (kg)" Style="width: 100%" />
+                <RadzenLabel Text="Target Weight (kg)" Component="TargetWeight" Style="font-weight: bold;" />
+                <RadzenNumeric @bind-Value="FormModel.TargetWeight" Name="TargetWeight" Placeholder="e.g. 75" Style="width: 100%" />
                 <RadzenRequiredValidator Component="TargetWeight" Text="Target weight is required" />
             </div>
 
             <div class="form-group">
-                <RadzenNumeric @bind-Value="FormModel.Height" Name="Height" Placeholder="Height (cm)" Style="width: 100%" />
+                <RadzenLabel Text="Height (cm)" Component="Height" Style="font-weight: bold;" />
+                <RadzenNumeric @bind-Value="FormModel.Height" Name="Height" Placeholder="e.g. 178" Style="width: 100%" />
                 <RadzenRequiredValidator Component="Height" Text="Height is required" />
             </div>
-            
-            <div class="form-group">
-
-
-                <RadzenDropDown id="activityLevel"
-                                Data="@ActivityLevels"
-                                TextProperty="Key"
-                                ValueProperty="Value"
-                                @bind-Value="FormModel.ActivityLevel"
-                                Placeholder="Select Activity Level"
-                                Style="width: 100%;"
-                                Change="OnActivityLevelChange" />
-
-            </div>
-
-            <div class="form-group">
+            <div class="form-group mt-3">
                 <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
                 <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
             </div>
@@ -94,33 +96,201 @@
 
     @if (CurrentStep == 3)
     {
-        <!-- Step 3: Dietary Preferences -->
+        <!-- Step 3: Dietary Preferences & Plan Summary -->
         <div class="form-step">
+            <h3>Lifestyle & Goal</h3>
+            <div class="form-group">
+                <RadzenDropDown id="activityLevel"
+                                Data="@ActivityLevels"
+                                TextProperty="Key"
+                                ValueProperty="Value"
+                                @bind-Value="FormModel.ActivityLevel"
+                                Placeholder="Select Activity Level"
+                                Style="width: 100%;"
+                                Change="OnActivityLevelChange" />
+                <RadzenRequiredValidator Component="ActivityLevel" Text="Activity level is required" />
+            </div>
+            <div class="form-group">
+                <RadzenDropDown id="weightGoal"
+                                Data="WeightGoals"
+                                @bind-Value="FormModel.WeightGoal"
+                                TextProperty="Key" 
+                                ValueProperty="Value"
+                                Placeholder="Select Weight Goal"
+                                Change="OnWeightChangeTypeChange"
+                                Style="width: 100%" />
+                <RadzenRequiredValidator Component="WeightGoal" Text="Weight goal is required" />
+            </div>
+    
+            <div class="form-group mt-3">
+                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
+                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
+            </div>
+        </div>
+    }
+    @if (CurrentStep == 4)
+    {
+        <div class="form-step">
+        <h3>Plan Summary</h3>
+
+        <div class="form-group mb-3">
+            <RadzenLabel Text="Select Goal Intensity" />
+                <RadzenDropDown @bind-Value="FormModel.GoalIntensity"
+                                Data="@GoalIntensityOptions"
+                                TextProperty="Key"
+                                ValueProperty="Value"
+                                Style="width: 100%"
+                                Change="StateHasChanged" />
+        </div>
+
+            <RadzenNumeric @bind-Value="ManualCalorieOverride"
+                           TValue="int"
+                           Min="1000"
+                           Change="@OnManualCalorieChange"
+                           Style="width: 100%"
+                           Placeholder="Leave empty for auto" />
+
+            <RadzenButton Text="Reset to Recommended"
+                          Click="@ResetToRecommended"
+                          ButtonStyle="ButtonStyle.Secondary"
+                          Style="margin-top: 10px;" />
+
+        <RadzenCard class="summary-card">
+            <p><b>Goal:</b> @FormModel.WeightGoal</p>
+            <p><b>Weekly Change:</b> @GetWeeklyChangeText()</p>
+            <p><b>Estimated Time to Reach Goal:</b> @EstimatedWeeks weeks</p>
+            <p><b>Daily Calorie Goal:</b> @DailyCalories kcal</p>
+
+            @if (DailyCalories < 1000)
+            {
+                <p class="text-danger"><strong>⚠️ Too low!</strong> Calorie goal must be at least 1000 kcal/day.</p>
+            }
+
+                <p><b>🍽️ Macronutrients:</b></p>
+                <ul class="macro-list">
+                    <li><b>🥩 Protein:</b> @ProteinGrams g</li>
+                    <li><b>🍞 Carbs:</b> @CarbsGrams g</li>
+                    <li><b>🥑 Fats:</b> @FatsGrams g</li>
+                </ul>
+        </RadzenCard>
+
+        <div class="form-group mt-3">
+            <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
+            <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
+        </div>
+    </div>
+    }
+    @if (CurrentStep == 5)
+    {
+        <div class="form-step">
+            <h3>Dietary Preferences</h3>
             <div class="form-group">
                 @foreach (var pref in Enum.GetValues<DietaryPreference>().Cast<DietaryPreference>())
                 {
-                    <div>
+                    <div class="mb-2">
                         <RadzenCheckBox TValue="bool"
                                         TriState="false"
                                         Value="@FormModel.SelectedDietary.Contains(pref)"
                                         Change="@((bool value) => OnDietaryPreferenceChanged(pref, value))" />
-                        <label>@pref.ToString()</label>
-
+                        <label class="ml-2">@pref.ToString()</label>
                     </div>
                 }
-
             </div>
 
-            <div class="form-group">
+            <div class="form-group mt-3">
                 <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
-                <RadzenButton Text="Submit" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" />
+                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
+            </div>
+        </div>
+    }
+    @if (CurrentStep == 6)
+    {
+        <div class="form-step">
+            <h3>Workout Preferences</h3>
+            <div class="form-group">
+                @foreach (var type in Enum.GetValues<WorkoutType>().Cast<WorkoutType>())
+                {
+                    <div class="mb-2">
+                        <RadzenCheckBox TValue="bool"
+                                        TriState="false"
+                                        Value="@FormModel.SelectedWorkoutTypes.Contains(type)"
+                                        Change="@((bool value) => OnWorkoutPreferenceChanged(type, value))" />
+                        <label class="ml-2">@type.ToString()</label>
+                    </div>
+                }
+            </div>
+
+            <div class="form-group mt-3">
+                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
+                <RadzenButton Text="Register" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" />
             </div>
         </div>
     }
 
+
 </RadzenTemplateForm>
 <style>
 
+    .summary-card {
+        background-color: #f9f9f9;
+        padding: 1.25rem;
+        border-radius: 10px;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        max-width: 600px;
+        margin: 0 auto 1rem;
+    }
+
+        .summary-card p {
+            margin: 0.25rem 0;
+        }
+
+    .macro-list {
+        padding-left: 1.5rem;
+    }
+    .step-indicator-container {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        max-width: 600px;
+        margin-inline: auto;
+    }
+
+    .step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+
+        .step::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: -50%;
+            width: 100%;
+            height: 4px;
+            background-color: #ccc;
+            z-index: -1;
+        }
+
+        .step:last-child::after {
+            display: none;
+        }
+
+        .step.active .circle {
+            background-color: #007bff;
+            color: white;
+            font-weight: bold;
+        }
+
+    .circle {
+        width: 32px;
+        height: 32px;
+        margin: auto;
+        border-radius: 50%;
+        background-color: #e0e0e0;
+        line-height: 32px;
+    }
     /* General Styles for the Form */
     .form-step {
         margin-bottom: 20px;
@@ -130,6 +300,24 @@
         margin-bottom: 15px;
     }
 
+    .step-container {
+        animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
     /* Ensure the inputs take full width on mobile devices */
     @@media only screen and (max-width: 768px) {
         .form-group {

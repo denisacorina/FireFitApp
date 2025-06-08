@@ -79,13 +79,15 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>
 builder.Services.AddScoped<IRecipeGateway, RecipeGateway>();
 builder.Services.AddScoped<IGoalContext, GoalContext>();
 builder.Services.AddScoped<IUserProgressContext, UserProgressContext>();
-builder.Services.AddScoped<ProgressService>();
-builder.Services.AddScoped<ProgressGateway>();
+builder.Services.AddScoped<IUpdateUserContext, UpdateUserContext>();
+builder.Services.AddScoped<IUpdateUserProgressContext, UpdateUserProgressContext>();
 builder.Services.AddScoped<IAddBodyMeasurementContext, AddBodyMeasurementContext>();
 builder.Services.AddScoped<IDeleteBodyMeasurementContext, DeleteBodyMeasurementContext>();
 builder.Services.AddScoped<IGetBodyMeasurementsContext, GetBodyMeasurementsContext>();
 builder.Services.AddScoped<IGetLatestBodyMeasurementContext, GetLatestBodyMeasurementContext>();
 builder.Services.AddScoped<IGetUserProgressContext, GetUserProgressContext>();
+builder.Services.AddScoped<IGetUserContext, GetUserContext>();
+builder.Services.AddScoped<IGetUserGateway, GetUserGateway>();
 builder.Services.AddScoped<IUpdateUserProgressContext, UpdateUserProgressContext>();
 builder.Services.AddScoped<IUserPreferencesContext, UserPreferencesContext>();
 builder.Services.AddScoped<IFoodLogService, FoodLogService>();
@@ -95,7 +97,7 @@ builder.Services.AddScoped<IGoalContext, GoalContext>();
 //builder.Services.AddScoped<IMarkGoalAsCompletedContext, MarkGoalAsCompletedContext>();
 //builder.Services.AddScoped<IReactivateGoalContext, ReactivateGoalContext>();
 //builder.Services.AddScoped<IUpdateGoalContext, UpdateGoalContext>();
-
+builder.Services.AddScoped<IWeightPredictionService, WeightPredictionService>();
 
 //builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 //builder.Services.AddScoped<IEmailService, EmailService>();
@@ -155,8 +157,8 @@ ObjectDetection.ModelInput sampleData = new ObjectDetection.ModelInput()
 //    Console.WriteLine($"XTop: {item.Box.XTop},YTop: {item.Box.YTop},XBottom: {item.Box.XBottom},YBottom: {item.Box.YBottom}, Score: {item.Score}");
 //}
 
-builder.Services.AddScoped<IProgressGateway, ProgressGateway>();
 builder.Services.AddScoped<IGoalGateway, GoalGateway>();
+builder.Services.AddScoped<IUpdateUserGateway, UpdateUserGateway>();
 
 // Register logging service
 builder.Services.AddScoped<ILoggingService, LoggingService>();

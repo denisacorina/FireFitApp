@@ -31,13 +31,35 @@ namespace FireFitBlazor.Application.Controllers
         {
             if (_context.Users.Any(u => u.Email == dto.Email))
                 return BadRequest("Email already exists.");
+            var isMale = dto.Gender == Gender.Male ? true : false;
+            var initialUser = Domain.Models.User.Create(
+                 Guid.NewGuid().ToString(),
+                 dto.Email,
+                 BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                 dto.Name,
+                 dto.Age,
+                 isMale,
+                 dto.Height,
+                 dto.StartingWeight,
+                 dto.TargetWeight,
+                 dto.WeightGoal,
+                 dto.ActivityLevel,
+                 dto.DietaryPreferences,
+                 dto.WorkoutTypes,
+                 null,
+                 dto.FitnessExperience
+            );
 
-            var user = Domain.Models.User.Create(Guid.NewGuid().ToString(), dto.Email, dto.Name);
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
-            var isMale = dto.Gender == Gender.Male ? true : false;  
-            _context.Users.Add(user);
-            user.SetupProfile(dto.Age, isMale, dto.CurrentWeight, dto.Height, dto.TargetWeight, dto.WeightGoal, dto.ActivityLevel, dto.DietaryPreferences);
-           
+            _context.Users.Add(initialUser);
+          
+            var initialUserProgress = UserProgress.Create(initialUser.UserId, dto.CurrentWeight, dto.CurrentWeight);
+
+            _context.UserProgress.Add(initialUserProgress);
+
+            var initialUserPreferences = UserPreferences.Create(initialUser.UserId, dto.DietaryPreferences, dto.DailyCalorieGoal);
+
+            _context.UserPreferences.Add(initialUserPreferences);
+
             await _context.SaveChangesAsync();
 
             return Ok("Registered successfully.");
@@ -69,7 +91,8 @@ namespace FireFitBlazor.Application.Controllers
             if (userId == null)
                 return Unauthorized();
 
-            var user = _context.Users.Include(u => u.WorkoutPreferences).FirstOrDefault(u => u.UserId == userId);
+            var user = _context.Users.Include(i => i.CalorieLogs)
+            .FirstOrDefault(u => u.UserId == userId);
             if (user == null)
                 return NotFound();
 

@@ -1,6 +1,7 @@
 ﻿using FireFitBlazor.Domain.ValueObjects;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using static FireFitBlazor.Domain.Enums.FoodTrackingEnums;
 
 namespace FireFitBlazor.Domain.Models
@@ -8,104 +9,199 @@ namespace FireFitBlazor.Domain.Models
     public sealed class User
     {
         [Key]
-        public string UserId { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
-        public string PasswordHash { get; set; } = "";
-        public int Age { get; set; }
-        public Gender Gender { get; set; }
-        public decimal CurrentWeight;
-        public decimal StartingWeight;
-        public UserProgress Progress { get;  set; }
-        public UserPreferences Preferences { get;  set; }
+        public string UserId { get; init; }
+        public string Name { get; init; }
+        public string Email { get; init; }
+        public DateTime CreatedAt { get; init; }
+        public DateTime UpdatedAt { get; init; }
+        public string PasswordHash { get; init; } = "";
+        public int Age { get; init; }
+        public Gender Gender { get; init; }
 
-        public int Height { get; set; }
-        public WeightGoal WeightGoal { get; set; }
-        public ActivityLevel ActivityLevel { get; set; }
-        public List<CalorieLog> CalorieLogs { get; set; } = new List<CalorieLog>();
+        public int Height { get; init; }
+        public decimal StartingWeight { get; init; }
+        public decimal TargetWeight { get; init; }
+        public WeightGoal WeightGoal { get; init; }
+        public ActivityLevel ActivityLevel { get; init; }
+
+        public List<CalorieLog> CalorieLogs { get; init; } = new();
+        [PersonalData]
+        public List<DietaryPreference> DietaryPreferences { get; init; } = new();
 
         [PersonalData]
-        public List<DietaryPreference> DietaryPreferences { get; set; } = new();
-        [PersonalData]
-        public string? ProfilePicturePath { get; set; }
-        public ExperienceLevel FitnessExperience { get; set; }
-        public List<WorkoutPreference> WorkoutPreferences { get; set; } = new();
+        public string? ProfilePicturePath { get; init; }
+        public ExperienceLevel FitnessExperience { get; init; }
+        public List<WorkoutType> WorkoutTypes { get; init; } = new();
+        public List<WorkoutPreference> WorkoutPreferences { get; init; } = new();
 
-        public static User Create(string userId, string email, string name)
+        private User() { }
+
+        [JsonConstructor]
+        private User(
+    string userId,
+    string name,
+    string email,
+    DateTime createdAt,
+    DateTime updatedAt,
+    string passwordHash,
+    int age,
+    Gender gender,
+    int height,
+    decimal startingWeight,
+    decimal targetWeight,
+    WeightGoal weightGoal,
+    ActivityLevel activityLevel,
+    List<CalorieLog> calorieLogs,
+    List<DietaryPreference> dietaryPreferences,
+    string? profilePicturePath,
+    ExperienceLevel fitnessExperience,
+    List<WorkoutType> workoutTypes,
+    List<WorkoutPreference> workoutPreferences)
         {
-            return new User
-            {
-                UserId = userId,
-                Email = email,
-                Name = name,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+            UserId = userId;
+            Name = name;
+            Email = email;
+            CreatedAt = createdAt;
+            UpdatedAt = updatedAt;
+            PasswordHash = passwordHash;
+            Age = age;
+            Gender = gender;
+            Height = height;
+            StartingWeight = startingWeight;
+            TargetWeight = targetWeight;
+            WeightGoal = weightGoal;
+            ActivityLevel = activityLevel;
+            CalorieLogs = calorieLogs;
+            DietaryPreferences = dietaryPreferences;
+            ProfilePicturePath = profilePicturePath;
+            FitnessExperience = fitnessExperience;
+            WorkoutTypes = workoutTypes;
+            WorkoutPreferences = workoutPreferences;
         }
-        public void SetupProfile(int age, bool isMale, decimal currentWeight, int height, decimal targetWeight, WeightChangeType changeType, ActivityLevel activityLevel, List<DietaryPreference> dietaryPreferences)
+
+        public static User Create(string userId, string email, string passwordHash, string name, int age, bool isMale, int height, decimal startingWeight, decimal targetWeight, WeightChangeType changeType, ActivityLevel activityLevel, List<DietaryPreference> dietaryPreferences, List<WorkoutType> workoutTypes, string profilePicturePath, ExperienceLevel fitnessExperience)
+        {
+            return new User(
+                   userId,
+                   name,
+                   email,
+                   DateTime.UtcNow,
+                   DateTime.UtcNow,
+                   passwordHash,
+                   age,
+                   isMale ? Gender.Male : Gender.Female,
+                   height,
+                   startingWeight,
+                   targetWeight,
+                   new WeightGoal(targetWeight, changeType),
+                   activityLevel,
+                   new List<CalorieLog>(),
+                   dietaryPreferences,
+                   profilePicturePath,
+                   fitnessExperience,
+                   workoutTypes,
+                   new List<WorkoutPreference>()
+            );
+        }
+
+        //public User SetupProfile(
+        //  int age,
+        //  bool isMale,
+        //  int height,
+        //  decimal targetWeight,
+        //  WeightChangeType changeType,
+        //  ActivityLevel activityLevel,
+        //  List<DietaryPreference> dietaryPreferences,
+        //  List<WorkoutType> workoutTypes,
+        //  decimal currentWeight)
+        //{
+        //    if (age is < 18 or > 100)
+        //        throw new ArgumentException("Age must be between 18 and 100.");
+
+        //    var gender = isMale ? Gender.Male : Gender.Female;
+        //    var weightGoal = new WeightGoal(targetWeight, changeType);
+
+        //    //var preferences = UserPreferences.Create(
+        //    //    UserId,
+        //    //    dietaryPreferences,
+        //    //    (int)GetRecommendedCalories(weightGoal, isMale, activityLevel, age, currentWeight));
+
+        //    //var progress = UserProgress.Create(UserId, currentWeight, currentWeight);
+
+        //    return new User(
+        //        UserId,
+        //        Name,
+        //        Email,
+        //        CreatedAt,
+        //        DateTime.UtcNow,
+        //        PasswordHash,
+        //        age,
+        //        gender,
+        //        height,
+        //        weightGoal,
+        //        activityLevel,
+        //        CalorieLogs ?? new List<CalorieLog>(),
+        //        dietaryPreferences,
+        //        ProfilePicturePath,
+        //        FitnessExperience,
+        //        workoutTypes ?? new List<WorkoutType>(),
+        //        WorkoutPreferences ?? new List<WorkoutPreference>()
+        //    );
+        //}
+
+
+        public User Update(string userId, string email, string name, int age, bool isMale, int height, decimal startingWeight, decimal targetWeight, WeightChangeType changeType, ActivityLevel activityLevel, List<DietaryPreference> dietaryPreferences, List<WorkoutType> workoutTypes, string profilePicturePath, ExperienceLevel fitnessExperience)
         {
             if (age is < 18 or > 100)
                 throw new ArgumentException("Age must be between 18 and 100.");
 
-            Age = age;
-            Gender = isMale ? Gender.Male : Gender.Female;
-            Height = height;
-            CurrentWeight = currentWeight;
-            StartingWeight = currentWeight;
-            WeightGoal = new WeightGoal(targetWeight, changeType);
-            ActivityLevel = activityLevel;
-            Progress = UserProgress.Create(UserId, currentWeight, currentWeight);
-            UpdatedAt = DateTime.UtcNow;
-        }
-
-
-        public void Update(string name, string email, int age, bool isMale, decimal currentWeight, int height, decimal targetWeight, WeightChangeType changeType, ActivityLevel activityLevel, List<DietaryPreference> dietaryPreferences)
-        {
-            if (age is < 18 or > 100) throw new ArgumentException("Age must be between 18 and 100.");
-
             var gender = isMale ? Gender.Male : Gender.Female;
-
-            Name = name;
-            Email = email;
-            Age = age;
-            Gender = isMale ? Gender.Male : Gender.Female;
-            Height = height;
-            WeightGoal = new WeightGoal(targetWeight, changeType);
-            ActivityLevel = activityLevel;
-          
-            UpdatedAt = DateTime.UtcNow;
-
-            Progress = UserProgress.Create(UserId, StartingWeight, CurrentWeight);
             var weightGoal = new WeightGoal(targetWeight, changeType);
 
-            var newCalorieGoal = GetRecommendedCalories(weightGoal, isMale, activityLevel, age, Progress.StartingWeight);
-            Preferences = Preferences.Update(dietaryPreferences, (int)newCalorieGoal);
-            CalorieLogs = new List<CalorieLog>();
+            return new User(
+                UserId,
+                name,
+                email,
+                CreatedAt,
+                DateTime.UtcNow,
+                PasswordHash,
+                age,
+                gender,
+                height,
+                startingWeight,
+                targetWeight,
+                new WeightGoal(targetWeight, changeType),
+                activityLevel,
+                new List<CalorieLog>(),
+                dietaryPreferences,
+                profilePicturePath,
+                fitnessExperience,
+                workoutTypes,
+                new List<WorkoutPreference>()
+            );
         }
 
         public void ClearWeightGoal()
         {
-            WeightGoal = WeightGoal.Default();
+            WeightGoal.Default();
         }
 
-        public void LogDailyCalories(WeightGoal weightGoal, int consumedCalories, bool isMale, int age, ActivityLevel activityLevel)
-        {
-            int recommendedCalories = (int)GetRecommendedCalories(weightGoal, isMale, activityLevel, age, Progress.StartingWeight);
+        //public void LogDailyCalories(WeightGoal weightGoal, int consumedCalories, bool isMale, int age, ActivityLevel activityLevel)
+        //{
+        //    int recommendedCalories = (int)GetRecommendedCalories(weightGoal, isMale, activityLevel, age, Progress.StartingWeight);
 
-            // Check if there's already a log for today
-            var existingLog = CalorieLogs.Find(log => log.Date == DateTime.UtcNow.Date);
+        //    // Check if there's already a log for today
+        //    var existingLog = CalorieLogs.Find(log => log.Date == DateTime.UtcNow.Date);
 
-            if (existingLog != null)
-            {
-                existingLog.UpdateCalories(consumedCalories);
-            }
-            else
-            {
-                CalorieLogs.Add(CalorieLog.Create(UserId, consumedCalories, recommendedCalories));
-            }
-        }
+        //    if (existingLog != null)
+        //    {
+        //        existingLog.UpdateCalories(consumedCalories);
+        //    }
+        //    else
+        //    {
+        //        CalorieLogs.Add(CalorieLog.Create(UserId, consumedCalories, recommendedCalories));
+        //    }
+        //}
 
         public int GetCaloriesToday()
         {
@@ -147,11 +243,11 @@ namespace FireFitBlazor.Domain.Models
         }
 
         // **Calculate BMI** (Body Mass Index)
-        public decimal CalculateBMI()
-        {
-            decimal heightInMeters = Height / 100m;
-            return Progress.StartingWeight / (heightInMeters * heightInMeters);
-        }
+        //public decimal CalculateBMI()
+        //{
+        //    decimal heightInMeters = Height / 100m;
+        //    return Progress.StartingWeight / (heightInMeters * heightInMeters);
+        //}
 
         public static decimal GetRecommendedCalories(WeightGoal weightGoal, bool isMale, ActivityLevel activityLevel, int age, decimal startingWeight)
         {
@@ -169,24 +265,24 @@ namespace FireFitBlazor.Domain.Models
             return CalculateBMR(isMale, age, progress) * 1.1m; // 10% above BMR to prevent starvation mode
         }
 
-        public decimal EstimateWeeksToGoal()
-        {
-            decimal weightDifference = Math.Abs(Progress.StartingWeight - WeightGoal.TargetWeight);
-            decimal weeklyChange = WeightGoal.ChangeType switch
-            {
-                WeightChangeType.Lose => 0.5m, // Avg safe weight loss: 0.5 kg/week
-                WeightChangeType.Gain => 0.5m, // Avg safe weight gain: 0.5 kg/week
-                _ => 0 // No change
-            };
+        //public decimal EstimateWeeksToGoal()
+        //{
+        //    decimal weightDifference = Math.Abs(Progress.StartingWeight - WeightGoal.TargetWeight);
+        //    decimal weeklyChange = WeightGoal.ChangeType switch
+        //    {
+        //        WeightChangeType.Lose => 0.5m, // Avg safe weight loss: 0.5 kg/week
+        //        WeightChangeType.Gain => 0.5m, // Avg safe weight gain: 0.5 kg/week
+        //        _ => 0 // No change
+        //    };
 
-            return weeklyChange == 0 ? 0 : weightDifference / weeklyChange;
-        }
+        //    return weeklyChange == 0 ? 0 : weightDifference / weeklyChange;
+        //}
 
         // 7️⃣ **Track Progress (Weight Lost/Gained)**
-        public decimal GetWeightProgress()
-        {
-            return Progress.StartingWeight - Progress.CurrentWeight;
-        }
+        //public decimal GetWeightProgress()
+        //{
+        //    return Progress.StartingWeight - Progress.CurrentWeight;
+        //}
     }
 }
 

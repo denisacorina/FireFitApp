@@ -1,6 +1,5 @@
 ﻿using FireFitBlazor.Domain.ContextInterfaces;
 using FireFitBlazor.Domain.Models;
-using global::FireFitBlazor.Domain.Models;
 using global::FireFitBlazor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,22 +19,25 @@ public class UserProgressContext : IUserProgressContext
         _logger = logger;
     }
 
-    public async Task<UserProgress> GetUserProgressAsync(string userId)
+    public async Task<Result<UserProgress?>> GetUserProgressAsync(string userId)
     {
         try
         {
-            return await _context.UserProgress
-                .Include(up => up.Measurements)
-                .Include(up => up.WorkoutSessions)
-                .Include(up => up.Achievements)
-                .FirstOrDefaultAsync(up => up.UserId == userId);
+            var progress = await _context.UserProgress
+          .Include(up => up.Measurements)
+          .Include(up => up.WorkoutSessions)
+          .Include(up => up.Achievements)
+          .FirstOrDefaultAsync(up => up.UserId == userId);
+
+           return Result<UserProgress?>.Success(progress);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving user progress for user {UserId}", userId);
-            throw;
+            return Result<UserProgress?>.Failure("An error occurred while retrieving user progress.");
         }
     }
+
 
     public async Task<UserProgress> CreateProgressAsync(
         string userId,
@@ -68,9 +70,14 @@ public class UserProgressContext : IUserProgressContext
     {
         try
         {
-            var progress = await GetUserProgressAsync(userId);
-            if (progress == null)
+            var result = await GetUserProgressAsync(userId);
+
+            if (!result.IsSuccess || result.Value == null)
+            {
                 throw new ArgumentException("User progress not found");
+            }
+
+            var progress = result.Value;
 
             progress.UpdateWeight(newWeight, notes);
             await _context.SaveChangesAsync();
@@ -86,9 +93,14 @@ public class UserProgressContext : IUserProgressContext
     {
         try
         {
-            var progress = await GetUserProgressAsync(userId);
-            if (progress == null)
+            var result = await GetUserProgressAsync(userId);
+
+            if (!result.IsSuccess || result.Value == null)
+            {
                 throw new ArgumentException("User progress not found");
+            }
+
+            var progress = result.Value;
 
             progress.AddMeasurement(measurement);
             await _context.SaveChangesAsync();
@@ -104,10 +116,14 @@ public class UserProgressContext : IUserProgressContext
     {
         try
         {
-            var progress = await GetUserProgressAsync(userId);
-            if (progress == null)
-                throw new ArgumentException("User progress not found");
+            var result = await GetUserProgressAsync(userId);
 
+            if (!result.IsSuccess || result.Value == null)
+            {
+                throw new ArgumentException("User progress not found");
+            }
+
+            var progress = result.Value;
             progress.AddWorkoutSession(session);
             await _context.SaveChangesAsync();
         }

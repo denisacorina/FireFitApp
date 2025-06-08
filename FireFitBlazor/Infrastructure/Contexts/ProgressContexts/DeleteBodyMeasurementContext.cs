@@ -5,9 +5,9 @@ namespace FireFitBlazor.Infrastructure.Contexts.ProgressContexts
 {
     public class DeleteBodyMeasurementContext : IDeleteBodyMeasurementContext
     {
-        private readonly ProgressGateway _progressGateway;
+        private readonly IProgressGateway _progressGateway;
 
-        public DeleteBodyMeasurementContext(ProgressGateway progressGateway)
+        public DeleteBodyMeasurementContext(IProgressGateway progressGateway)
         {
             _progressGateway = progressGateway;
         }

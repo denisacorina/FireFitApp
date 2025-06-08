@@ -20,7 +20,7 @@ public class UserPreferencesContext : IUserPreferencesContext
         _logger = logger;
     }
 
-    public async Task UpdateWorkoutPreferencesAsync(string userId, List<WorkoutPreference> selectedTypes)
+    public async Task<bool> UpdateWorkoutPreferencesAsync(string userId, List<WorkoutPreference> selectedTypes)
     {
         try
         {
@@ -44,30 +44,52 @@ public class UserPreferencesContext : IUserPreferencesContext
 
             await _context.WorkoutPreferences.AddRangeAsync(newPreferences);
             await _context.SaveChangesAsync();
+
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating workout preferences for user {UserId}", userId);
-            throw;
+            return false;
         }
     }
-    public async Task UpdateDietaryPreferencesAsync(string userId, IEnumerable<DietaryPreference> preferences)
-    {
-        var user = await _context.Users.Include(i => i.Preferences)
-                                         .FirstOrDefaultAsync(u => u.UserId == userId);
 
-        if (user != null)
+    public async Task<bool> UpdateDietaryPreferencesAsync(string userId, IEnumerable<DietaryPreference> preferences)
+    {
+        try
         {
-            if (user.Preferences == null)
+            var userPreferences = await _context.UserPreferences.FirstOrDefaultAsync(u => u.UserId == userId);
+
+            if (userPreferences != null)
             {
-                user.Preferences = UserPreferences.Create(userId, new List<DietaryPreference>(), 0);
-                _context.UserPreferences.Add(user.Preferences);
+                if (userPreferences.DietaryPreferences == null)
+                {
+                    var newPreferences = UserPreferences.Create(userId, new List<DietaryPreference>(), 0);
+                    _context.UserPreferences.Add(newPreferences);
+                }
+                else
+                {
+                    var updatedPreferences = userPreferences.Update(
+                      dietaryPreferences: preferences.ToList(),
+                      newCalorieGoal: userPreferences.DailyCalorieGoal
+                    );
+
+                    _context.UserPreferences.Remove(userPreferences);
+                    _context.UserPreferences.Add(updatedPreferences);
+                }
+
+                await _context.SaveChangesAsync();
             }
-            user.Preferences.DietaryPreferences = preferences.ToList();
-            await _context.SaveChangesAsync();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating dietary preferences for user {UserId}", userId);
+            return false;
         }
     }
-    public async Task UpdateUserPreferencesAsync(
+
+    public async Task<bool> UpdateUserPreferencesAsync(
         string userId,
         List<DietaryPreference> dietaryPreferences,
         int dailyCalorieGoal)
@@ -95,11 +117,13 @@ public class UserPreferencesContext : IUserPreferencesContext
             }
 
             await _context.SaveChangesAsync();
+
+            return true;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating user preferences for user {UserId}", userId);
-            throw;
+            return false;
         }
     }
 }

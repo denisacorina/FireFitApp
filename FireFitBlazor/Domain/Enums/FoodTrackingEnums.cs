@@ -39,6 +39,13 @@ namespace FireFitBlazor.Domain.Enums
             Gain
         }
 
+        public enum GoalIntensity 
+        { 
+            Moderate,
+            Extreme,
+            Slow 
+        }
+
         public enum ActivityLevel
         {
             Sedentary,      
@@ -64,6 +71,7 @@ namespace FireFitBlazor.Domain.Enums
 
         public enum WorkoutType
         {
+            None,
             Strength,
             Cardio,
             Flexibility,

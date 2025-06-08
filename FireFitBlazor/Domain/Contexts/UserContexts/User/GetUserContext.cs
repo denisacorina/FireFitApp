@@ -12,17 +12,13 @@ public class GetUserContext : IGetUserContext
 
     public GetUserContext(IGetUserGateway getUserGateway)
     {
-        _getUserGateway = getUserGateway ?? throw new ArgumentNullException(nameof(getUserGateway));
+        _getUserGateway = getUserGateway;
     }
 
-    public async Task<User> Execute(int id)
+    public async Task<User> Execute(string id)
     {
-        if (id <= 0)
-        {
-            throw new ArgumentException(Messages.Error_InvalidId);
-        }
-
-        return await _getUserGateway.GetByIdAsync(id);
+        return await _getUserGateway
+            .GetByIdAsync(id);
     }
 
     public async Task<User> ExecuteByEmail(string email)

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 public interface IProgressGateway
 {
     Task<UserProgress> GetUserProgressAsync(string userId);
-    Task<UserProgress> UpdateUserProgressAsync(UserProgress progress);
+    Task<Result<UserProgress>> UpdateUserProgressAsync(UserProgress progress);
     Task<BodyMeasurement> AddBodyMeasurementAsync(BodyMeasurement measurement);
     Task<IEnumerable<BodyMeasurement>> GetBodyMeasurementsAsync(string userId, DateTime? startDate = null, DateTime? endDate = null);
     Task<BodyMeasurement> GetLatestBodyMeasurementAsync(string userId);
@@ -26,11 +26,21 @@ public class ProgressGateway : IProgressGateway
             .FirstOrDefaultAsync(p => p.UserId == userId);
     }
 
-    public async Task<UserProgress> UpdateUserProgressAsync(UserProgress progress)
+    public async Task<Result<UserProgress>> UpdateUserProgressAsync(UserProgress progress)
     {
-        _dbContext.UserProgress.Update(progress);
-        await _dbContext.SaveChangesAsync();
-        return progress;
+        var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == progress.UserId);
+        if (existingUser == null)
+            throw new InvalidOperationException("User not found.");
+
+        // Overwrite properties safely
+        _dbContext.Entry(existingUser).CurrentValues.SetValues(progress);
+      
+        var result = await _dbContext.SaveChangesAsync();
+        if (result <= 0)
+        {
+            return Result<UserProgress>.Failure("Failed to update user progress.");
+        }
+        return Result<UserProgress>.Success(progress);
     }
 
     public async Task<BodyMeasurement> AddBodyMeasurementAsync(BodyMeasurement measurement)

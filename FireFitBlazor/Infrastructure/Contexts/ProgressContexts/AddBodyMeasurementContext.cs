@@ -4,9 +4,9 @@ using FireFitBlazor.Domain.Models;
 
 public class AddBodyMeasurementContext : IAddBodyMeasurementContext
 {
-    private readonly ProgressGateway _progressGateway;
+    private readonly IProgressGateway _progressGateway;
 
-    public AddBodyMeasurementContext(ProgressGateway progressGateway)
+    public AddBodyMeasurementContext(IProgressGateway progressGateway)
     {
         _progressGateway = progressGateway;
     }
@@ -29,6 +29,7 @@ public class AddBodyMeasurementContext : IAddBodyMeasurementContext
 
         // Validate body measurements
         ValidateBodyMeasurement(measurement);
+
 
         return await _progressGateway.AddBodyMeasurementAsync(measurement);
     }

@@ -1,0 +1,4502 @@
+[
+    {
+        "CurrentWeight": 108.5,
+        "AverageCalories": 3064,
+        "TDEE": 2409,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 108.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.8,
+        "AverageCalories": 2231,
+        "TDEE": 2881,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 85.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.2,
+        "AverageCalories": 2560,
+        "TDEE": 1965,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 93.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 68.0,
+        "AverageCalories": 3057,
+        "TDEE": 2563,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 69.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.0,
+        "AverageCalories": 2488,
+        "TDEE": 2443,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 80.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.0,
+        "AverageCalories": 3233,
+        "TDEE": 2447,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 85.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.9,
+        "AverageCalories": 3128,
+        "TDEE": 2371,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 78.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 90.3,
+        "AverageCalories": 3259,
+        "TDEE": 2325,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 91.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.5,
+        "AverageCalories": 3162,
+        "TDEE": 1960,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 96.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.0,
+        "AverageCalories": 2441,
+        "TDEE": 1803,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 96.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.6,
+        "AverageCalories": 3141,
+        "TDEE": 2864,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 96.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.3,
+        "AverageCalories": 3143,
+        "TDEE": 2974,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 85.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 110.5,
+        "AverageCalories": 2414,
+        "TDEE": 2315,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 111.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 62.3,
+        "AverageCalories": 3302,
+        "TDEE": 2316,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 63.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.7,
+        "AverageCalories": 3004,
+        "TDEE": 2242,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 83.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.0,
+        "AverageCalories": 2452,
+        "TDEE": 2920,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 76.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 55.7,
+        "AverageCalories": 2708,
+        "TDEE": 2831,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 57.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.2,
+        "AverageCalories": 2146,
+        "TDEE": 2814,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 88.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 54.7,
+        "AverageCalories": 1870,
+        "TDEE": 2065,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 55.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.8,
+        "AverageCalories": 2070,
+        "TDEE": 2228,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 73.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 111.8,
+        "AverageCalories": 2576,
+        "TDEE": 2534,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 110.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 78.0,
+        "AverageCalories": 2384,
+        "TDEE": 2218,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 78.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.3,
+        "AverageCalories": 1709,
+        "TDEE": 2158,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 103.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 59.4,
+        "AverageCalories": 2199,
+        "TDEE": 2800,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 60.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.2,
+        "AverageCalories": 3031,
+        "TDEE": 1951,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 53.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 86.3,
+        "AverageCalories": 2832,
+        "TDEE": 2490,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 88.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 59.9,
+        "AverageCalories": 2834,
+        "TDEE": 2086,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 61.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 94.4,
+        "AverageCalories": 2700,
+        "TDEE": 2241,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 95.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.4,
+        "AverageCalories": 3098,
+        "TDEE": 2507,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 107.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.4,
+        "AverageCalories": 1758,
+        "TDEE": 2499,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 104.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 70.2,
+        "AverageCalories": 1544,
+        "TDEE": 2257,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 71.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 59.2,
+        "AverageCalories": 1794,
+        "TDEE": 2759,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 57.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 97.2,
+        "AverageCalories": 1612,
+        "TDEE": 1814,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 96.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.2,
+        "AverageCalories": 2805,
+        "TDEE": 2402,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 102.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 61.2,
+        "AverageCalories": 3259,
+        "TDEE": 2283,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 63.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.7,
+        "AverageCalories": 2999,
+        "TDEE": 2271,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 77.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.2,
+        "AverageCalories": 2160,
+        "TDEE": 2508,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 76.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 69.2,
+        "AverageCalories": 3060,
+        "TDEE": 1843,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 71.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.8,
+        "AverageCalories": 2640,
+        "TDEE": 2657,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 80.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.7,
+        "AverageCalories": 2403,
+        "TDEE": 2215,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 106.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 69.4,
+        "AverageCalories": 2844,
+        "TDEE": 1969,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 71.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 91.1,
+        "AverageCalories": 2368,
+        "TDEE": 2512,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 91.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.9,
+        "AverageCalories": 2795,
+        "TDEE": 2144,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 103.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 78.7,
+        "AverageCalories": 1635,
+        "TDEE": 2660,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 79.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 62.0,
+        "AverageCalories": 3035,
+        "TDEE": 2109,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 60.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 54.4,
+        "AverageCalories": 3261,
+        "TDEE": 2039,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 52.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 90.5,
+        "AverageCalories": 3256,
+        "TDEE": 1949,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 91.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.5,
+        "AverageCalories": 2858,
+        "TDEE": 1912,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 102.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 92.0,
+        "AverageCalories": 2992,
+        "TDEE": 2743,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 90.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.7,
+        "AverageCalories": 2682,
+        "TDEE": 2487,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 102.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.6,
+        "AverageCalories": 2622,
+        "TDEE": 2553,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 102.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.0,
+        "AverageCalories": 3359,
+        "TDEE": 2836,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 104.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 115.3,
+        "AverageCalories": 2548,
+        "TDEE": 2634,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 116.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 64.0,
+        "AverageCalories": 1677,
+        "TDEE": 2608,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 63.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 91.8,
+        "AverageCalories": 1797,
+        "TDEE": 2334,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 90.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 110.6,
+        "AverageCalories": 3479,
+        "TDEE": 2688,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 109.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 111.9,
+        "AverageCalories": 2457,
+        "TDEE": 2792,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 113.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 116.0,
+        "AverageCalories": 2851,
+        "TDEE": 2159,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 113.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 78.0,
+        "AverageCalories": 2923,
+        "TDEE": 2913,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 75.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 117.4,
+        "AverageCalories": 2356,
+        "TDEE": 2380,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 115.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 61.2,
+        "AverageCalories": 3315,
+        "TDEE": 2621,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 62.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 54.5,
+        "AverageCalories": 2619,
+        "TDEE": 2496,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 56.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 85.0,
+        "AverageCalories": 2816,
+        "TDEE": 1873,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 85.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 80.7,
+        "AverageCalories": 3120,
+        "TDEE": 2079,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 82.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 57.8,
+        "AverageCalories": 1960,
+        "TDEE": 2804,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 58.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 115.0,
+        "AverageCalories": 2069,
+        "TDEE": 2686,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 115.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.9,
+        "AverageCalories": 2373,
+        "TDEE": 1931,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 104.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 86.3,
+        "AverageCalories": 3256,
+        "TDEE": 2068,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 83.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 58.8,
+        "AverageCalories": 3229,
+        "TDEE": 2582,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 58.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.1,
+        "AverageCalories": 2613,
+        "TDEE": 2098,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 57.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.0,
+        "AverageCalories": 1813,
+        "TDEE": 2083,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 55.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.9,
+        "AverageCalories": 3444,
+        "TDEE": 1881,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 83.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 92.9,
+        "AverageCalories": 1988,
+        "TDEE": 2895,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 93.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 116.7,
+        "AverageCalories": 2318,
+        "TDEE": 2363,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 117.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 115.3,
+        "AverageCalories": 2651,
+        "TDEE": 2057,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 115.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 94.9,
+        "AverageCalories": 2541,
+        "TDEE": 2292,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 95.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 109.1,
+        "AverageCalories": 2025,
+        "TDEE": 2557,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 109.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 54.3,
+        "AverageCalories": 3242,
+        "TDEE": 1809,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 53.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.5,
+        "AverageCalories": 1873,
+        "TDEE": 2345,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 81.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.0,
+        "AverageCalories": 3173,
+        "TDEE": 2908,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 77.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 107.9,
+        "AverageCalories": 2476,
+        "TDEE": 2035,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 105.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.1,
+        "AverageCalories": 2137,
+        "TDEE": 1875,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 67.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 85.8,
+        "AverageCalories": 3427,
+        "TDEE": 2179,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 83.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.7,
+        "AverageCalories": 2967,
+        "TDEE": 2474,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 94.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 105.1,
+        "AverageCalories": 1662,
+        "TDEE": 2352,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 104.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 65.3,
+        "AverageCalories": 1679,
+        "TDEE": 2672,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 67.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.8,
+        "AverageCalories": 2735,
+        "TDEE": 2420,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 52.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 78.5,
+        "AverageCalories": 3241,
+        "TDEE": 2725,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 79.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 61.9,
+        "AverageCalories": 2785,
+        "TDEE": 2035,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 62.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 100.9,
+        "AverageCalories": 2394,
+        "TDEE": 1806,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 98.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 119.2,
+        "AverageCalories": 2947,
+        "TDEE": 2714,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 117.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.4,
+        "AverageCalories": 2932,
+        "TDEE": 2749,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 78.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.9,
+        "AverageCalories": 3489,
+        "TDEE": 1964,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 105.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.6,
+        "AverageCalories": 2058,
+        "TDEE": 1994,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 82.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 92.6,
+        "AverageCalories": 2117,
+        "TDEE": 1963,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 93.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 92.4,
+        "AverageCalories": 2473,
+        "TDEE": 2666,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 94.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 99.4,
+        "AverageCalories": 2483,
+        "TDEE": 2302,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 98.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 68.8,
+        "AverageCalories": 3194,
+        "TDEE": 2187,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 69.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.5,
+        "AverageCalories": 1635,
+        "TDEE": 2896,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 76.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.2,
+        "AverageCalories": 2600,
+        "TDEE": 2059,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 78.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.6,
+        "AverageCalories": 2830,
+        "TDEE": 2414,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 99.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 114.5,
+        "AverageCalories": 2590,
+        "TDEE": 2503,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 115.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 88.0,
+        "AverageCalories": 2994,
+        "TDEE": 2802,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 89.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.2,
+        "AverageCalories": 2745,
+        "TDEE": 2226,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 58.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 117.0,
+        "AverageCalories": 1958,
+        "TDEE": 2029,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 117.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 97.4,
+        "AverageCalories": 3196,
+        "TDEE": 2531,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 98.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.3,
+        "AverageCalories": 1968,
+        "TDEE": 2860,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 91.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 58.2,
+        "AverageCalories": 2623,
+        "TDEE": 2751,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 56.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.5,
+        "AverageCalories": 3040,
+        "TDEE": 2822,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 94.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 65.6,
+        "AverageCalories": 2646,
+        "TDEE": 2926,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 66.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 105.9,
+        "AverageCalories": 2772,
+        "TDEE": 2791,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 106.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.4,
+        "AverageCalories": 2740,
+        "TDEE": 2083,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 71.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.6,
+        "AverageCalories": 2672,
+        "TDEE": 1899,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 88.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 57.2,
+        "AverageCalories": 1592,
+        "TDEE": 2451,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 57.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 119.8,
+        "AverageCalories": 1513,
+        "TDEE": 2597,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 121.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.0,
+        "AverageCalories": 1757,
+        "TDEE": 1856,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 83.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.2,
+        "AverageCalories": 2813,
+        "TDEE": 2665,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 81.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.7,
+        "AverageCalories": 1974,
+        "TDEE": 2775,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 80.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 114.0,
+        "AverageCalories": 3224,
+        "TDEE": 2494,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 115.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 74.1,
+        "AverageCalories": 2825,
+        "TDEE": 2178,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 72.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 88.8,
+        "AverageCalories": 1912,
+        "TDEE": 2705,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 89.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.1,
+        "AverageCalories": 2915,
+        "TDEE": 2092,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 87.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 83.0,
+        "AverageCalories": 2385,
+        "TDEE": 2264,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 83.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 116.7,
+        "AverageCalories": 2132,
+        "TDEE": 1828,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 117.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.6,
+        "AverageCalories": 2454,
+        "TDEE": 2488,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 82.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 118.6,
+        "AverageCalories": 2497,
+        "TDEE": 2718,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 118.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 109.9,
+        "AverageCalories": 3453,
+        "TDEE": 2696,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 111.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 99.4,
+        "AverageCalories": 2112,
+        "TDEE": 2487,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 96.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 118.8,
+        "AverageCalories": 1812,
+        "TDEE": 2803,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 119.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 60.1,
+        "AverageCalories": 2195,
+        "TDEE": 2296,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 61.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 90.4,
+        "AverageCalories": 1803,
+        "TDEE": 1877,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 90.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 58.3,
+        "AverageCalories": 2345,
+        "TDEE": 2715,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 59.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.5,
+        "AverageCalories": 3315,
+        "TDEE": 2986,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 72.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.6,
+        "AverageCalories": 3050,
+        "TDEE": 2284,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 106.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 109.2,
+        "AverageCalories": 2147,
+        "TDEE": 2334,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 110.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 74.5,
+        "AverageCalories": 2226,
+        "TDEE": 2289,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 75.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 58.6,
+        "AverageCalories": 2178,
+        "TDEE": 2725,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 59.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 114.9,
+        "AverageCalories": 2643,
+        "TDEE": 2172,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 115.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 57.5,
+        "AverageCalories": 2313,
+        "TDEE": 2917,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 55.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 64.2,
+        "AverageCalories": 3210,
+        "TDEE": 2289,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 64.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 65.2,
+        "AverageCalories": 1609,
+        "TDEE": 2424,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 64.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 60.8,
+        "AverageCalories": 3247,
+        "TDEE": 2412,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 61.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.9,
+        "AverageCalories": 2243,
+        "TDEE": 2690,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 77.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 98.9,
+        "AverageCalories": 3348,
+        "TDEE": 1847,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 97.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 65.9,
+        "AverageCalories": 2494,
+        "TDEE": 2464,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 65.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.5,
+        "AverageCalories": 2118,
+        "TDEE": 2722,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 103.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 94.5,
+        "AverageCalories": 1906,
+        "TDEE": 2705,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 95.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.4,
+        "AverageCalories": 2055,
+        "TDEE": 2717,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 73.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.6,
+        "AverageCalories": 1964,
+        "TDEE": 2530,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 103.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 119.7,
+        "AverageCalories": 1730,
+        "TDEE": 2174,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 118.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 117.7,
+        "AverageCalories": 2362,
+        "TDEE": 2275,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 119.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 98.7,
+        "AverageCalories": 2873,
+        "TDEE": 2212,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 97.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 78.6,
+        "AverageCalories": 2834,
+        "TDEE": 2889,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 77.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 83.8,
+        "AverageCalories": 2589,
+        "TDEE": 2292,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 84.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 108.1,
+        "AverageCalories": 1859,
+        "TDEE": 2262,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 108.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.7,
+        "AverageCalories": 2952,
+        "TDEE": 2418,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 93.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 98.6,
+        "AverageCalories": 3028,
+        "TDEE": 2438,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 100.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.8,
+        "AverageCalories": 2545,
+        "TDEE": 2018,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 66.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 114.4,
+        "AverageCalories": 2145,
+        "TDEE": 2567,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 115.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 109.6,
+        "AverageCalories": 3034,
+        "TDEE": 2873,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 110.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 60.9,
+        "AverageCalories": 1675,
+        "TDEE": 2548,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 62.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.1,
+        "AverageCalories": 1955,
+        "TDEE": 2207,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 101.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 109.0,
+        "AverageCalories": 2030,
+        "TDEE": 2708,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 110.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 85.9,
+        "AverageCalories": 1546,
+        "TDEE": 2553,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 87.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.2,
+        "AverageCalories": 2842,
+        "TDEE": 2932,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 81.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 99.7,
+        "AverageCalories": 3175,
+        "TDEE": 2196,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 100.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 116.0,
+        "AverageCalories": 2550,
+        "TDEE": 2624,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 115.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.6,
+        "AverageCalories": 2084,
+        "TDEE": 2608,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 101.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.3,
+        "AverageCalories": 3232,
+        "TDEE": 1974,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 72.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.9,
+        "AverageCalories": 3031,
+        "TDEE": 2890,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 82.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 114.7,
+        "AverageCalories": 2939,
+        "TDEE": 2561,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 116.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 105.4,
+        "AverageCalories": 3308,
+        "TDEE": 2702,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 106.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.0,
+        "AverageCalories": 2272,
+        "TDEE": 1855,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 102.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.7,
+        "AverageCalories": 2765,
+        "TDEE": 2076,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 51.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 88.5,
+        "AverageCalories": 1586,
+        "TDEE": 2330,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 87.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 119.1,
+        "AverageCalories": 2827,
+        "TDEE": 2456,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 120.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.7,
+        "AverageCalories": 2603,
+        "TDEE": 1855,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 78.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 55.3,
+        "AverageCalories": 2717,
+        "TDEE": 2781,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 57.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 62.5,
+        "AverageCalories": 2481,
+        "TDEE": 2199,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 64.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 117.7,
+        "AverageCalories": 2842,
+        "TDEE": 2876,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 119.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 79.1,
+        "AverageCalories": 2900,
+        "TDEE": 2435,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 79.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 112.4,
+        "AverageCalories": 1633,
+        "TDEE": 2584,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 114.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 88.0,
+        "AverageCalories": 3102,
+        "TDEE": 2307,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 89.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 51.0,
+        "AverageCalories": 3432,
+        "TDEE": 2515,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 51.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.1,
+        "AverageCalories": 2180,
+        "TDEE": 2548,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 53.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 59.7,
+        "AverageCalories": 3380,
+        "TDEE": 2042,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 60.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.2,
+        "AverageCalories": 1505,
+        "TDEE": 2095,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 71.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.7,
+        "AverageCalories": 2393,
+        "TDEE": 2454,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 104.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 99.4,
+        "AverageCalories": 1671,
+        "TDEE": 2948,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 100.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.5,
+        "AverageCalories": 3263,
+        "TDEE": 2930,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 87.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 113.0,
+        "AverageCalories": 2870,
+        "TDEE": 1897,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 113.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 74.1,
+        "AverageCalories": 3261,
+        "TDEE": 2769,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 73.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.3,
+        "AverageCalories": 1571,
+        "TDEE": 2303,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 50.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 59.5,
+        "AverageCalories": 1864,
+        "TDEE": 2781,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 59.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 57.7,
+        "AverageCalories": 2519,
+        "TDEE": 2473,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 59.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.8,
+        "AverageCalories": 3023,
+        "TDEE": 2746,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 69.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 91.7,
+        "AverageCalories": 2295,
+        "TDEE": 1826,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 92.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 114.0,
+        "AverageCalories": 3447,
+        "TDEE": 2929,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 115.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 66.2,
+        "AverageCalories": 1837,
+        "TDEE": 2749,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 67.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.6,
+        "AverageCalories": 3346,
+        "TDEE": 1906,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 95.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 117.8,
+        "AverageCalories": 2487,
+        "TDEE": 2608,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 118.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.8,
+        "AverageCalories": 3167,
+        "TDEE": 2704,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 77.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 62.9,
+        "AverageCalories": 2441,
+        "TDEE": 2967,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 60.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 112.9,
+        "AverageCalories": 3024,
+        "TDEE": 2748,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 114.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.2,
+        "AverageCalories": 1692,
+        "TDEE": 1937,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 103.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.7,
+        "AverageCalories": 2317,
+        "TDEE": 2503,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 77.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.0,
+        "AverageCalories": 1792,
+        "TDEE": 2055,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 56.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 117.4,
+        "AverageCalories": 1669,
+        "TDEE": 2811,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 119.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 118.9,
+        "AverageCalories": 2466,
+        "TDEE": 2639,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 116.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 68.0,
+        "AverageCalories": 3215,
+        "TDEE": 2795,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 69.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 118.0,
+        "AverageCalories": 2412,
+        "TDEE": 2072,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 118.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.2,
+        "AverageCalories": 2451,
+        "TDEE": 1841,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 101.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.1,
+        "AverageCalories": 2503,
+        "TDEE": 1916,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 105.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.6,
+        "AverageCalories": 1804,
+        "TDEE": 2804,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 105.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.3,
+        "AverageCalories": 2941,
+        "TDEE": 2134,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 83.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 60.9,
+        "AverageCalories": 1600,
+        "TDEE": 2041,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 61.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 99.1,
+        "AverageCalories": 2260,
+        "TDEE": 2752,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 96.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 114.0,
+        "AverageCalories": 3311,
+        "TDEE": 2708,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 115.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 118.8,
+        "AverageCalories": 2729,
+        "TDEE": 1825,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 117.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.9,
+        "AverageCalories": 2999,
+        "TDEE": 2555,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 69.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 97.0,
+        "AverageCalories": 2694,
+        "TDEE": 1901,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 94.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 109.1,
+        "AverageCalories": 2073,
+        "TDEE": 1802,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 106.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.6,
+        "AverageCalories": 1740,
+        "TDEE": 1835,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 102.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.6,
+        "AverageCalories": 3359,
+        "TDEE": 2347,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 75.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.0,
+        "AverageCalories": 3044,
+        "TDEE": 1875,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 47.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 96.3,
+        "AverageCalories": 3172,
+        "TDEE": 2780,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 94.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 89.1,
+        "AverageCalories": 2599,
+        "TDEE": 2604,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 91.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 86.7,
+        "AverageCalories": 2158,
+        "TDEE": 2265,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 88.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 68.3,
+        "AverageCalories": 1998,
+        "TDEE": 2635,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 69.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.5,
+        "AverageCalories": 2987,
+        "TDEE": 1980,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 58.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.3,
+        "AverageCalories": 1847,
+        "TDEE": 2308,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 105.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 64.3,
+        "AverageCalories": 2838,
+        "TDEE": 2033,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 65.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 60.6,
+        "AverageCalories": 2049,
+        "TDEE": 2767,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 62.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.4,
+        "AverageCalories": 1935,
+        "TDEE": 2047,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 105.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 113.2,
+        "AverageCalories": 1764,
+        "TDEE": 2287,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 114.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 98.3,
+        "AverageCalories": 1596,
+        "TDEE": 2762,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 98.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 68.9,
+        "AverageCalories": 3336,
+        "TDEE": 2934,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 69.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 73.1,
+        "AverageCalories": 2716,
+        "TDEE": 1909,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 72.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 68.7,
+        "AverageCalories": 2439,
+        "TDEE": 2435,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 66.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 100.9,
+        "AverageCalories": 2036,
+        "TDEE": 2432,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 98.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 53.1,
+        "AverageCalories": 3192,
+        "TDEE": 2149,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 50.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.1,
+        "AverageCalories": 1507,
+        "TDEE": 2747,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 102.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.0,
+        "AverageCalories": 3407,
+        "TDEE": 2815,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 106.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 88.8,
+        "AverageCalories": 2204,
+        "TDEE": 2861,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 86.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.3,
+        "AverageCalories": 2303,
+        "TDEE": 2627,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 52.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.1,
+        "AverageCalories": 2121,
+        "TDEE": 2450,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 85.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 94.6,
+        "AverageCalories": 1893,
+        "TDEE": 2797,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 96.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.1,
+        "AverageCalories": 2145,
+        "TDEE": 2758,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 74.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.4,
+        "AverageCalories": 1533,
+        "TDEE": 2381,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 67.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.3,
+        "AverageCalories": 3246,
+        "TDEE": 2979,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 98.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 112.8,
+        "AverageCalories": 2609,
+        "TDEE": 2981,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 114.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.7,
+        "AverageCalories": 3330,
+        "TDEE": 2712,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 77.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 69.6,
+        "AverageCalories": 2547,
+        "TDEE": 2497,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 67.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.2,
+        "AverageCalories": 3214,
+        "TDEE": 2615,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 70.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.4,
+        "AverageCalories": 2852,
+        "TDEE": 2453,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 107.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.7,
+        "AverageCalories": 2071,
+        "TDEE": 2920,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 96.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 78.0,
+        "AverageCalories": 1637,
+        "TDEE": 2613,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 79.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 120.0,
+        "AverageCalories": 3183,
+        "TDEE": 2413,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 120.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.2,
+        "AverageCalories": 1659,
+        "TDEE": 2325,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 105.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 66.5,
+        "AverageCalories": 2507,
+        "TDEE": 2591,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 64.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 83.8,
+        "AverageCalories": 2696,
+        "TDEE": 1930,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 85.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.9,
+        "AverageCalories": 2035,
+        "TDEE": 2081,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 104.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.4,
+        "AverageCalories": 1982,
+        "TDEE": 2752,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 76.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.0,
+        "AverageCalories": 2350,
+        "TDEE": 2639,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 83.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 69.9,
+        "AverageCalories": 2799,
+        "TDEE": 2168,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 70.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 63.9,
+        "AverageCalories": 3092,
+        "TDEE": 2566,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 65.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.2,
+        "AverageCalories": 2816,
+        "TDEE": 2809,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 68.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 51.6,
+        "AverageCalories": 1591,
+        "TDEE": 2291,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 52.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 61.2,
+        "AverageCalories": 3256,
+        "TDEE": 1910,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 59.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.2,
+        "AverageCalories": 2756,
+        "TDEE": 2997,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 84.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 79.2,
+        "AverageCalories": 1943,
+        "TDEE": 2741,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 79.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 100.5,
+        "AverageCalories": 2013,
+        "TDEE": 1823,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 102.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 97.2,
+        "AverageCalories": 2626,
+        "TDEE": 1847,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 97.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 74.0,
+        "AverageCalories": 2719,
+        "TDEE": 2704,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 75.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.6,
+        "AverageCalories": 3081,
+        "TDEE": 1800,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 54.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 69.1,
+        "AverageCalories": 2553,
+        "TDEE": 2600,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 70.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 86.2,
+        "AverageCalories": 3246,
+        "TDEE": 2507,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 87.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 108.8,
+        "AverageCalories": 3489,
+        "TDEE": 1993,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 109.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 96.8,
+        "AverageCalories": 3271,
+        "TDEE": 1974,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 97.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 73.7,
+        "AverageCalories": 1574,
+        "TDEE": 2926,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 74.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.0,
+        "AverageCalories": 2295,
+        "TDEE": 2205,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 82.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.9,
+        "AverageCalories": 1973,
+        "TDEE": 2825,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 75.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 107.1,
+        "AverageCalories": 2725,
+        "TDEE": 2931,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 109.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 98.7,
+        "AverageCalories": 1691,
+        "TDEE": 2533,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 99.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 119.1,
+        "AverageCalories": 1834,
+        "TDEE": 1824,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 116.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 112.3,
+        "AverageCalories": 2239,
+        "TDEE": 2440,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 112.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 110.8,
+        "AverageCalories": 3338,
+        "TDEE": 2063,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 111.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.8,
+        "AverageCalories": 2840,
+        "TDEE": 2936,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 52.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.8,
+        "AverageCalories": 2775,
+        "TDEE": 1963,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 84.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.1,
+        "AverageCalories": 3304,
+        "TDEE": 2798,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 105.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 80.4,
+        "AverageCalories": 2696,
+        "TDEE": 2509,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 82.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 116.3,
+        "AverageCalories": 2043,
+        "TDEE": 2650,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 115.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.6,
+        "AverageCalories": 2893,
+        "TDEE": 2302,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 69.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 115.5,
+        "AverageCalories": 2130,
+        "TDEE": 2046,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 116.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.1,
+        "AverageCalories": 2909,
+        "TDEE": 2546,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 57.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 90.6,
+        "AverageCalories": 2691,
+        "TDEE": 2591,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 88.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.1,
+        "AverageCalories": 2448,
+        "TDEE": 2485,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 76.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 92.5,
+        "AverageCalories": 3020,
+        "TDEE": 2016,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 90.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.7,
+        "AverageCalories": 3024,
+        "TDEE": 2552,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 105.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 108.2,
+        "AverageCalories": 3306,
+        "TDEE": 2591,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 108.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.4,
+        "AverageCalories": 3324,
+        "TDEE": 2985,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 92.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 72.0,
+        "AverageCalories": 2315,
+        "TDEE": 2293,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 73.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.8,
+        "AverageCalories": 1630,
+        "TDEE": 2997,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 94.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 83.9,
+        "AverageCalories": 2964,
+        "TDEE": 2380,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 84.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.9,
+        "AverageCalories": 2042,
+        "TDEE": 2195,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 75.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.7,
+        "AverageCalories": 2121,
+        "TDEE": 2522,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 89.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.2,
+        "AverageCalories": 2239,
+        "TDEE": 2114,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 82.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.1,
+        "AverageCalories": 2430,
+        "TDEE": 2430,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 51.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.7,
+        "AverageCalories": 2380,
+        "TDEE": 1934,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 102.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.6,
+        "AverageCalories": 2827,
+        "TDEE": 2450,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 104.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 66.4,
+        "AverageCalories": 1618,
+        "TDEE": 2806,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 67.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.8,
+        "AverageCalories": 2283,
+        "TDEE": 2424,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 83.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 54.0,
+        "AverageCalories": 2688,
+        "TDEE": 2966,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 55.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 115.6,
+        "AverageCalories": 3342,
+        "TDEE": 2077,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 116.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.7,
+        "AverageCalories": 2187,
+        "TDEE": 2136,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 78.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 98.3,
+        "AverageCalories": 2112,
+        "TDEE": 2354,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 98.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 88.8,
+        "AverageCalories": 1982,
+        "TDEE": 2452,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 88.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.0,
+        "AverageCalories": 2167,
+        "TDEE": 2732,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 99.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 51.8,
+        "AverageCalories": 3411,
+        "TDEE": 2970,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 53.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 108.4,
+        "AverageCalories": 3091,
+        "TDEE": 2819,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 109.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 83.0,
+        "AverageCalories": 2439,
+        "TDEE": 2231,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 83.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 105.4,
+        "AverageCalories": 2615,
+        "TDEE": 1893,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 106.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 65.4,
+        "AverageCalories": 3336,
+        "TDEE": 2716,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 63.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 86.2,
+        "AverageCalories": 3105,
+        "TDEE": 2195,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 87.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 59.3,
+        "AverageCalories": 3459,
+        "TDEE": 2936,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 60.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.0,
+        "AverageCalories": 3499,
+        "TDEE": 2834,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 104.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.9,
+        "AverageCalories": 3196,
+        "TDEE": 1859,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 48.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.8,
+        "AverageCalories": 3194,
+        "TDEE": 1973,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 104.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 70.2,
+        "AverageCalories": 2838,
+        "TDEE": 2112,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 70.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 115.5,
+        "AverageCalories": 3376,
+        "TDEE": 2722,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 113.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 68.8,
+        "AverageCalories": 2717,
+        "TDEE": 2249,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 66.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 119.9,
+        "AverageCalories": 1911,
+        "TDEE": 2026,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 120.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 97.4,
+        "AverageCalories": 1533,
+        "TDEE": 2890,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 97.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 100.8,
+        "AverageCalories": 1776,
+        "TDEE": 2434,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 101.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 116.7,
+        "AverageCalories": 1564,
+        "TDEE": 2409,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 118.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.4,
+        "AverageCalories": 2559,
+        "TDEE": 1963,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 86.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.4,
+        "AverageCalories": 3210,
+        "TDEE": 2752,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 77.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 85.7,
+        "AverageCalories": 2838,
+        "TDEE": 2250,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 84.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.4,
+        "AverageCalories": 3459,
+        "TDEE": 2272,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 96.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 105.2,
+        "AverageCalories": 2524,
+        "TDEE": 1937,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 102.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 73.0,
+        "AverageCalories": 2365,
+        "TDEE": 2411,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 74.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.9,
+        "AverageCalories": 2918,
+        "TDEE": 2450,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 69.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 62.1,
+        "AverageCalories": 1571,
+        "TDEE": 2418,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 63.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 74.7,
+        "AverageCalories": 3363,
+        "TDEE": 2750,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 76.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.1,
+        "AverageCalories": 3326,
+        "TDEE": 2451,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 84.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 51.3,
+        "AverageCalories": 2932,
+        "TDEE": 2225,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 52.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 113.3,
+        "AverageCalories": 2601,
+        "TDEE": 2162,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 112.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 89.3,
+        "AverageCalories": 2614,
+        "TDEE": 2078,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 89.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 51.7,
+        "AverageCalories": 1602,
+        "TDEE": 1986,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 49.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 97.6,
+        "AverageCalories": 1778,
+        "TDEE": 2862,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 94.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 72.5,
+        "AverageCalories": 2625,
+        "TDEE": 2660,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 69.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 53.1,
+        "AverageCalories": 1694,
+        "TDEE": 2226,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 54.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.7,
+        "AverageCalories": 1825,
+        "TDEE": 2197,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 107.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 53.5,
+        "AverageCalories": 3065,
+        "TDEE": 2155,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 54.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 72.5,
+        "AverageCalories": 2851,
+        "TDEE": 2493,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 73.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 72.4,
+        "AverageCalories": 2280,
+        "TDEE": 2372,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 73.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 89.6,
+        "AverageCalories": 2928,
+        "TDEE": 2517,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 87.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 69.5,
+        "AverageCalories": 3466,
+        "TDEE": 2579,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 69.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 66.1,
+        "AverageCalories": 3132,
+        "TDEE": 2679,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 67.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.2,
+        "AverageCalories": 1759,
+        "TDEE": 1896,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 66.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 111.0,
+        "AverageCalories": 1996,
+        "TDEE": 2597,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 112.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.1,
+        "AverageCalories": 2061,
+        "TDEE": 2947,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 77.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.8,
+        "AverageCalories": 3246,
+        "TDEE": 2030,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 49.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 62.6,
+        "AverageCalories": 2278,
+        "TDEE": 2459,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 64.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.6,
+        "AverageCalories": 3483,
+        "TDEE": 1887,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 83.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.7,
+        "AverageCalories": 2148,
+        "TDEE": 2001,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 104.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 75.4,
+        "AverageCalories": 2397,
+        "TDEE": 2144,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 75.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.2,
+        "AverageCalories": 2858,
+        "TDEE": 2465,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 83.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 104.2,
+        "AverageCalories": 1573,
+        "TDEE": 1919,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 105.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 65.3,
+        "AverageCalories": 3110,
+        "TDEE": 1816,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 62.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 92.8,
+        "AverageCalories": 2040,
+        "TDEE": 2842,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 94.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 118.0,
+        "AverageCalories": 1562,
+        "TDEE": 2750,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 118.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.5,
+        "AverageCalories": 3356,
+        "TDEE": 1802,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 81.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.1,
+        "AverageCalories": 1714,
+        "TDEE": 1850,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 93.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 60.6,
+        "AverageCalories": 2817,
+        "TDEE": 2891,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 61.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.7,
+        "AverageCalories": 3197,
+        "TDEE": 2436,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 69.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.2,
+        "AverageCalories": 2289,
+        "TDEE": 2182,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 53.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 115.0,
+        "AverageCalories": 1547,
+        "TDEE": 1993,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 112.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.7,
+        "AverageCalories": 1988,
+        "TDEE": 2350,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 91.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.5,
+        "AverageCalories": 3235,
+        "TDEE": 1977,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 73.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 96.5,
+        "AverageCalories": 3439,
+        "TDEE": 2086,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 95.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 61.1,
+        "AverageCalories": 1610,
+        "TDEE": 2488,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 61.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 112.8,
+        "AverageCalories": 2784,
+        "TDEE": 2559,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 111.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 63.9,
+        "AverageCalories": 2251,
+        "TDEE": 2141,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 64.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.0,
+        "AverageCalories": 1754,
+        "TDEE": 2139,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 102.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 88.8,
+        "AverageCalories": 1724,
+        "TDEE": 1978,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 90.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.5,
+        "AverageCalories": 1827,
+        "TDEE": 2470,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 88.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 70.6,
+        "AverageCalories": 3270,
+        "TDEE": 2236,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 70.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 111.4,
+        "AverageCalories": 2502,
+        "TDEE": 2364,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 113.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 110.0,
+        "AverageCalories": 2130,
+        "TDEE": 2830,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 111.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 108.5,
+        "AverageCalories": 1630,
+        "TDEE": 2337,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 109.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.1,
+        "AverageCalories": 3185,
+        "TDEE": 2713,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 81.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 94.4,
+        "AverageCalories": 1758,
+        "TDEE": 2850,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 96.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.6,
+        "AverageCalories": 1922,
+        "TDEE": 2303,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 86.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.4,
+        "AverageCalories": 1605,
+        "TDEE": 2123,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 93.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 118.3,
+        "AverageCalories": 2994,
+        "TDEE": 2742,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 119.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.9,
+        "AverageCalories": 1907,
+        "TDEE": 1995,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 53.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.3,
+        "AverageCalories": 2330,
+        "TDEE": 2858,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 108.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 61.5,
+        "AverageCalories": 3361,
+        "TDEE": 2433,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 62.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.8,
+        "AverageCalories": 2923,
+        "TDEE": 2158,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 82.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 65.0,
+        "AverageCalories": 2660,
+        "TDEE": 2579,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 64.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 96.8,
+        "AverageCalories": 2878,
+        "TDEE": 2948,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 94.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 89.0,
+        "AverageCalories": 1938,
+        "TDEE": 1905,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 90.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.5,
+        "AverageCalories": 2241,
+        "TDEE": 2684,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 58.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 74.8,
+        "AverageCalories": 3372,
+        "TDEE": 2644,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 72.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 93.9,
+        "AverageCalories": 1546,
+        "TDEE": 2701,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 94.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 112.5,
+        "AverageCalories": 1955,
+        "TDEE": 1942,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 112.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 96.6,
+        "AverageCalories": 1650,
+        "TDEE": 2104,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 96.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 55.3,
+        "AverageCalories": 2426,
+        "TDEE": 2674,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 55.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 81.8,
+        "AverageCalories": 1987,
+        "TDEE": 2233,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 82.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 98.5,
+        "AverageCalories": 1810,
+        "TDEE": 1963,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 99.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.4,
+        "AverageCalories": 1750,
+        "TDEE": 2158,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 54.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 92.4,
+        "AverageCalories": 3365,
+        "TDEE": 2785,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 93.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.3,
+        "AverageCalories": 1979,
+        "TDEE": 2933,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 88.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 99.7,
+        "AverageCalories": 2244,
+        "TDEE": 2408,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 97.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 107.3,
+        "AverageCalories": 3446,
+        "TDEE": 1968,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 105.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 84.3,
+        "AverageCalories": 3020,
+        "TDEE": 2292,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 85.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 55.9,
+        "AverageCalories": 2874,
+        "TDEE": 2067,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 53.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 78.4,
+        "AverageCalories": 3181,
+        "TDEE": 1943,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 79.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 74.7,
+        "AverageCalories": 2700,
+        "TDEE": 2850,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 76.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 69.9,
+        "AverageCalories": 2516,
+        "TDEE": 1924,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 67.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 60.4,
+        "AverageCalories": 1505,
+        "TDEE": 2188,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 60.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 92.0,
+        "AverageCalories": 3315,
+        "TDEE": 2834,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 90.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 53.0,
+        "AverageCalories": 1886,
+        "TDEE": 2604,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 54.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 108.9,
+        "AverageCalories": 2389,
+        "TDEE": 2358,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 106.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 108.5,
+        "AverageCalories": 1605,
+        "TDEE": 2498,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 109.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 107.6,
+        "AverageCalories": 2609,
+        "TDEE": 2919,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 108.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 112.9,
+        "AverageCalories": 2076,
+        "TDEE": 2007,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 112.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 97.2,
+        "AverageCalories": 2517,
+        "TDEE": 2822,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 95.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 114.8,
+        "AverageCalories": 2643,
+        "TDEE": 2991,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 116.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 96.8,
+        "AverageCalories": 2058,
+        "TDEE": 2936,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 97.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.1,
+        "AverageCalories": 2669,
+        "TDEE": 2681,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 53.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.9,
+        "AverageCalories": 2820,
+        "TDEE": 1832,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 78.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 107.6,
+        "AverageCalories": 3001,
+        "TDEE": 2875,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 108.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 65.0,
+        "AverageCalories": 2486,
+        "TDEE": 2024,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 66.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 90.6,
+        "AverageCalories": 1863,
+        "TDEE": 2845,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 91.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 100.2,
+        "AverageCalories": 3284,
+        "TDEE": 2394,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 101.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.1,
+        "AverageCalories": 1738,
+        "TDEE": 2914,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 77.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 107.9,
+        "AverageCalories": 2659,
+        "TDEE": 2105,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 109.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.5,
+        "AverageCalories": 2669,
+        "TDEE": 2717,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 51.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 66.0,
+        "AverageCalories": 2401,
+        "TDEE": 2389,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 66.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 111.6,
+        "AverageCalories": 1698,
+        "TDEE": 1938,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 109.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.5,
+        "AverageCalories": 1504,
+        "TDEE": 2297,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 51.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.6,
+        "AverageCalories": 2518,
+        "TDEE": 2527,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 79.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 91.7,
+        "AverageCalories": 2787,
+        "TDEE": 2242,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 92.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 80.0,
+        "AverageCalories": 2322,
+        "TDEE": 2194,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 78.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 78.0,
+        "AverageCalories": 1824,
+        "TDEE": 2603,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 79.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 60.7,
+        "AverageCalories": 2298,
+        "TDEE": 2006,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 60.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.7,
+        "AverageCalories": 2217,
+        "TDEE": 2256,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 92.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 89.2,
+        "AverageCalories": 2629,
+        "TDEE": 1925,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 90.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.8,
+        "AverageCalories": 2557,
+        "TDEE": 2941,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 107.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 67.5,
+        "AverageCalories": 2982,
+        "TDEE": 2096,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 68.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 116.6,
+        "AverageCalories": 2888,
+        "TDEE": 2345,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 116.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 86.2,
+        "AverageCalories": 1646,
+        "TDEE": 2611,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 87.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 59.0,
+        "AverageCalories": 2049,
+        "TDEE": 2380,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 56.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 56.2,
+        "AverageCalories": 1688,
+        "TDEE": 1911,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 58.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 83.9,
+        "AverageCalories": 2750,
+        "TDEE": 2763,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 82.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 98.2,
+        "AverageCalories": 1880,
+        "TDEE": 2669,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 99.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 101.9,
+        "AverageCalories": 2779,
+        "TDEE": 2555,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 99.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 50.7,
+        "AverageCalories": 3252,
+        "TDEE": 2615,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 52.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 113.8,
+        "AverageCalories": 2368,
+        "TDEE": 2219,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 114.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 72.0,
+        "AverageCalories": 3291,
+        "TDEE": 2143,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 73.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 71.1,
+        "AverageCalories": 2206,
+        "TDEE": 2939,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 72.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.2,
+        "AverageCalories": 3010,
+        "TDEE": 1829,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 104.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 95.8,
+        "AverageCalories": 2744,
+        "TDEE": 2053,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 93.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 87.7,
+        "AverageCalories": 1784,
+        "TDEE": 2391,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 85.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.8,
+        "AverageCalories": 2956,
+        "TDEE": 2280,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 84.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.5,
+        "AverageCalories": 1636,
+        "TDEE": 2318,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 76.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 62.7,
+        "AverageCalories": 1752,
+        "TDEE": 2128,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 64.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 100.6,
+        "AverageCalories": 2507,
+        "TDEE": 2596,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 98.3,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 96.5,
+        "AverageCalories": 2850,
+        "TDEE": 1974,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 97.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 106.1,
+        "AverageCalories": 3081,
+        "TDEE": 2739,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 106.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 55.5,
+        "AverageCalories": 2711,
+        "TDEE": 1818,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 57.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 117.1,
+        "AverageCalories": 2527,
+        "TDEE": 2252,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 115.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 79.2,
+        "AverageCalories": 3183,
+        "TDEE": 2160,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 79.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.7,
+        "AverageCalories": 2288,
+        "TDEE": 2410,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 103.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 113.2,
+        "AverageCalories": 2799,
+        "TDEE": 2187,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 113.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 53.4,
+        "AverageCalories": 2999,
+        "TDEE": 2275,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 52.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 97.9,
+        "AverageCalories": 2575,
+        "TDEE": 2299,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 98.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 68.6,
+        "AverageCalories": 2954,
+        "TDEE": 2998,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 69.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 59.4,
+        "AverageCalories": 2543,
+        "TDEE": 2761,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 58.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 91.8,
+        "AverageCalories": 1963,
+        "TDEE": 2053,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 92.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 77.5,
+        "AverageCalories": 1803,
+        "TDEE": 2598,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 79.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 76.3,
+        "AverageCalories": 2945,
+        "TDEE": 1860,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 78.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 117.2,
+        "AverageCalories": 1604,
+        "TDEE": 2231,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 118.1,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 102.5,
+        "AverageCalories": 2820,
+        "TDEE": 2038,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 100.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 99.7,
+        "AverageCalories": 2100,
+        "TDEE": 2352,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 98.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 69.7,
+        "AverageCalories": 2326,
+        "TDEE": 1995,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 68.2,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 74.2,
+        "AverageCalories": 1596,
+        "TDEE": 1922,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 73.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 82.8,
+        "AverageCalories": 2834,
+        "TDEE": 2808,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 84.5,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 116.4,
+        "AverageCalories": 1702,
+        "TDEE": 2453,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 116.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 113.1,
+        "AverageCalories": 1630,
+        "TDEE": 1849,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 111.0,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 109.7,
+        "AverageCalories": 2810,
+        "TDEE": 2967,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 111.7,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 103.1,
+        "AverageCalories": 2843,
+        "TDEE": 2339,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 104.6,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 52.9,
+        "AverageCalories": 3225,
+        "TDEE": 2655,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 54.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 58.7,
+        "AverageCalories": 1772,
+        "TDEE": 2903,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 55.8,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 99.7,
+        "AverageCalories": 1852,
+        "TDEE": 2695,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 100.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 100.8,
+        "AverageCalories": 1825,
+        "TDEE": 2060,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 98.4,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 94.9,
+        "AverageCalories": 2326,
+        "TDEE": 2491,
+        "IsOvereating": 1,
+        "IsAlignedWithGoal": 1,
+        "PredictedWeight": 95.9,
+        "PredictionDate": "2025-07-06"
+    },
+    {
+        "CurrentWeight": 51.4,
+        "AverageCalories": 2370,
+        "TDEE": 2910,
+        "IsOvereating": 0,
+        "IsAlignedWithGoal": 0,
+        "PredictedWeight": 51.5,
+        "PredictionDate": "2025-07-06"
+    }
+]

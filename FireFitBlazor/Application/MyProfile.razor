@@ -2,6 +2,7 @@
 @using FireFitBlazor.Application.Services
 @using FireFitBlazor.Components.Layout
 @using FireFitBlazor.Domain.ContextInterfaces
+@using FireFitBlazor.Domain.ContextInterfaces.ProgressContexts
 @using FireFitBlazor.Domain.Models
 @using FireFitBlazor.Domain.Enums
 @using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
@@ -12,6 +13,7 @@
 @inject IUserProgressContext UserProgressContext
 @inject IPhotoUploadService PhotoUploadService
 @inject IUserPreferencesContext UserPreferencesContext
+@inject IGetUserContext GetUserContext
 @inject IFoodLogService FoodLogService
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.Authorization
@@ -22,7 +24,12 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using System.Security.Claims;
 @inject ICurrentUserService CurrentUserService
-
+@inject IUpdateUserContext UpdateUserContext
+@inject IUpdateUserProgressContext UpdateUserProgressContext
+@using Microsoft.AspNetCore.Components.Web
+@using FireFitBlazor.MachineLearning
+@rendermode RenderMode.InteractiveServer
+@inject IWeightPredictionService PredictionService
 
 <div class="profile-container">
     @if (currentUser == null)
@@ -48,45 +55,47 @@
                                 <InputFile OnChange="OnProfilePhotoSelected" accept="image/*" class="mt-2" />
                             </div>
                             <div class="profile-info">
-                                <RadzenTextBox @bind-Value="currentUser.Name" Placeholder="Name" Class="w-100 mb-2" />
-                                <RadzenNumeric @bind-Value="currentUser.Age" Placeholder="Age" Class="w-100 mb-2" />
-                                <RadzenNumeric @bind-Value="currentUser.Height" Placeholder="Height (cm)" Class="w-100 mb-2" />
-                                <RadzenDropDown Data="@WeightGoalOptions"
-                                                @bind-Value="currentUser.WeightGoal"
-                                                TextProperty="Text"
-                                                ValueProperty="Value"
-                                                Class="w-100 mb-2" />
+                                <RadzenTextBox @bind-Value="name" Placeholder="Name" Class="w-100 mb-2" />
+                                <RadzenNumeric @bind-Value="age" Placeholder="Age" Class="w-100 mb-2" />
+                                <RadzenNumeric @bind-Value="height" Placeholder="Height (cm)" Class="w-100 mb-2" />
 
-                                                  <RadzenDropDown Data="@ActivityLevels"
-                                                @bind-Value="currentUser.ActivityLevel"
-                                                TextProperty="Text"
-                                                ValueProperty="Value"
-                                                Class="w-100 mb-2" />
-                                <RadzenDropDown Data="@ExperienceLevels"
-                                                @bind-Value="currentUser.FitnessExperience"
-                                                TextProperty="Text"
-                                                ValueProperty="Value"
-                                                Class="w-100 mb-2" />
+                                <RadzenDropDown Data="@WeightGoalOptions"
+                                @bind-Value="currentUser.WeightGoal.ChangeType"
+                                TValue="WeightChangeType"
+                                TextProperty="Text"
+                                ValueProperty="Value"
+                                Class="w-100 mb-2" />
+
+                                <RadzenNumeric @bind-Value="currentUser.WeightGoal.TargetWeight" Placeholder="Target Weight (kg)" Class="w-100 mb-2" />
+
+                                <RadzenDropDown Data="@ActivityLevels"
+                                @bind-Value="activityLevel"
+                                TValue="ActivityLevel"
+                                TextProperty="Text"
+                                ValueProperty="Value"
+                                Class="w-100 mb-2" />
 
                                 <!-- Dietary Preferences -->
                                 <RadzenCheckBoxList @bind-Value="selectedDietaryPreferences"
-                                                    Data="@(Enum.GetValues<DietaryPreference>()
+                                Data="@(Enum.GetValues<DietaryPreference>()
                         .Cast<DietaryPreference>()
                         .Select(d => new KeyValuePair<string, DietaryPreference>(d.ToString(), d)))"
-                                                    TValue="DietaryPreference"
-                                                    TextProperty="Key"
-                                                    ValueProperty="Value"
-                                                    Name="DietaryPreferences"
-                                                    Style="width: 100%" />
+                                TValue="DietaryPreference"
+                                TextProperty="Key"
+                                ValueProperty="Value"
+                                Name="DietaryPreferences"
+                                Style="width: 100%" />
 
                                 <!-- Workout Preferences -->
                                 <RadzenCheckBoxList @bind-Value="selectedWorkoutTypes"
-                                                    Data="@(Enum.GetValues<WorkoutType>().Cast<WorkoutType>().Select(w => new { Text = w.ToString(), Value = w }))"
-                                                    TValue="WorkoutType"
-                                                    TextProperty="Text"
-                                                    ValueProperty="Value"
-                                                    Name="WorkoutPreferences"
-                                                    Style="width: 100%" />
+                                Data="@(Enum.GetValues<WorkoutType>()
+                        .Cast<WorkoutType>()
+                    .Select(d => new KeyValuePair<string, WorkoutType>(d.ToString(), d)))"
+                                TValue="WorkoutType"
+                                TextProperty="Key"
+                                ValueProperty="Value"
+                                Name="WorkoutTypes"
+                                Style="width: 100%" />
                             </div>
                         </div>
                     </div>
@@ -102,9 +111,9 @@
                                     <div class="meal-section">
                                         <h5>@mealType</h5>
                                         <RadzenDataGrid Data="@GetMealsForType(mealType)"
-                                                      TItem="FoodLog"
-                                                      AllowPaging="true"
-                                                      PageSize="5">
+                                        TItem="FoodLog"
+                                        AllowPaging="true"
+                                        PageSize="5">
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="FoodLog" Property="FoodName" Title="Food" />
                                                 <RadzenDataGridColumn TItem="FoodLog" Property="Calories" Title="Calories" />
@@ -113,8 +122,8 @@
                                                 <RadzenDataGridColumn TItem="FoodLog" Property="Fats" Title="Fats" />
                                             </Columns>
                                         </RadzenDataGrid>
-                                        <RadzenButton Text="Add Food" Click="@(() => NavigateToAddFood(mealType))" 
-                                                    ButtonStyle="ButtonStyle.Primary" Class="mt-2" />
+                                        <RadzenButton Text="Add Food" Click="@(() => NavigateToAddFood(mealType))"
+                                        ButtonStyle="ButtonStyle.Primary" Class="mt-2" />
                                     </div>
                                 }
                             </div>
@@ -125,80 +134,90 @@
         </RadzenTabs>
 
         <div class="profile-actions">
-            <RadzenButton Text="Save Changes" Click="@SaveChanges" 
-                         ButtonStyle="ButtonStyle.Primary" Class="w-100 mb-2" />
+            <RadzenButton Text="Save Changes" Click="@SaveChanges"
+            ButtonStyle="ButtonStyle.Primary" Class="w-100 mb-2" />
         </div>
+
+        <RadzenButton Text="Add Measurement" Click="@OpenMeasurementDialog" ButtonStyle="ButtonStyle.Primary" />
+        <RadzenButton Text="Add Measurement" Click="@Predict" ButtonStyle="ButtonStyle.Primary" />
+        <RadzenDialog />
     }
+
+    <RadzenButton Text="Generate Prediction"
+    Click="GeneratePrediction"
+    ButtonStyle="ButtonStyle.Primary"
+    class="mt-3" />
 </div>
+<RadzenNotification />
 <BottomNav />
 <style>
     .profile-container {
-        padding: 1rem;
-        max-width: 800px;
-        margin: 0 auto;
+    padding: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
     }
 
     .profile-section {
-        padding: 1rem;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        margin-bottom: 1rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1rem;
     }
 
     .profile-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
     }
 
     .profile-picture {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
     }
 
     .profile-info {
-        width: 100%;
-        max-width: 400px;
+    width: 100%;
+    max-width: 400px;
     }
 
     .meal-sections {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
     }
 
     .meal-section {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 8px;
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
     }
 
     .meal-section h5 {
-        margin-bottom: 1rem;
-        color: #333;
+    margin-bottom: 1rem;
+    color: #333;
     }
 
     /* Mobile Responsive Styles */
     @@media (max-width: 768px) {
-        .profile-container {
-            padding: 0.5rem;
-        }
-
-        .profile-section {
-            padding: 0.5rem;
-        }
+    .profile-container {
+    padding: 0.5rem;
     }
 
-   @@media (min-width: 768px) {
-        .profile-header {
-            flex-direction: row;
-            justify-content: space-around;
-        }
+    .profile-section {
+    padding: 0.5rem;
+    }
+    }
+
+    @@media (min-width: 768px) {
+    .profile-header {
+    flex-direction: row;
+    justify-content: space-around;
+    }
     }
 </style>
 
@@ -214,17 +233,29 @@
     private IEnumerable<WeightChangeType> WeightGoals => Enum.GetValues<WeightChangeType>();
     private List<FoodLog> todayFoodLogs = new();
 
+    private string name = "";
+    private int age;
+    private int height;
+    private decimal targetWeight;
+    private decimal currentWeight;
+    private WeightChangeType changeType;
+    private ActivityLevel activityLevel;
+    private string? profilePicturePath;
+    private ExperienceLevel fitnessExperience;
+    private PredictUserProgress PredictUserProgress = new PredictUserProgress();
+
     [Inject]
     public IHttpClientFactory HttpClientFactory { get; set; } = default!;
 
-    private IEnumerable<DietaryPreference> DietaryPreferences => Enum.GetValues<DietaryPreference>();
-    private IEnumerable<WorkoutType> WorkoutTypes => Enum.GetValues<WorkoutType>(); 
+    private IEnumerable<DietaryPreference> DietaryPreferences;
+    private List<WorkoutPreference> WorkoutPreferences;
+    private IEnumerable<WorkoutType> WorkoutTypes;
 
-      private IEnumerable<object> ActivityLevels => Enum
+    private IEnumerable<object> ActivityLevels => Enum
     .GetValues<ActivityLevel>()
     .Cast<ActivityLevel>()
     .Select(w => new { Text = w.ToString(), Value = w });
-    
+
     private IEnumerable<object> WeightGoalOptions => Enum
     .GetValues<WeightChangeType>()
     .Cast<WeightChangeType>()
@@ -254,25 +285,53 @@
         }
 
         // Load user and their progress
-        userProgress = await UserProgressContext.GetUserProgressAsync(currentUser.UserId);
+        name = currentUser.Name;
+        age = currentUser.Age;
+        height = currentUser.Height;
+        targetWeight = currentUser.WeightGoal.TargetWeight;
+        changeType = currentUser.WeightGoal.ChangeType;
+        activityLevel = currentUser.ActivityLevel;
+        profilePicturePath = currentUser.ProfilePicturePath;
+        fitnessExperience = currentUser.FitnessExperience;
+        selectedDietaryPreferences = currentUser.DietaryPreferences.ToList();
+        selectedWorkoutTypes = currentUser.WorkoutTypes.ToList();
+        currentUserId = currentUser.UserId;
+        // Load user progress
+        var result = await UserProgressContext.GetUserProgressAsync(currentUser.UserId);
 
-        // Load preferences
-        selectedDietaryPreferences = currentUser.DietaryPreferences;
-        selectedWorkoutTypes = currentUser.WorkoutPreferences
-            .Select(wp => wp.Type)
-            .ToList();
-
-        // Load today's food logs
-        todayFoodLogs = await FoodLogService.GetLogsForDate(currentUser.UserId, DateTime.Today);
+        if (result.IsSuccess && result.Value != null)
+        {
+            userProgress = result.Value;
+        }
+        else
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", "Could not load user progress.");
+            userProgress = null; 
+        }
 
         if (userProgress == null)
         {
             userProgress = UserProgress.Create(
                 currentUser.UserId,
-                currentUser.CurrentWeight,
-                currentUser.CurrentWeight
+                currentUser.StartingWeight,
+                currentUser.WeightGoal.TargetWeight
             );
         }
+
+        // Load preferences
+        selectedDietaryPreferences = currentUser.DietaryPreferences;
+
+        // Load today's food logs
+        todayFoodLogs = await FoodLogService.GetLogsForDate(currentUser.UserId, DateTime.Today);
+
+        // if (userProgress == null)
+        // {
+        //     userProgress = UserProgress.Create(
+        //         currentUser.UserId,
+        //         CurrentWeight,
+        //         CurrentWeight
+        //     );
+        // }
     }
 
     private IEnumerable<FoodLog> GetMealsForType(MealType mealType)
@@ -293,14 +352,9 @@
             if (file != null)
             {
                 var photoPath = await PhotoUploadService.UploadFileAsync(currentUser.UserId, file);
-                currentUser.ProfilePicturePath = photoPath;
-
-                NotificationService.Notify(
-                    NotificationSeverity.Success,
-                    "Success",
-                    "Profile picture updated!"
-                );
+                profilePicturePath = photoPath;
             }
+
         }
         catch (Exception ex)
         {
@@ -312,14 +366,6 @@
         }
     }
 
-    private async Task OnDietaryPreferencesChange(IEnumerable<DietaryPreference> values)
-    {
-        selectedDietaryPreferences = values.ToList();
-        currentUser.DietaryPreferences = (List<DietaryPreference>)selectedDietaryPreferences;
-        await UserPreferencesContext.UpdateDietaryPreferencesAsync(currentUser.UserId, selectedDietaryPreferences);
-        NotificationService.Notify(NotificationSeverity.Success, "Success", "Dietary preferences updated!");
-    }
-
     private async Task OnWorkoutPreferencesChange(IEnumerable<WorkoutType> values)
     {
         selectedWorkoutTypes = values.ToList();
@@ -327,51 +373,80 @@
             WorkoutPreference.Create(currentUser.UserId, type, DayOfWeek.Monday, TimeSpan.FromHours(9), 60, 5)
         ).ToList();
 
-        currentUser.WorkoutPreferences = workoutPreferences;
+        WorkoutPreferences = workoutPreferences;
         await UserPreferencesContext.UpdateWorkoutPreferencesAsync(currentUser.UserId, workoutPreferences);
         NotificationService.Notify(NotificationSeverity.Success, "Success", "Workout preferences updated!");
     }
 
-    private async Task SaveChanges()
+    private async Task<Result<UserProgress?>> SaveChanges()
     {
         try
         {
             isLoading = true;
 
-            // Update progress if weight changed
-            if (userProgress.CurrentWeight != currentUser.CurrentWeight)
+            // 1. Extract updated workout preferences from selectedWorkoutTypes
+            var updatedWorkoutPreferences = selectedWorkoutTypes
+                .Select(type => WorkoutPreference.Create(
+                    currentUser.UserId,
+                    type,
+                    DayOfWeek.Monday,
+                    TimeSpan.FromHours(9),
+                    60, // duration
+                    5   // intensity or user level
+                )).ToList();
+
+
+            var updateUserResult = await UpdateUserContext.Execute(currentUser.UserId,
+              currentUser.Email,
+              currentUser.Name,
+             currentUser.Age,
+              currentUser.Gender == Gender.Male,
+            currentUser.Height,
+             userProgress.StartingWeight,
+            currentUser.WeightGoal.TargetWeight,
+        currentUser.WeightGoal.ChangeType,
+         currentUser.ActivityLevel,
+               selectedDietaryPreferences.ToList(),
+               selectedWorkoutTypes.ToList(),
+            profilePicturePath,
+             currentUser.FitnessExperience);
+            if (!updateUserResult)
             {
-                userProgress.UpdateWeight(currentUser.CurrentWeight);
+                return Result<UserProgress?>.Failure("Failed to update user profile.");
             }
 
-            // Update preferences
-            await UserPreferencesContext.UpdateDietaryPreferencesAsync(
-                currentUser.UserId,
-                selectedDietaryPreferences
-            );
+            var workoutPrefResult = await UserPreferencesContext.UpdateWorkoutPreferencesAsync(
+                currentUser.UserId, updatedWorkoutPreferences);
+            if (!workoutPrefResult)
+            {
+                return Result<UserProgress?>.Failure("Failed to update workout preferences.");
+            }
 
-            await UserPreferencesContext.UpdateWorkoutPreferencesAsync(
-                currentUser.UserId,
-                currentUser.WorkoutPreferences
-            );
+            var dietaryPrefResult = await UserPreferencesContext.UpdateDietaryPreferencesAsync(
+                currentUser.UserId, selectedDietaryPreferences);
+            if (!dietaryPrefResult)
+            {
+                return Result<UserProgress?>.Failure("Failed to update dietary preferences.");
+            }
 
-            NotificationService.Notify(
-                NotificationSeverity.Success,
-                "Success",
-                "Profile updated successfully!"
-            );
+            var updateProgressResult = await UpdateUserProgressContext.UpdateUserProgressAsync(userProgress);
+            if (!updateProgressResult.IsSuccess)
+            {
+                return Result<UserProgress?>.Failure("Failed to update user progress.");
+            }
+
+            NotificationService.Notify(NotificationSeverity.Success, "Success", "Profile updated successfully!");
+            return Result<UserProgress?>.Success(updateProgressResult.Value);
         }
         catch (Exception ex)
         {
-            NotificationService.Notify(
-                NotificationSeverity.Error,
-                "Error",
-                "Failed to update profile."
-            );
+            NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to update profile.");
+            return Result<UserProgress?>.Failure($"An error occurred while saving changes: {ex.Message}");
         }
         finally
         {
             isLoading = false;
+            await OnInitializedAsync();
         }
     }
 
@@ -388,4 +463,37 @@
         isLoading = false;
         StateHasChanged();
     }
+
+    private async Task OpenMeasurementDialog()
+    {
+        var parameters = new Dictionary<string, object>
+    {
+        { "UserId", currentUser.UserId } // Pass the UserId to the dialog
+    };
+
+        // Open the dialog
+        var result = await DialogService.OpenAsync<MeasurementDialog>(
+            "Add Measurement",
+            parameters: parameters,
+            options: new DialogOptions() { Width = "400px", Height = "600px" }
+        );
+
+        if (result != null && result is BodyMeasurement measurement)
+        {
+            Console.WriteLine($"New measurement created for user");
+        }
+    } 
+
+    private async Task Predict()
+    {
+        //PredictUserProgress.PredictUserProgressNow();
+        PredictUserProgress.PredictWeightForNextWeek();
+    }
+    private WeightPredictionWithAnalysis? prediction;
+
+    private async Task GeneratePrediction()
+    {
+        prediction = await PredictionService.PredictWeight28Days(currentUserId);
+    }
+
 }

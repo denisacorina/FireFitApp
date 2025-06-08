@@ -6,19 +6,45 @@ namespace FireFitBlazor.Domain.Models
     public sealed class WorkoutSession
     {
         [Key]
-        public Guid SessionId { get; set; }
-        public string UserId { get; set; }
-        public WorkoutType WorkoutType { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public int DurationMinutes { get; set; }
-        public int CaloriesBurned { get; set; }
-        public int IntensityLevel { get; set; } // 1-10
-        public string? Notes { get; set; }
-        public List<Exercise> Exercises { get; set; } = new();
-        public bool IsCompleted { get; set; }
+        public Guid SessionId { get; private init; }
+        public string UserId { get; private init; }
+        public WorkoutType WorkoutType { get; private init; }
+        public DateTime StartTime { get; private init; }
+        public DateTime? EndTime { get; private init; }
+        public int DurationMinutes { get; private init; }
+        public int CaloriesBurned { get; private init; }
+        public int IntensityLevel { get; private init; } // 1-10
+        public string? Notes { get; private init; }
+        public IReadOnlyList<Exercise> Exercises { get; private init; } = new List<Exercise>();
+        public bool IsCompleted { get; private init; }
 
         private WorkoutSession() { }
+
+        private WorkoutSession(
+            Guid sessionId,
+            string userId,
+            WorkoutType workoutType,
+            DateTime startTime,
+            DateTime? endTime,
+            int durationMinutes,
+            int caloriesBurned,
+            int intensityLevel,
+            string? notes,
+            IReadOnlyList<Exercise> exercises,
+            bool isCompleted)
+        {
+            SessionId = sessionId;
+            UserId = userId;
+            WorkoutType = workoutType;
+            StartTime = startTime;
+            EndTime = endTime;
+            DurationMinutes = durationMinutes;
+            CaloriesBurned = caloriesBurned;
+            IntensityLevel = intensityLevel;
+            Notes = notes;
+            Exercises = exercises;
+            IsCompleted = isCompleted;
+        }
 
         public static WorkoutSession Create(
             string userId,
@@ -27,55 +53,106 @@ namespace FireFitBlazor.Domain.Models
             int intensityLevel,
             string? notes = null)
         {
-            return new WorkoutSession
-            {
-                SessionId = Guid.NewGuid(),
-                UserId = userId,
-                WorkoutType = workoutType,
-                StartTime = startTime,
-                IntensityLevel = Math.Clamp(intensityLevel, 1, 10),
-                Notes = notes,
-                IsCompleted = false
-            };
+            return new WorkoutSession(
+                Guid.NewGuid(),
+                userId,
+                workoutType,
+                startTime,
+                null,
+                0,
+                0,
+                Math.Clamp(intensityLevel, 1, 10),
+                notes,
+                new List<Exercise>(),
+                false
+            );
         }
 
-        public void CompleteSession(
-            DateTime endTime,
-            int caloriesBurned,
-            List<Exercise> exercises)
+        public WorkoutSession CompleteSession(DateTime endTime, List<Exercise> exercises)
         {
-            EndTime = endTime;
-            DurationMinutes = (int)(EndTime - StartTime).TotalMinutes;
-            CaloriesBurned = caloriesBurned;
-            Exercises = exercises;
-            IsCompleted = true;
+            var duration = (int)(endTime - StartTime).TotalMinutes;
+            var caloriesBurned = exercises.Sum(e => e.CaloriesBurned);
+
+            return new WorkoutSession(
+                SessionId,
+                UserId,
+                WorkoutType,
+                StartTime,
+                endTime,
+                duration,
+                caloriesBurned,
+                IntensityLevel,
+                Notes,
+                exercises,
+                true
+            );
         }
 
-        public void UpdateCaloriesBurned(int newCaloriesBurned)
+        public WorkoutSession AddExercise(Exercise exercise)
         {
-            CaloriesBurned = newCaloriesBurned;
+            var updatedExercises = Exercises.ToList();
+            updatedExercises.Add(exercise);
+
+            var updatedCaloriesBurned = updatedExercises.Sum(e => e.CaloriesBurned);
+
+            return new WorkoutSession(
+                SessionId,
+                UserId,
+                WorkoutType,
+                StartTime,
+                EndTime,
+                DurationMinutes,
+                updatedCaloriesBurned,
+                IntensityLevel,
+                Notes,
+                updatedExercises,
+                IsCompleted
+            );
         }
 
-        public void AddExercise(Exercise exercise)
+        public WorkoutSession UpdateCaloriesBurned(int newCaloriesBurned)
         {
-            Exercises.Add(exercise);
-            // Recalculate total calories burned
-            CaloriesBurned = Exercises.Sum(e => e.CaloriesBurned);
+            return new WorkoutSession(
+                SessionId,
+                UserId,
+                WorkoutType,
+                StartTime,
+                EndTime,
+                DurationMinutes,
+                newCaloriesBurned,
+                IntensityLevel,
+                Notes,
+                Exercises,
+                IsCompleted
+            );
         }
     }
 
-    public class Exercise
+
+    public sealed class Exercise
     {
-        public Guid ExerciseId { get; set; }
-        public string Name { get; set; }
-        public int Sets { get; set; }
-        public int Reps { get; set; }
-        public decimal Weight { get; set; }
-        public int DurationMinutes { get; set; }
-        public int CaloriesBurned { get; set; }
-        public string? Notes { get; set; }
+        public Guid ExerciseId { get; private init; }
+        public string Name { get; private init; }
+        public int Sets { get; private init; }
+        public int Reps { get; private init; }
+        public decimal Weight { get; private init; }
+        public int DurationMinutes { get; private init; }
+        public int CaloriesBurned { get; private init; }
+        public string? Notes { get; private init; }
 
         private Exercise() { }
+
+        private Exercise(Guid exerciseId, string name, int sets, int reps, decimal weight, int durationMinutes, int caloriesBurned, string? notes)
+        {
+            ExerciseId = exerciseId;
+            Name = name;
+            Sets = sets;
+            Reps = reps;
+            Weight = weight;
+            DurationMinutes = durationMinutes;
+            CaloriesBurned = caloriesBurned;
+            Notes = notes;
+        }
 
         public static Exercise Create(
             string name,
@@ -86,20 +163,19 @@ namespace FireFitBlazor.Domain.Models
             int caloriesBurned,
             string? notes = null)
         {
-            return new Exercise
-            {
-                ExerciseId = Guid.NewGuid(),
-                Name = name,
-                Sets = sets,
-                Reps = reps,
-                Weight = weight,
-                DurationMinutes = durationMinutes,
-                CaloriesBurned = caloriesBurned,
-                Notes = notes
-            };
+            return new Exercise(
+                Guid.NewGuid(),
+                name,
+                sets,
+                reps,
+                weight,
+                durationMinutes,
+                caloriesBurned,
+                notes
+            );
         }
 
-        public void Update(
+        public Exercise Update(
             int sets,
             int reps,
             decimal weight,
@@ -107,12 +183,16 @@ namespace FireFitBlazor.Domain.Models
             int caloriesBurned,
             string? notes = null)
         {
-            Sets = sets;
-            Reps = reps;
-            Weight = weight;
-            DurationMinutes = durationMinutes;
-            CaloriesBurned = caloriesBurned;
-            Notes = notes;
+            return new Exercise(
+                ExerciseId,
+                Name,
+                sets,
+                reps,
+                weight,
+                durationMinutes,
+                caloriesBurned,
+                notes ?? Notes
+            );
         }
     }
 }

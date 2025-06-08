@@ -31,7 +31,11 @@ namespace FireFitBlazor.Domain.Models
 
         [Required]
         [Range(30, 300, ErrorMessage = "Target weight must be between 30 and 300 kg")]
-        public decimal TargetWeight { get; set; }
+        public decimal TargetWeight { get; set; }      
+        
+        [Required]
+        [Range(30, 300, ErrorMessage = "Starting weight must be between 30 and 300 kg")]
+        public decimal StartingWeight { get; set; }
 
         [Required]
         public Gender Gender { get; set; }
@@ -42,6 +46,16 @@ namespace FireFitBlazor.Domain.Models
         [Required]
         public WeightChangeType WeightGoal { get; set; }
 
+        [Required]
+        public ExperienceLevel FitnessExperience { get; set; }
+
+        [Required]
         public List<DietaryPreference> DietaryPreferences { get; set; } = new();
+        [Required]
+        public List<WorkoutType> WorkoutTypes { get; set; } = new();    
+        
+        [Required]
+        [Range(1000, 6000, ErrorMessage = "Daily Calorie Goal must be between 1000 and 6000 kcal")]
+        public int DailyCalorieGoal { get; set; } = new();
     }
 } 

@@ -40,6 +40,7 @@ namespace FireFitBlazor.Application.Services
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
+           
             using (var stream = file.OpenReadStream(MaxFileSize))
             using (var fileStream = new FileStream(fullPath, FileMode.Create))
             {

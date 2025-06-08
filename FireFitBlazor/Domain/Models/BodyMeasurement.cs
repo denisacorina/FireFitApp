@@ -5,23 +5,57 @@ namespace FireFitBlazor.Domain.Models
     public sealed class BodyMeasurement
     {
         [Key]
-        public Guid MeasurementId { get; set; }
-        public string UserId { get; set; }
-        public DateTime MeasurementDate { get; set; }
-        public decimal? Weight { get; set; }
-        public decimal? BodyFatPercentage { get; set; }
-        public decimal? Chest { get; set; }
-        public decimal? Waist { get; set; }
-        public decimal? Hips { get; set; }
-        public decimal? LeftArm { get; set; }
-        public decimal? RightArm { get; set; }
-        public decimal? LeftThigh { get; set; }
-        public decimal? RightThigh { get; set; }
-        public decimal? LeftCalf { get; set; }
-        public decimal? RightCalf { get; set; }
-        public string? Notes { get; set; }
+        public Guid MeasurementId { get; private init; }
+        public string UserId { get; private init; }
+        public DateTime MeasurementDate { get; private init; }
+        public decimal? Weight { get; private init; }
+        public decimal? BodyFatPercentage { get; private init; }
+        public decimal? Chest { get; private init; }
+        public decimal? Waist { get; private init; }
+        public decimal? Hips { get; private init; }
+        public decimal? LeftArm { get; private init; }
+        public decimal? RightArm { get; private init; }
+        public decimal? LeftThigh { get; private init; }
+        public decimal? RightThigh { get; private init; }
+        public decimal? LeftCalf { get; private init; }
+        public decimal? RightCalf { get; private init; }
+        public string? Notes { get; private init; }
 
-        public BodyMeasurement() { }
+        private BodyMeasurement() { }
+
+        private BodyMeasurement(
+            Guid measurementId,
+            string userId,
+            DateTime measurementDate,
+            decimal? weight,
+            decimal? bodyFatPercentage,
+            decimal? chest,
+            decimal? waist,
+            decimal? hips,
+            decimal? leftArm,
+            decimal? rightArm,
+            decimal? leftThigh,
+            decimal? rightThigh,
+            decimal? leftCalf,
+            decimal? rightCalf,
+            string? notes)
+        {
+            MeasurementId = measurementId;
+            UserId = userId;
+            MeasurementDate = measurementDate;
+            Weight = weight;
+            BodyFatPercentage = bodyFatPercentage;
+            Chest = chest;
+            Waist = waist;
+            Hips = hips;
+            LeftArm = leftArm;
+            RightArm = rightArm;
+            LeftThigh = leftThigh;
+            RightThigh = rightThigh;
+            LeftCalf = leftCalf;
+            RightCalf = rightCalf;
+            Notes = notes;
+        }
 
         public static BodyMeasurement Create(
             string userId,
@@ -38,27 +72,26 @@ namespace FireFitBlazor.Domain.Models
             decimal? rightCalf = null,
             string? notes = null)
         {
-            return new BodyMeasurement
-            {
-                MeasurementId = Guid.NewGuid(),
-                UserId = userId,
-                MeasurementDate = DateTime.UtcNow,
-                Weight = weight,
-                BodyFatPercentage = bodyFatPercentage,
-                Chest = chest,
-                Waist = waist,
-                Hips = hips,
-                LeftArm = leftArm,
-                RightArm = rightArm,
-                LeftThigh = leftThigh,
-                RightThigh = rightThigh,
-                LeftCalf = leftCalf,
-                RightCalf = rightCalf,
-                Notes = notes
-            };
+            return new BodyMeasurement(
+                measurementId: Guid.NewGuid(),
+                userId: userId,
+                measurementDate: DateTime.UtcNow,
+                weight: weight,
+                bodyFatPercentage: bodyFatPercentage,
+                chest: chest,
+                waist: waist,
+                hips: hips,
+                leftArm: leftArm,
+                rightArm: rightArm,
+                leftThigh: leftThigh,
+                rightThigh: rightThigh,
+                leftCalf: leftCalf,
+                rightCalf: rightCalf,
+                notes: notes
+            );
         }
 
-        public void Update(
+        public BodyMeasurement Update(
             decimal? weight = null,
             decimal? bodyFatPercentage = null,
             decimal? chest = null,
@@ -72,19 +105,23 @@ namespace FireFitBlazor.Domain.Models
             decimal? rightCalf = null,
             string? notes = null)
         {
-            Weight = weight ?? Weight;
-            BodyFatPercentage = bodyFatPercentage ?? BodyFatPercentage;
-            Chest = chest ?? Chest;
-            Waist = waist ?? Waist;
-            Hips = hips ?? Hips;
-            LeftArm = leftArm ?? LeftArm;
-            RightArm = rightArm ?? RightArm;
-            LeftThigh = leftThigh ?? LeftThigh;
-            RightThigh = rightThigh ?? RightThigh;
-            LeftCalf = leftCalf ?? LeftCalf;
-            RightCalf = rightCalf ?? RightCalf;
-            Notes = notes ?? Notes;
-            MeasurementDate = DateTime.UtcNow;
+            return new BodyMeasurement(
+                measurementId: MeasurementId,
+                userId: UserId,
+                measurementDate: DateTime.UtcNow,
+                weight: weight ?? Weight,
+                bodyFatPercentage: bodyFatPercentage ?? BodyFatPercentage,
+                chest: chest ?? Chest,
+                waist: waist ?? Waist,
+                hips: hips ?? Hips,
+                leftArm: leftArm ?? LeftArm,
+                rightArm: rightArm ?? RightArm,
+                leftThigh: leftThigh ?? LeftThigh,
+                rightThigh: rightThigh ?? RightThigh,
+                leftCalf: leftCalf ?? LeftCalf,
+                rightCalf: rightCalf ?? RightCalf,
+                notes: notes ?? Notes
+            );
         }
     }
-} 
+}

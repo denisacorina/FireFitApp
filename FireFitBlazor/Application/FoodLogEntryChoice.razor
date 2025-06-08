@@ -10,13 +10,18 @@
 @rendermode RenderMode.InteractiveServer
 @inject ImageTransferService ImageTransferService
 
+<div>
+    <img src="/images/fire-flame-logo-design-template-vector.png"
+         style="width: 200px; height: 200px; display: block; margin-left: auto; margin-right: auto;  margin-top: auto;  margin-bottom: -30px;" />
+    <h2 style="color: #db5e16; text-align: center;">FireFit</h2>
+</div>
 <RadzenCard Style="max-width: 400px; margin: 3rem auto; text-align: center; padding: 2rem 1rem; border-radius: 24px; box-shadow: 0 2px 12px rgba(255,87,34,0.07);">
     <h2 style="margin-bottom: 2.5rem;">How do you want to log your food?</h2>
-   @*  <RadzenButton Style="width: 100%; margin-bottom: 1.5em; font-size: 1.2em; font-weight: 600; border-radius: 16px; padding: 1.2em 0; background: #ff5722; color: #fff;"
+    <RadzenButton Style="width: 100%; margin-bottom: 1.5em; font-size: 1.2em; font-weight: 600; border-radius: 16px; padding: 1.2em 0; background: #ff5722; color: #fff;"
     Click="@(() => Navigation.NavigateTo("/food-list"))">
         <RadzenIcon Icon="list_alt" Style="font-size: 1.7em; margin-right: 1em; vertical-align: middle;" />
         <span style="vertical-align: middle;">Choose from List</span>
-    </RadzenButton> *@
+    </RadzenButton>
 
     <label class="rz-button rz-button-md rz-button-text rz-button-primary" style="width: 100%;">
         <span class="rz-button-text">Take Picture</span>
