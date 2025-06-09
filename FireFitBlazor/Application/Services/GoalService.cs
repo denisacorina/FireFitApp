@@ -16,7 +16,7 @@ namespace FireFitBlazor.Application.Services
         }
 
         public async Task<GoalDto> CreateGoalAsync(string userId, GoalType type, int calorieGoal, float proteinGoal, float carbGoal, float fatGoal, 
-            bool intermittentFasting, int fastingWindow, DietaryPreference dietaryPreference,
+            bool intermittentFasting, int fastingWindow, 
             decimal? targetWeight = null, decimal? targetBodyFatPercentage = null, DateTime? targetDate = null)
         {
             var goal = Goal.Create(
@@ -28,7 +28,6 @@ namespace FireFitBlazor.Application.Services
                 fatGoal,
                 intermittentFasting,
                 fastingWindow,
-                dietaryPreference,
                 targetWeight,
                 targetBodyFatPercentage,
                 targetDate);
@@ -51,7 +50,6 @@ namespace FireFitBlazor.Application.Services
                 goalDto.FatGoal,
                 goalDto.IntermittentFasting,
                 goalDto.FastingWindowHours,
-                goalDto.DietaryPreference,
                 goalDto.TargetWeight,
                 goalDto.TargetBodyFatPercentage,
                 goalDto.TargetDate);
@@ -102,7 +100,6 @@ namespace FireFitBlazor.Application.Services
                 FatGoal = goal.NutritionalGoal.Fats,
                 IntermittentFasting = goal.IntermittentFasting,
                 FastingWindowHours = goal.FastingWindowHours,
-                DietaryPreference = goal.DietaryPreference,
                 TargetWeight = goal.TargetWeight,
                 TargetBodyFatPercentage = goal.TargetBodyFatPercentage,
                 TargetDate = goal.TargetDate,

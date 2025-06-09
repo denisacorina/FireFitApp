@@ -1,0 +1,146 @@
+@using FireFitBlazor.Domain.Models
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@using FireFitBlazor.Domain.ContextInterfaces
+@inject NotificationService NotificationService
+@inject IUserPreferencesContext UserPreferencesContext
+@inject IUpdateUserContext UpdateUserContext
+
+
+<RadzenTemplateForm TItem="User" Data="@currentUser" Submit="@SaveChanges">
+    <div class="preferences-modal">
+        <div class="preferences-section">
+            <h4>Dietary Preferences</h4>
+
+            <RadzenCheckBoxList TValue="DietaryPreference"
+            Data="@DietaryPreferencesOptions"
+            TextProperty="Text"
+            ValueProperty="Value"
+            Name="DietaryPreferences"
+            Style="width: 100%"
+            Value="@selectedDietaryPreferences"
+            ValueChanged="@OnDietaryPreferencesChanged"
+            ValueExpression="(() => selectedDietaryPreferences)" />
+
+        </div>
+
+        <div class="preferences-section">
+            <h4>Workout Preferences</h4>
+            <RadzenCheckBoxList @bind-Value="selectedWorkoutTypes"
+            Data="@(Enum.GetValues<WorkoutType>()
+                                    .Cast<WorkoutType>()
+                                    .Select(w => new KeyValuePair<string, WorkoutType>(w.ToString(), w)))"
+            TValue="WorkoutType"
+            TextProperty="Key"
+            ValueProperty="Value"
+            Name="WorkoutTypes"
+            Style="width: 100%" />
+        </div>
+
+        <div class="preferences-section">
+            <h4>Fitness Experience</h4>
+            <RadzenFormField Text="Experience Level" Variant="Variant.Filled">
+                <RadzenDropDown @bind-Value="fitnessExperience"
+                Data="@ExperienceLevels"
+                TextProperty="Text"
+                ValueProperty="Value"
+                Class="w-100" />
+            </RadzenFormField>
+        </div>
+
+        <div class="modal-actions">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" ButtonStyle="ButtonStyle.Primary" Class="mr-2" />
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+<style>
+    .preferences-modal {
+    padding: 1rem;
+    }
+
+    .preferences-section {
+    margin-bottom: 2rem;
+    }
+
+    .preferences-section h4 {
+    margin-bottom: 1rem;
+    color: #333;
+    }
+
+    .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    gap: 1rem;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public User currentUser { get; set; }
+
+    [Inject]
+    public DialogService DialogService { get; set; }
+
+    private List<DietaryPreference> selectedDietaryPreferences = new List<DietaryPreference>();
+    private IEnumerable<WorkoutType> selectedWorkoutTypes = new List<WorkoutType>();
+    private FireFitBlazor.Domain.Enums.FoodTrackingEnums.ExperienceLevel fitnessExperience;
+
+    private IEnumerable<object> ExperienceLevels => Enum
+        .GetValues<ExperienceLevel>()
+        .Cast<ExperienceLevel>()
+        .Select(w => new { Text = w.ToString(), Value = w });
+
+    private IEnumerable<object> DietaryPreferencesOptions =>
+         Enum.GetValues(typeof(DietaryPreference))
+             .Cast<DietaryPreference>()
+             .Select(d => new { Text = d.ToString(), Value = d });
+
+
+    protected override void OnInitialized()
+    {
+        selectedDietaryPreferences = currentUser.DietaryPreferences.ToList();
+        selectedWorkoutTypes = currentUser.WorkoutTypes.ToList();
+        fitnessExperience = currentUser.FitnessExperience;
+    }
+
+    private Task OnDietaryPreferencesChanged(IEnumerable<DietaryPreference> values)
+    {
+        selectedDietaryPreferences = values.ToList();
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveChanges()
+    {
+        try
+        {
+            var workoutPreferences = selectedWorkoutTypes.Select(type =>
+                WorkoutPreference.Create(currentUser.UserId, type, DayOfWeek.Monday, TimeSpan.FromHours(9), 60, 5)
+            ).ToList();
+
+            var workoutPrefResult = await UserPreferencesContext.UpdateWorkoutPreferencesAsync(
+                currentUser.UserId, workoutPreferences);
+
+            var dietaryPrefResult = await UserPreferencesContext.UpdateDietaryPreferencesAsync(
+                currentUser.UserId, selectedDietaryPreferences);
+            
+            var fitnessExperienceResult = await UpdateUserContext.UpdateUserFitnessExperienceAsync(
+                currentUser.UserId, fitnessExperience);
+
+            if (workoutPrefResult && dietaryPrefResult && fitnessExperienceResult)
+            {
+                NotificationService.Notify(NotificationSeverity.Success, "Success", "Preferences updated successfully!");
+                DialogService.Close(true);
+            }
+            else
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to update preferences.");
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", $"An error occurred: {ex.Message}");
+        }
+    }
+} 

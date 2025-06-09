@@ -15,15 +15,12 @@ namespace FireFitBlazor.Domain.Models
         public NutritionalInfo NutritionalGoal { get; set; }
         public bool IntermittentFasting { get; set; }
         public int FastingWindowHours { get; set; }
-        public DietaryPreference DietaryPreference { get; set; }
         public decimal? TargetWeight { get; set; }
         public decimal? TargetBodyFatPercentage { get; set; }
         public DateTime? TargetDate { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? CompletedAt { get; set; }
-
- 
 
         public static Goal Create(
             string userId,
@@ -34,7 +31,6 @@ namespace FireFitBlazor.Domain.Models
             float fatGoal,
             bool intermittentFasting,
             int fastingWindow,
-            DietaryPreference dietaryPreference,
             decimal? targetWeight = null,
             decimal? targetBodyFatPercentage = null,
             DateTime? targetDate = null)
@@ -47,7 +43,6 @@ namespace FireFitBlazor.Domain.Models
                 NutritionalGoal = NutritionalInfo.Create(calorieGoal, proteinGoal, carbGoal, fatGoal),
                 IntermittentFasting = intermittentFasting,
                 FastingWindowHours = fastingWindow,
-                DietaryPreference = dietaryPreference,
                 TargetWeight = targetWeight,
                 TargetBodyFatPercentage = targetBodyFatPercentage,
                 TargetDate = targetDate,
@@ -64,7 +59,6 @@ namespace FireFitBlazor.Domain.Models
             float fatGoal,
             bool intermittentFasting,
             int fastingWindow,
-            DietaryPreference dietaryPreference,
             decimal? targetWeight = null,
             decimal? targetBodyFatPercentage = null,
             DateTime? targetDate = null)
@@ -73,7 +67,6 @@ namespace FireFitBlazor.Domain.Models
             NutritionalGoal = NutritionalInfo.Create(calorieGoal, proteinGoal, carbGoal, fatGoal);
             IntermittentFasting = intermittentFasting;
             FastingWindowHours = fastingWindow;
-            DietaryPreference = dietaryPreference;
             TargetWeight = targetWeight;
             TargetBodyFatPercentage = targetBodyFatPercentage;
             TargetDate = targetDate;
@@ -94,7 +87,6 @@ namespace FireFitBlazor.Domain.Models
         public void Clear()
         {
             NutritionalGoal = NutritionalInfo.Zero();
-            DietaryPreference = DietaryPreference.None;
             TargetWeight = null;
             TargetBodyFatPercentage = null;
             TargetDate = null;

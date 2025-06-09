@@ -12,7 +12,7 @@ namespace FireFitBlazor.Domain.Models
         public DayOfWeek PreferredDay { get; set; }
         public TimeSpan PreferredTime { get; set; }
         public int DurationMinutes { get; set; }
-        public int IntensityLevel { get; set; } // 1-10
+        public int IntensityLevel { get; set; }
         public bool IsEnabled { get; set; }
 
         public static WorkoutPreference Create(

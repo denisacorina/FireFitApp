@@ -40,7 +40,7 @@
     private void SubmitMeasurement()
     {
         var newMeasurement = BodyMeasurement.Create(
-            userId: UserId, // You can pass it here if you have it in the dialog context
+            userId: UserId, 
             weight: bodyMeasurementResult.Weight,
             bodyFatPercentage: bodyMeasurementResult.BodyFatPercentage,
             chest: bodyMeasurementResult.Chest,

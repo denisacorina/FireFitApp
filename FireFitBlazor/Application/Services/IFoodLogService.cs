@@ -14,8 +14,6 @@ public interface IFoodLogService
 
     Task SaveMealAsync(string mealName, string userId, List<DetectedIngredient> ingredients);
 
-
-    //Task<List<DetectedIngredient>> DetectIngredientsFromImage(string base64);
     Task<NutritionalSummary> GetMacrosForIngredients(List<string> ingredientNames);
     
 }

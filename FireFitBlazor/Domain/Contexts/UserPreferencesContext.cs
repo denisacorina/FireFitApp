@@ -24,19 +24,17 @@ public class UserPreferencesContext : IUserPreferencesContext
     {
         try
         {
-            // Remove existing preferences
             var existingPreferences = await _context.WorkoutPreferences
                 .Where(wp => wp.UserId == userId)
                 .ToListAsync();
 
             _context.WorkoutPreferences.RemoveRange(existingPreferences);
 
-            // Create new preferences using the model's Create method
             var newPreferences = selectedTypes.Select(type =>
                 WorkoutPreference.Create(
                     userId,
                     type.Type,
-                    DayOfWeek.Monday, // Default values
+                    DayOfWeek.Monday, 
                     TimeSpan.FromHours(9),
                     60,
                     5

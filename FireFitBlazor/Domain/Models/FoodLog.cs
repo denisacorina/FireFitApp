@@ -12,12 +12,17 @@ namespace FireFitBlazor.Domain.Models
         public string FoodName { get; set; }
         public NutritionalInfo NutritionalInfo { get; set; }
         public DateTime Timestamp { get; set; }
-        public MealType MealType { get; set; } = MealType.Breakfast;
+        public MealType? MealType { get; set; }
+
+        public int PortionSize = 1;
+
+        public string Unit = "serving";
         public FoodLog() { }
         public FoodLog(string name, float calories, float proteins, float carbs, float fats)
         {
             FoodName = name;
-            NutritionalInfo = new NutritionalInfo(calories, proteins, carbs, fats); 
+            NutritionalInfo = new NutritionalInfo(calories, proteins, carbs, fats);
+            Timestamp = DateTime.UtcNow;
         }
 
         public static FoodLog Create(string userId, string foodName, int calories, float proteins, float carbs, float fats)

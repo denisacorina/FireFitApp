@@ -67,89 +67,106 @@ body {
     color: var(--white);
 }
 
-.btn-primary:hover {
-    background-color: var(--primary-orange-dark);
-    border-color: var(--primary-orange-dark);
-}
+@media (max-width: 768px) {
+    .rz-dialog {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        top: 0 !important;
+        left: 0 !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
 
-.btn-secondary {
-    background-color: var(--secondary-orange);
-    border-color: var(--secondary-orange);
-    color: var(--white);
-}
+    .rz-dialog-content {
+        height: 100% !important;
+        overflow: auto;
+    }
 
-.btn-secondary:hover {
-    background-color: var(--secondary-orange-dark);
-    border-color: var(--secondary-orange-dark);
-}
+    .btn-primary:hover {
+        background-color: var(--primary-orange-dark);
+        border-color: var(--primary-orange-dark);
+    }
 
-/* Form Styles */
-.form-control {
-    border-color: var(--border-color);
-}
+    .btn-secondary {
+        background-color: var(--secondary-orange);
+        border-color: var(--secondary-orange);
+        color: var(--white);
+    }
 
-.form-control:focus {
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
-}
+        .btn-secondary:hover {
+            background-color: var(--secondary-orange-dark);
+            border-color: var(--secondary-orange-dark);
+        }
 
-/* Link Styles */
-a {
-    color: var(--primary-orange);
-    text-decoration: none;
-}
+    /* Form Styles */
+    .form-control {
+        border-color: var(--border-color);
+    }
 
-a:hover {
-    color: var(--primary-orange-dark);
-    text-decoration: underline;
-}
+        .form-control:focus {
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+        }
 
-/* Alert Styles */
-.alert-success {
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-    color: var(--white);
-}
+    /* Link Styles */
+    a {
+        color: var(--primary-orange);
+        text-decoration: none;
+    }
 
-.alert-danger {
-    background-color: var(--error-color);
-    border-color: var(--error-color);
-    color: var(--white);
-}
+        a:hover {
+            color: var(--primary-orange-dark);
+            text-decoration: underline;
+        }
 
-.alert-warning {
-    background-color: var(--warning-color);
-    border-color: var(--warning-color);
-    color: var(--black);
-}
+    /* Alert Styles */
+    .alert-success {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+        color: var(--white);
+    }
 
-.alert-info {
-    background-color: var(--info-color);
-    border-color: var(--info-color);
-    color: var(--white);
-}
+    .alert-danger {
+        background-color: var(--error-color);
+        border-color: var(--error-color);
+        color: var(--white);
+    }
 
-/* Utility Classes */
-.text-primary {
-    color: var(--primary-orange) !important;
-}
+    .alert-warning {
+        background-color: var(--warning-color);
+        border-color: var(--warning-color);
+        color: var(--black);
+    }
 
-.text-secondary {
-    color: var(--secondary-orange) !important;
-}
+    .alert-info {
+        background-color: var(--info-color);
+        border-color: var(--info-color);
+        color: var(--white);
+    }
 
-.bg-primary {
-    background-color: var(--primary-orange) !important;
-}
+    /* Utility Classes */
+    .text-primary {
+        color: var(--primary-orange) !important;
+    }
 
-.bg-secondary {
-    background-color: var(--secondary-orange) !important;
-}
+    .text-secondary {
+        color: var(--secondary-orange) !important;
+    }
 
-.border-primary {
-    border-color: var(--primary-orange) !important;
-}
+    .bg-primary {
+        background-color: var(--primary-orange) !important;
+    }
 
-.border-secondary {
-    border-color: var(--secondary-orange) !important;
-} 
+    .bg-secondary {
+        background-color: var(--secondary-orange) !important;
+    }
+
+    .border-primary {
+        border-color: var(--primary-orange) !important;
+    }
+
+    .border-secondary {
+        border-color: var(--secondary-orange) !important;
+    } 

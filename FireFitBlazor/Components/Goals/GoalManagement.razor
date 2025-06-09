@@ -1,11 +1,17 @@
+@page "/my-goals"
 @using FireFitBlazor.Application.DTOs
 @using FireFitBlazor.Application.Services
 @using FireFitBlazor.Domain.Enums
 @using Radzen
 @using Radzen.Blazor
+@using FireFitBlazor.Domain.Models
 @inject IGoalService GoalService
 @inject DialogService DialogService
 @inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+
 
 <RadzenCard>
     <CardHeader>
@@ -13,7 +19,7 @@
     </CardHeader>
     <CardContent>
         <RadzenButton Text="Create New Goal" Click="@CreateNewGoal" ButtonStyle="ButtonStyle.Primary" />
-        
+
         <RadzenDataGrid @ref="grid" Data="@goals" TItem="GoalDto" AllowPaging="true" PageSize="5" AllowSorting="true">
             <Columns>
                 <RadzenDataGridColumn TItem="GoalDto" Property="Type" Title="Goal Type" />
@@ -34,7 +40,7 @@
                 </RadzenDataGridColumn>
                 <RadzenDataGridColumn TItem="GoalDto" Context="data">
                     <Template>
-                       @*  <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditGoal(data))" /> *@
+                        @*  <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Secondary" Click="@(args => EditGoal(data))" /> *@
                         @if (data.IsActive)
                         {
                             <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Click="@(args => CompleteGoal(data))" />
@@ -51,10 +57,16 @@
     </CardContent>
 </RadzenCard>
 
+<RadzenDialog></RadzenDialog>
+
 @code {
     private RadzenDataGrid<GoalDto> grid;
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
     private IEnumerable<GoalDto> goals = new List<GoalDto>();
-    private string userId; // Replace with actual user ID
+
+    private string? currentUserId;
+    private User? currentUser;
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,13 +75,27 @@
 
     private async Task LoadGoals()
     {
-        goals = await GoalService.GetUserGoalsAsync(userId);
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
+        if (!response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+        goals = await GoalService.GetUserGoalsAsync(currentUserId);
     }
 
     private async Task CreateNewGoal()
     {
-        var result = await DialogService.OpenAsync<CreateGoalDialog>("Create New Goal",
-            new Dictionary<string, object> { { "UserId", userId } },
+        var result = await DialogService.OpenAsync<GoalDialog>("Create New Goal",
+            new Dictionary<string, object> { { "UserId", currentUserId }, { "CurrentUser", currentUser }, { "ExistingGoal", goals } },
             new DialogOptions() { Width = "700px", Height = "600px" });
 
         if (result == true)
@@ -79,18 +105,22 @@
         }
     }
 
-    // private async Task EditGoal(GoalDto goal)
-    // {
-    //     var result = await DialogService.OpenAsync<EditGoalDialog>("Edit Goal",
-    //         new Dictionary<string, object> { { "Goal", goal } },
-    //         new DialogOptions() { Width = "700px", Height = "600px" });
+    private async Task EditGoal(GoalDto goal)
+    {
+        var result = await DialogService.OpenAsync<GoalDialog>("Edit Goal",
+            new Dictionary<string, object> 
+            { 
+                { "UserId", currentUserId },
+                { "ExistingGoal", goal }
+            },
+            new DialogOptions() { Width = "700px", Height = "600px" });
 
-    //     if (result == true)
-    //     {
-    //         await LoadGoals();
-    //         NotificationService.Notify(NotificationSeverity.Success, "Goal updated successfully");
-    //     }
-    // }
+        if (result == true)
+        {
+            await LoadGoals();
+            NotificationService.Notify(NotificationSeverity.Success, "Goal updated successfully");
+        }
+    }
 
     private async Task CompleteGoal(GoalDto goal)
     {
@@ -123,5 +153,47 @@
             await LoadGoals();
             NotificationService.Notify(NotificationSeverity.Success, "Goal deleted successfully");
         }
+    }
+
+    private double CalculateGoalProgress(GoalDto goal)
+    {
+        if (!goal.TargetDate.HasValue)
+            return 0;
+
+        var daysTotal = (goal.TargetDate.Value - goal.CreatedAt).TotalDays;
+        var daysElapsed = (DateTime.Now - goal.CreatedAt).TotalDays;
+        var progress = (daysElapsed / daysTotal) * 100;
+        return Math.Min(Math.Max(progress, 0), 100);
+    }
+
+    private string GetGoalTarget(GoalDto goal)
+    {
+        return goal.Type switch
+        {
+            GoalType.WeightLoss => $"Lose to {goal.TargetWeight:N1} kg",
+            GoalType.WeightGain => $"Gain to {goal.TargetWeight:N1} kg",
+            GoalType.Maintenance => $"Maintain {goal.TargetWeight:N1} kg",
+            GoalType.BodyFatReduction => $"Reduce to {goal.TargetBodyFatPercentage:N1}% body fat",
+            GoalType.MuscleGain => $"Gain muscle mass",
+            GoalType.Endurance => "Improve endurance",
+            GoalType.Strength => "Increase strength",
+            GoalType.Custom => "Custom goal",
+            _ => "N/A"
+        };
+    }
+
+    private string GetGoalCurrent(GoalDto goal)
+    {
+  
+        return goal.Type switch
+        {
+            GoalType.WeightLoss or GoalType.WeightGain or GoalType.Maintenance => "Current weight: -- kg",
+            GoalType.BodyFatReduction => "Current body fat: --%",
+            GoalType.MuscleGain => "Muscle mass: -- kg",
+            GoalType.Endurance => "Endurance level: --",
+            GoalType.Strength => "Strength level: --",
+            GoalType.Custom => "Custom progress: --",
+            _ => "N/A"
+        };
     }
 } 

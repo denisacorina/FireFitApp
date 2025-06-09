@@ -14,7 +14,6 @@ namespace FireFitBlazor.Application.DTOs
         public float FatGoal { get; set; }
         public bool IntermittentFasting { get; set; }
         public int FastingWindowHours { get; set; }
-        public DietaryPreference DietaryPreference { get; set; }
         public decimal? TargetWeight { get; set; }
         public decimal? TargetBodyFatPercentage { get; set; }
         public DateTime? TargetDate { get; set; }

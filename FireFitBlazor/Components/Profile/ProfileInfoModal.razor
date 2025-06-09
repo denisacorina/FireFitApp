@@ -1,0 +1,181 @@
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Domain.Enums
+@using FireFitBlazor.Domain.Interfaces
+@using Microsoft.AspNetCore.Components.Forms
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@inject NotificationService NotificationService
+@inject IPhotoUploadService PhotoUploadService
+@inject IUpdateUserContext UpdateUserContext
+
+<RadzenTemplateForm TItem="User" Data="@currentUser" Submit="@SaveChanges">
+    <div class="profile-modal">
+        <div class="profile-picture-section">
+            <div class="profile-picture">
+                @if (!string.IsNullOrEmpty(currentUser.ProfilePicturePath))
+                {
+                    <RadzenImage Path="@currentUser.ProfilePicturePath" Style="width: 150px; height: 150px; border-radius: 50%;" />
+                }
+                else
+                {
+                    <RadzenIcon Icon="account_circle" Style="width: 150px; height: 150px;" />
+                }
+                <InputFile OnChange="OnProfilePhotoSelected" accept="image/*" class="mt-2" />
+            </div>
+        </div>
+
+        <div class="profile-info-section">
+            <RadzenFormField Text="Name" Variant="Variant.Filled">
+                <RadzenTextBox @bind-Value="name" Name="Name" Class="w-100" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Age" Variant="Variant.Filled">
+                <RadzenNumeric @bind-Value="age" Name="Age" Class="w-100" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Height (cm)" Variant="Variant.Filled">
+                <RadzenNumeric @bind-Value="height" Name="Height" Class="w-100" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Weight Goal" Variant="Variant.Filled">
+                <RadzenDropDown @bind-Value="currentUser.WeightGoal.ChangeType"
+                Data="@WeightGoalOptions"
+                TextProperty="Text"
+                ValueProperty="Value"
+                Class="w-100" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Target Weight (kg)" Variant="Variant.Filled">
+                <RadzenNumeric @bind-Value="currentUser.WeightGoal.TargetWeight" Name="TargetWeight" Class="w-100" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Activity Level" Variant="Variant.Filled">
+                <RadzenDropDown @bind-Value="activityLevel"
+                Data="@ActivityLevels"
+                TextProperty="Text"
+                ValueProperty="Value"
+                Class="w-100" />
+            </RadzenFormField>
+        </div>
+
+        <div class="modal-actions">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" ButtonStyle="ButtonStyle.Primary" Class="mr-2" />
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+<style>
+    .profile-modal {
+    padding: 1rem;
+    }
+
+    .profile-picture-section {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    }
+
+    .profile-info-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    }
+
+    .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    gap: 1rem;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public User currentUser { get; set; }
+
+    [Inject]
+    public DialogService DialogService { get; set; }
+
+    private string name = "";
+    private int age;
+    private int height;
+    private decimal targetWeight;
+    private WeightChangeType changeType;
+    private ActivityLevel activityLevel;
+    private string? profilePicturePath;
+
+    private IEnumerable<object> WeightGoalOptions => Enum
+        .GetValues<WeightChangeType>()
+        .Cast<WeightChangeType>()
+        .Select(w => new { Text = w.ToString(), Value = w });
+
+    private IEnumerable<object> ActivityLevels => Enum
+        .GetValues<ActivityLevel>()
+        .Cast<ActivityLevel>()
+        .Select(w => new { Text = w.ToString(), Value = w });
+
+    protected override async Task OnInitializedAsync()
+    {
+        name = currentUser.Name;
+        age = currentUser.Age;
+        height = currentUser.Height;
+        activityLevel = currentUser.ActivityLevel;
+    }
+
+
+    private async Task OnProfilePhotoSelected(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            var file = e.File;
+            if (file != null)
+            {
+                profilePicturePath = await PhotoUploadService.UploadFileAsync(currentUser.UserId, file);
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(
+                NotificationSeverity.Error,
+                "Error",
+                "Failed to upload profile photo."
+            );
+        }
+    }
+
+    private async Task SaveChanges()
+    {
+        try
+        {
+            var result = await UpdateUserContext.Execute(
+                currentUser.UserId,
+                currentUser.Email,
+                currentUser.Name,
+                age,
+                height,
+                currentUser.StartingWeight,
+                currentUser.WeightGoal.TargetWeight,
+                currentUser.WeightGoal.ChangeType,
+                activityLevel,
+                currentUser.DietaryPreferences,
+                currentUser.WorkoutTypes,
+                profilePicturePath,
+                currentUser.FitnessExperience
+            );
+
+            if (result)
+            {
+                NotificationService.Notify(NotificationSeverity.Success, "Success", "Profile updated successfully!");
+                DialogService.Close(true);
+            }
+            else
+            {
+                NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to update profile.");
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", $"An error occurred: {ex.Message}");
+        }
+    }
+} 

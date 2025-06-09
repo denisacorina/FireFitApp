@@ -1,0 +1,202 @@
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Domain.Enums
+@using FireFitBlazor.Application.Services;
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@inject NotificationService NotificationService
+@inject IFoodLogService FoodLogService
+@inject NavigationManager NavigationManager
+
+<RadzenTemplateForm TItem="FoodLog" Data="@foodLog" Submit="@SaveFoodLog">
+    <div class="food-log-modal">
+        <div class="food-log-header">
+            <h4>Add Food Entry</h4>
+            <div class="detection-options">
+
+                <RadzenButton Text="Scan Barcode" Click="@OpenBarcodeScanner" ButtonStyle="ButtonStyle.Secondary" />
+            </div>
+        </div>
+
+        <div class="food-log-form">
+            <RadzenFormField Text="Meal Type" Variant="Variant.Filled">
+                <RadzenDropDown @bind-Value="foodLog.MealType"
+                Data="@MealTypes"
+                TextProperty="Text"
+                ValueProperty="Value"
+                Class="w-100" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Food Name" Variant="Variant.Filled">
+                <RadzenTextBox @bind-Value="foodLog.FoodName" Name="FoodName" Class="w-100" />
+            </RadzenFormField>
+
+            <div class="nutritional-info">
+                <h5>Nutritional Information</h5>
+                <div class="nutrition-grid">
+                    <RadzenFormField Text="Calories" Variant="Variant.Filled">
+                        <RadzenNumeric @bind-Value="Calories" Name="Calories" Class="w-100" />
+                    </RadzenFormField>
+
+                    <RadzenFormField Text="Protein (g)" Variant="Variant.Filled">
+                        <RadzenNumeric @bind-Value="Proteins" Name="Proteins" Class="w-100" />
+                    </RadzenFormField>
+
+                    <RadzenFormField Text="Carbs (g)" Variant="Variant.Filled">
+                        <RadzenNumeric @bind-Value="Carbs" Name="Carbs" Class="w-100" />
+                    </RadzenFormField>
+
+                    <RadzenFormField Text="Fats (g)" Variant="Variant.Filled">
+                        <RadzenNumeric @bind-Value="Fats" Name="Fats" Class="w-100" />
+                    </RadzenFormField>
+                </div>
+            </div>
+
+            <RadzenFormField Text="Portion Size" Variant="Variant.Filled">
+                <RadzenNumeric @bind-Value="foodLog.PortionSize" Name="PortionSize" Class="w-100" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Unit" Variant="Variant.Filled">
+                <RadzenDropDown @bind-Value="foodLog.Unit"
+                Data="@Units"
+                TextProperty="Text"
+                ValueProperty="Value"
+                Class="w-100" />
+            </RadzenFormField>
+
+        </div>
+
+        <div class="modal-actions">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" ButtonStyle="ButtonStyle.Primary" Class="mr-2" />
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+<style>
+    .food-log-modal {
+    padding: 1rem;
+    }
+
+    .food-log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    }
+
+    .food-log-header h4 {
+    margin: 0;
+    color: #333;
+    }
+
+    .detection-options {
+    display: flex;
+    gap: 1rem;
+    }
+
+    .food-log-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    }
+
+    .nutritional-info {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    }
+
+    .nutritional-info h5 {
+    margin: 0 0 1rem 0;
+    color: #333;
+    }
+
+    .nutrition-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    }
+
+    .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    gap: 1rem;
+    }
+
+    @@media (max-width: 768px) {
+    .food-log-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+    }
+
+    .detection-options {
+    width: 100%;
+    justify-content: center;
+    }
+
+    .nutrition-grid {
+    grid-template-columns: 1fr;
+    }
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string UserId { get; set; }
+
+    [Inject]
+    public DialogService DialogService { get; set; }
+
+    private FoodLog foodLog = new();
+
+    private float Calories = 0;
+    private float Proteins = 0;
+    private float Carbs = 0;
+    private float Fats = 0;
+
+    private IEnumerable<object> MealTypes => Enum
+        .GetValues<MealType>()
+        .Cast<MealType>()
+        .Select(m => new { Text = m.ToString(), Value = m });
+
+    private IEnumerable<object> Units => new[]
+    {
+        new { Text = "serving", Value = "serving" },
+        new { Text = "gram", Value = "gram" },
+        new { Text = "ounce", Value = "ounce" },
+        new { Text = "cup", Value = "cup" },
+        new { Text = "tablespoon", Value = "tablespoon" },
+        new { Text = "teaspoon", Value = "teaspoon" }
+    };
+
+    private async Task SaveFoodLog()
+    {
+        try
+        {
+            foodLog.UserId = UserId;
+            // var result = await FoodLogService.LogFoodAsync(foodLog);
+
+            // if (result)
+            // {
+            //     NotificationService.Notify(NotificationSeverity.Success, "Success", "Food entry added successfully!");
+            //     DialogService.Close(true);
+            // }
+            // else
+            // {
+            //     NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to add food entry.");
+            // }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", $"An error occurred: {ex.Message}");
+        }
+    }
+
+    private void OpenBarcodeScanner()
+    {
+        DialogService.Close();
+        NavigationManager.NavigateTo($"/barcode-scan?mealType={foodLog.MealType}");
+    }
+} 

@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 public sealed class UserPreferences
 {
     [Key]
-    public string UserPreferencesId { get; init; } = Guid.NewGuid().ToString();
     public string UserId { get; init;  }
 
     public IReadOnlyList<DietaryPreference> DietaryPreferences { get; init;  }
@@ -16,23 +15,30 @@ public sealed class UserPreferences
     private UserPreferences() { }
 
     private UserPreferences(
-        string userId,
-        IReadOnlyList<DietaryPreference> dietaryPreferences,
-        int dailyCalorieGoal)
+          string userId,
+          IReadOnlyList<DietaryPreference> dietaryPreferences,
+          int dailyCalorieGoal)
     {
         UserId = userId;
         DietaryPreferences = dietaryPreferences;
         DailyCalorieGoal = dailyCalorieGoal;
     }
-    public static UserPreferences Create(string userId, List<DietaryPreference> dietaryPreferences, int dailyCalorieGoal)
+
+    public static UserPreferences Create(
+        string userId,
+        List<DietaryPreference>? dietaryPreferences,
+        int dailyCalorieGoal)
     {
         return new UserPreferences(
-            userId,
-            dietaryPreferences ?? new List<DietaryPreference>(),
-            dailyCalorieGoal
+            userId: userId,
+            dietaryPreferences: dietaryPreferences ?? new List<DietaryPreference>(),
+            dailyCalorieGoal: dailyCalorieGoal
         );
     }
-    public UserPreferences Update(List<DietaryPreference> dietaryPreferences, int newCalorieGoal)
+
+    public UserPreferences Update(
+        List<DietaryPreference>? dietaryPreferences,
+        int newCalorieGoal)
     {
         return new UserPreferences(
             userId: this.UserId,

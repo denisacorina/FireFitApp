@@ -150,12 +150,11 @@ namespace FireFitBlazor.Domain.Models
         //}
 
 
-        public User Update(string userId, string email, string name, int age, bool isMale, int height, decimal startingWeight, decimal targetWeight, WeightChangeType changeType, ActivityLevel activityLevel, List<DietaryPreference> dietaryPreferences, List<WorkoutType> workoutTypes, string profilePicturePath, ExperienceLevel fitnessExperience)
+        public User Update(string userId, string email, string name, int age, int height, decimal startingWeight, decimal targetWeight, WeightChangeType changeType, ActivityLevel activityLevel, List<DietaryPreference> dietaryPreferences, List<WorkoutType> workoutTypes, string profilePicturePath, ExperienceLevel fitnessExperience)
         {
             if (age is < 18 or > 100)
                 throw new ArgumentException("Age must be between 18 and 100.");
 
-            var gender = isMale ? Gender.Male : Gender.Female;
             var weightGoal = new WeightGoal(targetWeight, changeType);
 
             return new User(
@@ -166,7 +165,7 @@ namespace FireFitBlazor.Domain.Models
                 DateTime.UtcNow,
                 PasswordHash,
                 age,
-                gender,
+                Gender,
                 height,
                 startingWeight,
                 targetWeight,
@@ -181,9 +180,56 @@ namespace FireFitBlazor.Domain.Models
             );
         }
 
-        public void ClearWeightGoal()
+        public User UpdateFitnessExperience(ExperienceLevel fitnessExperience)
+            => With(fitnessExperience: fitnessExperience);
+
+        private User With(
+            string userId = null,
+            string name = null,
+            string email = null,
+            DateTime? createdAt = null,
+            DateTime? updatedAt = null,
+            string passwordHash = null,
+            int? age = null,
+            Gender? gender = null,
+            int? height = null,
+            decimal? startingWeight = null,
+            decimal? targetWeight = null,
+            WeightGoal weightGoal = null,
+            ActivityLevel? activityLevel = null,
+            List<CalorieLog> calorieLogs = null,
+            List<DietaryPreference> dietaryPreferences = null,
+            string profilePicturePath = null,
+            ExperienceLevel? fitnessExperience = null,
+            List<WorkoutType> workoutTypes = null,
+            List<WorkoutPreference> workoutPreferences = null)
         {
-            WeightGoal.Default();
+            return new User(
+                userId ?? UserId,
+                name ?? Name,
+                email ?? Email,
+                createdAt ?? CreatedAt,
+                updatedAt ?? DateTime.UtcNow,
+                passwordHash ?? PasswordHash,
+                age ?? Age,
+                gender ?? Gender,
+                height ?? Height,
+                startingWeight ?? StartingWeight,
+                targetWeight ?? TargetWeight,
+                weightGoal ?? WeightGoal,
+                activityLevel ?? ActivityLevel,
+                calorieLogs ?? CalorieLogs,
+                dietaryPreferences ?? DietaryPreferences,
+                profilePicturePath ?? ProfilePicturePath,
+                fitnessExperience ?? FitnessExperience,
+                workoutTypes ?? WorkoutTypes,
+                workoutPreferences ?? WorkoutPreferences
+            );
+        }
+
+        public User ClearWeightGoal()
+        {
+            return With(weightGoal: WeightGoal.Default());
         }
 
         //public void LogDailyCalories(WeightGoal weightGoal, int consumedCalories, bool isMale, int age, ActivityLevel activityLevel)
