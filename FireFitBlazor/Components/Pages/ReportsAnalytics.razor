@@ -1,0 +1,217 @@
+@page "/reports-analytics"
+@using Domain.Models
+@using Application.Services
+@inject IAnalyticsService AnalyticsService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+
+<div class="container mt-4">
+    <h2>Reports & Analytics</h2>
+
+    <div class="row mb-4">
+        <div class="col">
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-primary @(selectedTimeFrame == "week" ? "active" : "")"
+                        @onclick="@(() => ChangeTimeFrame("week"))">
+                    Today
+                </button>
+                <button class="btn btn-outline-primary @(selectedTimeFrame == "month" ? "active" : "")"
+                        @onclick="@(() => ChangeTimeFrame("month"))">
+                    This Week
+                </button>
+                <button class="btn btn-outline-primary @(selectedTimeFrame == "year" ? "active" : "")"
+                        @onclick="@(() => ChangeTimeFrame("year"))">
+                    This Month
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Weight Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <!-- Weight progress chart will go here -->
+                    </div>
+                    <div class="mt-3">
+                        <h6>Summary</h6>
+                        <p>Starting Weight: @startingWeight kg</p>
+                        <p>Current Weight: @currentWeight kg</p>
+                        <p>Total Change: @(currentWeight - startingWeight) kg</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Calorie Intake vs Burned</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <!-- Calorie chart will go here -->
+                    </div>
+                    <div class="mt-3">
+                        <h6>Summary</h6>
+                        <p>Average Daily Intake: @averageCalorieIntake cal</p>
+                        <p>Average Daily Burned: @averageCaloriesBurned cal</p>
+                        <p>Net Daily Average: @(averageCalorieIntake - averageCaloriesBurned) cal</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Macronutrient Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <!-- Macronutrient pie chart will go here -->
+                    </div>
+                    <div class="mt-3">
+                        <h6>Average Daily Distribution</h6>
+                        <p>Protein: @averageProtein g (@(averageProtein * 4 * 100 / averageCalorieIntake)%)</p>
+                        <p>Carbs: @averageCarbs g (@(averageCarbs * 4 * 100 / averageCalorieIntake)%)</p>
+                        <p>Fat: @averageFat g (@(averageFat * 9 * 100 / averageCalorieIntake)%)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Exercise Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <!-- Exercise chart will go here -->
+                    </div>
+                    <div class="mt-3">
+                        <h6>Summary</h6>
+                        <p>Total Workouts: @totalWorkouts</p>
+                        <p>Total Exercise Minutes: @totalExerciseMinutes</p>
+                        <p>Most Common Exercise: @mostCommonExercise</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Goals Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @foreach (var goal in goalsProgress)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">@goal.Name</h6>
+                                    <small>@goal.Progress% Complete</small>
+                                </div>
+                                <div class="progress mt-2">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: @goal.Progress%"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedTimeFrame = "week";
+    private double startingWeight;
+    private double currentWeight;
+    private int averageCalorieIntake;
+    private int averageCaloriesBurned;
+    private int averageProtein;
+    private int averageCarbs;
+    private int averageFat;
+    private int totalWorkouts;
+    private int totalExerciseMinutes;
+    private string mostCommonExercise;
+    private List<GoalProgress> goalsProgress = new();
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+
+    private string? currentUserId;
+    private User? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAnalyticsData();
+    }
+
+    private async Task ChangeTimeFrame(string timeFrame)
+    {
+        selectedTimeFrame = timeFrame;
+        await LoadAnalyticsData();
+    }
+
+    private async Task LoadAnalyticsData()
+    {
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
+        if (!response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+      
+        var (startDate, endDate) = GetDateRange();
+
+        var analytics = await AnalyticsService.GetUserAnalytics(currentUser.UserId, startDate, endDate);
+        
+        startingWeight = analytics.StartingWeight;
+        currentWeight = analytics.CurrentWeight;
+        averageCalorieIntake = analytics.AverageCalorieIntake;
+        averageCaloriesBurned = analytics.AverageCaloriesBurned;
+        averageProtein = analytics.AverageProtein;
+        averageCarbs = analytics.AverageCarbs;
+        averageFat = analytics.AverageFat;
+        totalWorkouts = analytics.TotalWorkouts;
+        totalExerciseMinutes = analytics.TotalExerciseMinutes;
+        mostCommonExercise = analytics.MostCommonExercise;
+        goalsProgress = analytics.GoalsProgress;
+    }
+
+    private (DateTime startDate, DateTime endDate) GetDateRange()
+    {
+        var endDate = DateTime.Today;
+        var startDate = selectedTimeFrame switch
+        {
+            "week" => endDate.AddDays(-7),
+            "month" => endDate.AddMonths(-1),
+            "year" => endDate.AddYears(-1),
+            _ => endDate.AddDays(-7)
+        };
+        return (startDate, endDate);
+    }
+} 

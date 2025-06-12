@@ -4,6 +4,7 @@ using FireFitBlazor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FireFitBlazor.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250609193639_AddedWorkoutSessionsEntity")]
+    partial class AddedWorkoutSessionsEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -319,9 +322,14 @@ namespace FireFitBlazor.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<bool>("ContainsAnimalProducts")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ContainsGluten")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("ContainsLactose")
+                        .HasColumnType("bit");
 
                     b.Property<Guid?>("IngredientRecognitionRecognitionId")
                         .HasColumnType("uniqueidentifier");

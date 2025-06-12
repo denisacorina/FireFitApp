@@ -1,0 +1,302 @@
+@page "/exercise-log"
+@using Domain.Models
+@using Application.Services
+@using FireFitBlazor.Components.Dialogs
+@inject IWorkoutService WorkoutService
+
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+
+
+<RadzenStack Orientation="Orientation.Vertical" Gap="1rem" Class="p-4">
+    <RadzenRow>
+        <RadzenColumn Size="12">
+            <RadzenText TextStyle="TextStyle.H3">Exercise Log</RadzenText>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenRow>
+        <RadzenColumn Size="12">
+            <RadzenButton Click="@ShowAddWorkoutDialog" 
+                         ButtonStyle="ButtonStyle.Primary" 
+                         Icon="add"
+                         Class="w-100">
+                Add Workout
+            </RadzenButton>
+        </RadzenColumn>
+    </RadzenRow>
+
+    <RadzenRow>
+        <RadzenColumn Size="12" SizeMD="8">
+            <RadzenCard>
+                <RadzenStack>
+                    <RadzenText TextStyle="TextStyle.H5">Recent Workouts</RadzenText>
+                    
+                    @if (workoutSessions == null)
+                    {
+                        <RadzenProgressBar Value="100" Mode="ProgressBarMode.Indeterminate" />
+                    }
+                    else if (!workoutSessions.Any())
+                    {
+                        <RadzenText>No workouts logged yet.</RadzenText>
+                    }
+                    else
+                    {
+                        <RadzenDataGrid Data="@workoutSessions" 
+                                      TItem="WorkoutSession"
+                                      AllowFiltering="true"
+                                      AllowSorting="true"
+                                      AllowPaging="true"
+                                      PageSize="5"
+                                      Class="w-100">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="WorkoutSession" Property="WorkoutType" Title="Type" />
+                                <RadzenDataGridColumn TItem="WorkoutSession" Property="Date" Title="Date" FormatString="{0:d}" />
+                                <RadzenDataGridColumn TItem="WorkoutSession" Property="Duration" Title="Duration (min)" />
+                                <RadzenDataGridColumn TItem="WorkoutSession" Property="CaloriesBurned" Title="Calories" />
+                                <RadzenDataGridColumn TItem="WorkoutSession" Context="workout" Title="Actions" TextAlign="TextAlign.Center">
+                                    <Template Context="workout">
+                                        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="0.5rem">
+                                            <RadzenButton Icon="edit" 
+                                                        ButtonStyle="ButtonStyle.Light" 
+                                                        Click="@(() => EditWorkout(workout))" />
+                                            <RadzenButton Icon="delete" 
+                                                        ButtonStyle="ButtonStyle.Danger" 
+                                                        Click="@(() => DeleteWorkout(workout))" />
+                                        </RadzenStack>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                </RadzenStack>
+            </RadzenCard>
+        </RadzenColumn>
+
+        <RadzenColumn Size="12" SizeMD="4">
+            <RadzenCard>
+                <RadzenStack>
+                    <RadzenText TextStyle="TextStyle.H5">Workout Summary</RadzenText>
+                    
+                    <RadzenStack Gap="1rem">
+                        <RadzenStack>
+                            <RadzenText TextStyle="TextStyle.Subtitle1">This Week</RadzenText>
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                                <RadzenText>Total Workouts:</RadzenText>
+                                <RadzenText>@weeklyWorkoutCount</RadzenText>
+                            </RadzenStack>
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                                <RadzenText>Total Minutes:</RadzenText>
+                                <RadzenText>@weeklyWorkoutMinutes</RadzenText>
+                            </RadzenStack>
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                                <RadzenText>Calories Burned:</RadzenText>
+                                <RadzenText>@weeklyCaloriesBurned</RadzenText>
+                            </RadzenStack>
+                        </RadzenStack>
+
+                        <RadzenChart>
+                            <RadzenPieSeries Data="@weeklyWorkoutDistribution" 
+                                           Title="Workout Distribution"
+                                           ValueProperty="Count"
+                                           CategoryProperty="Type" />
+                        </RadzenChart>
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenCard>
+        </RadzenColumn>
+    </RadzenRow>
+</RadzenStack>
+
+@code {
+    private List<WorkoutSession> workoutSessions;
+    private int weeklyWorkoutCount;
+    private int weeklyWorkoutMinutes;
+    private int weeklyCaloriesBurned;
+    private List<WorkoutDistribution> weeklyWorkoutDistribution = new();
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+
+    private string? currentUserId;
+    private User? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadWorkoutData();
+    }
+
+    private async Task LoadWorkoutData()
+    {
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
+        if (!response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        workoutSessions = await WorkoutService.GetWorkoutsByUserId(currentUser.UserId);
+        
+        var weekStart = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+        var weekEnd = weekStart.AddDays(7);
+        
+        var weeklyWorkouts = workoutSessions
+            .Where(w => w.Date >= weekStart && w.Date < weekEnd)
+            .ToList();
+
+        weeklyWorkoutCount = weeklyWorkouts.Count;
+        weeklyWorkoutMinutes = weeklyWorkouts.Sum(w => w.DurationMinutes);
+        weeklyCaloriesBurned = weeklyWorkouts.Sum(w => w.CaloriesBurned);
+
+        weeklyWorkoutDistribution = weeklyWorkouts
+            .GroupBy(w => w.WorkoutType)
+            .Select(g => new WorkoutDistribution { Type = g.Key.ToString(), Count = g.Count() })
+            .ToList();
+    }
+
+    private async Task ShowAddWorkoutDialog()
+    {
+        var result = await DialogService.OpenAsync<AddWorkoutDialog>("Add Workout",
+            new Dictionary<string, object>(),
+            new DialogOptions
+            {
+                Width = "500px",
+                Height = "600px",
+                Resizable = true,
+                Draggable = true
+            });
+
+        if (result != null)
+        {
+            await LoadWorkoutData();
+            NotificationService.Notify(NotificationSeverity.Success, "Workout added successfully!");
+        }
+    }
+
+    private async Task EditWorkout(WorkoutSession workout)
+    {
+        var result = await DialogService.OpenAsync<EditWorkoutDialog>("Edit Workout",
+            new Dictionary<string, object> { { "Workout", workout } },
+            new DialogOptions
+            {
+                Width = "500px",
+                Height = "600px",
+                Resizable = true,
+                Draggable = true
+            });
+
+        if (result != null)
+        {
+            await LoadWorkoutData();
+            NotificationService.Notify(NotificationSeverity.Success, "Workout updated successfully!");
+        }
+    }
+
+    private async Task DeleteWorkout(WorkoutSession workout)
+    {
+        var result = await DialogService.Confirm("Are you sure you want to delete this workout?",
+            "Delete Workout",
+            new ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" });
+
+        if (result == true)
+        {
+            await WorkoutService.DeleteWorkout(workout.SessionId);
+            await LoadWorkoutData();
+            NotificationService.Notify(NotificationSeverity.Success, "Workout deleted successfully!");
+        }
+    }
+
+    public class WorkoutDistribution
+    {
+        public string Type { get; set; }
+        public int Count { get; set; }
+    }
+}
+
+<style>
+    @@media (max-width: 768px) {
+        .p-4 {
+            padding: 1rem !important;
+        }
+
+        .rz-button {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .rz-card {
+            padding: 1rem !important;
+        }
+
+        .rz-datatable {
+            font-size: 0.9rem;
+        }
+
+        .rz-form-field {
+            margin-bottom: 1rem;
+        }
+
+        .rz-chart {
+            height: 300px !important;
+        }
+
+        .rz-stack-horizontal {
+            flex-direction: column !important;
+        }
+
+        .rz-dialog {
+            width: 95% !important;
+            max-width: 95% !important;
+        }
+
+        .rz-numeric {
+            width: 100% !important;
+        }
+
+        .rz-text-h3 {
+            font-size: 1.5rem !important;
+        }
+
+        .rz-text-h5 {
+            font-size: 1.2rem !important;
+        }
+
+        .rz-datatable-header {
+            padding: 0.5rem !important;
+        }
+
+        .rz-datatable-data td {
+            padding: 0.5rem !important;
+        }
+
+        .rz-datatable-footer {
+            padding: 0.5rem !important;
+        }
+
+        .rz-paginator {
+            padding: 0.5rem !important;
+        }
+
+        .rz-button-icon {
+            font-size: 1.2rem !important;
+        }
+
+        .rz-stack {
+            gap: 0.5rem !important;
+        }
+
+        .rz-card-content {
+            padding: 0.5rem !important;
+        }
+    }
+</style>

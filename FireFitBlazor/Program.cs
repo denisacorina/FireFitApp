@@ -9,6 +9,7 @@ using Radzen;
 using Radzen.Blazor;
 
 using FireFitBlazor.Domain.ContextInterfaces;
+using Application.Services;
 using FireFitBlazor.Infrastructure.GatewayInterfaces;
 using FireFitBlazor.Domain.Contexts;
 using FireFitBlazor.Domain.Interfaces;
@@ -121,6 +122,7 @@ builder.Services.AddHttpClient("MLAPI", client =>
 });
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerAPI"));
+builder.Services.AddBlazorBootstrap();
 //ObjectDetection.Train();
 
 // Create single instance of sample data from first line of dataset for model input.
@@ -196,6 +198,8 @@ builder.Services.AddScoped<RecipeRecommendation.NERPredictor>(sp =>
 
 builder.Services.AddScoped<IntentClassification.MLModel1>();
 builder.Services.AddScoped<RecipeGeneratorService>();
+builder.Services.AddScoped<IWorkoutService, WorkoutService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 var app = builder.Build();
 

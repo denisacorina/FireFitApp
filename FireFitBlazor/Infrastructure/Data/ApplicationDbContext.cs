@@ -39,6 +39,7 @@ namespace FireFitBlazor.Infrastructure.Data
         public DbSet<IngredientRecognition> IngredientRecognition { get; set; }
         public DbSet<Meal> Meals { get; set; }
         public DbSet<WorkoutPreference> WorkoutPreferences { get; set; }
+        public DbSet<WorkoutSession> WorkoutSessions { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

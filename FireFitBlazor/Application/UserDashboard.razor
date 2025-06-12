@@ -1,5 +1,283 @@
 ﻿@page "/dashboard"
+@using Radzen.Blazor
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+
+@using BlazorBootstrap
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Today</h1>
+    </div>
+
+    <div class="dashboard-content">
+        <div class="calories-summary">
+
+
+            <div class="calories-circle">
+                <div class="circle-wrapper">
+                    <svg viewBox="0 0 36 36" class="circular-chart">
+                        <path class="circle-bg"
+                              d="M18 2.0845
+                                 a 15.9155 15.9155 0 0 1 0 31.831
+                                 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        <path class="circle"
+                              stroke-dasharray="@CalculateProgress, 100"
+                              d="M18 2.0845
+                                 a 15.9155 15.9155 0 0 1 0 31.831
+                                 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    </svg>
+                    <div class="circle-text">
+                        <h2>@RemainingCalories</h2>
+                        <p>remaining</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calories-details">
+                <div class="calories-item">
+                    <span class="label">Goal</span>
+                    <span class="value">@baseGoal</span>
+                </div>
+                <div class="calories-item">
+                    <span class="label">Food</span>
+                    <span class="value">-@foodCalories</span>
+                </div>
+                <div class="calories-item">
+                    <span class="label">Exercise</span>
+                    <span class="value">+@exerciseCalories</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weight Change Insights -->
+
+
+        <div class="calories-summary">
+            <div class="container-fluid overflow-x-auto">
+                <LineChart @ref="lineChart" Width="350" Height="250" />
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private int baseGoal = 1570;
+    private int foodCalories = 1200;
+    private int exerciseCalories = 300;
+
+    private int RemainingCalories => baseGoal - foodCalories + exerciseCalories;
+    private int CalculateProgress => (int)(((double)(baseGoal - RemainingCalories) / baseGoal) * 100);
+
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+
+    protected override void OnInitialized()
+    {
+        var colors = ColorUtility.CategoricalTwelveColors;
+
+        var weights = new List<double?> { 96.5, 100.0, 95.6, 95.3, 95.1, 94.9 };
+        var dates = new List<string> { "01 Jan", "02 Jan", "03 Jan", "04 Jan", "05 Jan", "06 Jan" };
+
+        var datasets = new List<IChartDataset>();
+
+        var dataset1 = new LineChartDataset
+            {
+                Label = "Weight Change",
+                Data = weights,
+                BackgroundColor = colors[0],
+                BorderColor = colors[0],
+                BorderWidth = 2,
+                HoverBorderWidth = 4,
+                // PointBackgroundColor = colors[0],
+                // PointRadius = 0, // hide points
+                // PointHoverRadius = 4,
+            };
+        datasets.Add(dataset1);
+
+
+        chartData = new ChartData { Labels = dates, Datasets = datasets };
+
+        lineChartOptions = new();
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+        lineChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Date", Display = true };
+        lineChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Wieght (kg)", Display = true };
+
+        lineChartOptions.Plugins.Title!.Text = "Weight Change Over Time";
+        lineChartOptions.Plugins.Title.Display = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+}
+<style>
+    .dashboard-container {
+        max-width: 600px;
+        margin: auto;
+        padding: 1rem;
+    }
+
+    .dashboard-header h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .dashboard-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .calories-summary {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    .calories-circle {
+        width: 120px;
+        height: 120px;
+        position: relative;
+        flex-shrink: 0;
+        margin: auto;
+    }
+
+    .circle-wrapper {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .circular-chart {
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+    }
+
+    .circle-bg {
+        fill: none;
+        stroke: #eee;
+        stroke-width: 3.8;
+    }
+
+    .circle {
+        fill: none;
+        stroke: #DC7C05;
+        stroke-width: 3.8;
+        stroke-linecap: round;
+        transition: stroke-dasharray 0.5s ease;
+    }
+
+    .circle-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+        .circle-text h2 {
+            margin: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .circle-text p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+
+    .calories-details {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .calories-item {
+        display: flex;
+        justify-content: space-between;
+    }
+
+        .calories-item .label {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .calories-item .value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+    .insights-section {
+        background: #fff;
+        border-radius: 1rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+    }
+
+        .insights-section h3 {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+    .weight-chart {
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6c757d;
+    }
+
+    /* Mobile responsiveness */
+    @@media (max-width: 600px) {
+        .calories-summary {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .calories-details {
+            align-items: center;
+            width: 100%;
+        }
+
+        .calories-item {
+            width: 100%;
+            justify-content: space-between;
+            max-width: 300px;
+        }
+    }
+</style>
+
+@* @page "/dashboard"
 @using FireFitBlazor.Components
+@using FireFitBlazor.Domain.ContextInterfaces
 @using Radzen;
 @using Radzen.Blazor;
 @using FireFitBlazor.Domain.Models
@@ -7,6 +285,7 @@
 @using FireFitBlazor.Domain.ValueObjects
 @using FireFitBlazor.Domain.Enums
 @inject IFoodLogService FoodLogService
+@inject IUserPreferencesContext UserPreferencesContext
 @inject NavigationManager Navigation
 @inject IHttpContextAccessor HttpContextAccessor
 @using Microsoft.AspNetCore.Components.Web
@@ -16,42 +295,26 @@
 <div class="mobile-container">
     <!-- Top Navigation -->
     <div class="top-nav">
-        <span></span>
-        <span><b>Today</b></span>
-        <span></span>
+        <button class="nav-button" @onclick="() => NavigateDate(-1)">
+            <RadzenIcon Icon="chevron_left" />
+        </button>
+        <div class="date-display">
+            <h2>@selectedDate.ToString("dddd")</h2>
+            <p>@selectedDate.ToString("MMMM d, yyyy")</p>
+        </div>
+        <button class="nav-button" @onclick="() => NavigateDate(1)">
+            <RadzenIcon Icon="chevron_right" />
+        </button>
     </div>
 
-    <!-- Date Selection -->
-  @*   <div class="date-section">
-        <div class="today-label">@selectedDayLabel</div>
-        <div class="days-scroll">
-            @foreach (var day in days)
-            {
-                // Create the class dynamically
-                var dayClass = day.IsActive ? "day-item active" : "day-item";
-                var dayNumberClass = day.IsActive ? "day-number active-number" : "day-number";
-
-                <RadzenButton class="@dayClass"
-                              Text="@day.Name"
-                              Click="@(() => SelectDay(day))"
-                              Style="margin-bottom: 10px;">
-                  
-                </RadzenButton>
-            }
-        </div>
-
-        <p>@selectedDayLabel</p>
-    </div> *@
-   
     <!-- Summary Card -->
     <div class="summary-card">
         <div class="summary-header">
             <div class="title-section">
-                <span>Summary</span>
-                <span></span>
+                <span>Daily Summary</span>
             </div>
-            <span></span>
         </div>
+
         <div class="summary-content">
             <div class="stats-section">
                 <div class="stats-list">
@@ -64,94 +327,115 @@
                         <span class="stat-value light">@RemainingCalories</span>
                     </div>
                     <div class="stat-row">
-                        <span class="stat-label">Total</span>
+                        <span class="stat-label">Goal</span>
                         <span class="stat-value">@totalCaloriesGoal</span>
                     </div>
                 </div>
             </div>
 
-            <!-- Progress bar moved before Macros section -->
-            <div class="progress-b">
-                <div class="progress-b">
-                    <div class="container">
-                        <CircularProgressBar StrokeBottom="5"
-                                             Size="120"
-                                             TargetPercent="@((int)((double)caloriesConsumed / totalCaloriesGoal * 100))"
-                                             ColorSlice="#DC7C05"
-                                             ColorCircle="#f1f1f1"
-                                             Round="true" />
-                    </div>
-                </div>
+            <div class="progress-section">
+                <RadzenProgressBar Value="@((double)caloriesConsumed / totalCaloriesGoal * 100)"
+                ShowValue="true"
+                Unit="%"
+                Style="height: 8px;"
+                class="custom-progress" />
             </div>
         </div>
 
         <div class="macros-section">
+            <h3 class="section-title">Macronutrients</h3>
             <div class="macro-grid">
                 <div class="macro-item">
                     <span class="macro-label">Protein</span>
-                    <CircularProgressBar Size="60"
-                                         StrokeBottom="3"
-                                         TargetPercent="@macros[0].GetProgress()"
-                                         ColorSlice="#4CAF50"
-                                         ColorCircle="#FFE6EC"
-                                         Round="true" />
-                    <span class="macro-values">@macros[0].Current/@macros[0].Goal</span>
+                    <RadzenProgressBar Value="@(macros[0].GetProgress())"
+                    ShowValue="true"
+                    Unit="%"
+                    Style="height: 6px;"
+                    class="protein-progress" />
+                    <span class="macro-values">@macros[0].Current/@macros[0].Goal g</span>
                 </div>
                 <div class="macro-item">
                     <span class="macro-label">Fats</span>
-                    <CircularProgressBar Size="60"
-                                         StrokeBottom="3"
-                                         TargetPercent="@macros[1].GetProgress()"
-                                         ColorSlice="#d52f57"
-                                         ColorCircle="#FFE6EC"
-                                         Round="true" />
-                    <span class="macro-values">@macros[1].Current/@macros[1].Goal</span>
+                    <RadzenProgressBar Value="@(macros[1].GetProgress())"
+                    ShowValue="true"
+                    Unit="%"
+                    Style="height: 6px;"
+                    class="fats-progress" />
+                    <span class="macro-values">@macros[1].Current/@macros[1].Goal g</span>
                 </div>
                 <div class="macro-item">
                     <span class="macro-label">Carbs</span>
-                    <CircularProgressBar Size="60"
-                                         StrokeBottom="3"
-                                         TargetPercent="@macros[2].GetProgress()"
-                                         ColorSlice="#42A5F5"
-                                         ColorCircle="#FFE6EC"
-                                         Round="true" />
-                    <span class="macro-values">@macros[2].Current/@macros[2].Goal</span>
+                    <RadzenProgressBar Value="@(macros[2].GetProgress())"
+                    ShowValue="true"
+                    Unit="%"
+                    Style="height: 6px;"
+                    class="carbs-progress" />
+                    <span class="macro-values">@macros[2].Current/@macros[2].Goal g</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nutrition Insights -->
+        <div class="insights-section">
+            <h3 class="section-title">Nutrition Insights</h3>
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-header">
+                        <span class="insight-title">Meal Distribution</span>
+                    </div>
+                    <div class="insight-content">
+                        @foreach (var meal in mealDistribution)
+                        {
+                            <div class="meal-distribution-item">
+                                <span class="meal-name">@meal.Key</span>
+                                <div class="meal-progress">
+                                    <RadzenProgressBar Value="@(meal.Value * 100 / caloriesConsumed)"
+                                    ShowValue="true"
+                                    Unit="%"
+                                    Style="height: 4px;"
+                                    class="meal-progress-bar" />
+                                </div>
+                                <span class="meal-calories">@meal.Value cal</span>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Meals List -->
-        <div class="meals-list">
-            @foreach (var meal in meals)
-            {
-                var foodsForMeal = todaysFoodLogs.Where(f => f.MealType.ToString() == meal.Name).ToList();
-                <div class="meal-item" @onclick="() => SelectMeal(meal)">
-                    <div class="meal-icon">@meal.Icon</div>
-                    <div class="meal-details">
-                        <span class="meal-name">@meal.Name</span>
-                        <span class="meal-calories">@meal.Calories kcal</span>
-                    </div>
-                    @if (foodsForMeal.Any())
-                    {
-                        <div class="meal-foods">
-                            @foreach (var food in foodsForMeal)
-                            {
-                                <div class="food-item">
-                                    <span class="food-name">@food.FoodName</span>
-                                    <span class="food-calories">@((int)food.NutritionalInfo.Calories) kcal</span>
-                                </div>
-                            }
+        <div class="meals-section">
+            <h3 class="section-title">Meals</h3>
+            <div class="meals-list">
+                @foreach (var meal in meals)
+                {
+                    var foodsForMeal = todaysFoodLogs.Where(f => f.MealType.ToString() == meal.Name).ToList();
+                    <div class="meal-item" @onclick="() => SelectMeal(meal)">
+                        <div class="meal-icon">@meal.Icon</div>
+                        <div class="meal-details">
+                            <span class="meal-name">@meal.Name</span>
+                            <span class="meal-calories">@meal.Calories kcal</span>
                         </div>
-                    }
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-            }
+                        @if (foodsForMeal.Any())
+                        {
+                            <div class="meal-foods">
+                                @foreach (var food in foodsForMeal)
+                                {
+                                    <div class="food-item">
+                                        <span class="food-name">@food.FoodName</span>
+                                        <span class="food-calories">@((int)food.NutritionalInfo.Calories) kcal</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        <RadzenIcon Icon="chevron_right" />
+                    </div>
+                }
+            </div>
         </div>
-
-        
     </div>
-
 </div>
+
 <FireFitBlazor.Components.Layout.BottomNav></FireFitBlazor.Components.Layout.BottomNav>
 
 @code {
@@ -160,7 +444,7 @@
     private int totalCaloriesGoal = 1570;
     private string selectedDayLabel = "Today"; 
     private DateTime selectedDate = DateTime.Now;
-    private string userId;
+
     private List<FoodLog> todaysFoodLogs = new();
     private List<DayModel> days = new List<DayModel>();
     [Inject]
@@ -227,6 +511,7 @@
     [Inject]
     public IHttpClientFactory HttpClientFactory { get; set; } = default!;
 
+    private Dictionary<string, int> mealDistribution = new();
 
     public void Dispose()
     {
@@ -249,21 +534,11 @@
             Navigation.NavigateTo("/login");
             return;
         }
-
-       
-        
-        // // Log a sample breakfast item
-        // var sampleFood = new FoodLog
-        // {
-        //         UserId = currentUser.UserId,
-        //     FoodName = "Oatmeal with Berries",
-        //     NutritionalInfo = new NutritionalInfo(350, 12, 58, 8),
-        //         MealType = FoodTrackingEnums.MealType.Breakfast
-        // };
-        // await FoodLogService.LogFoodAsync(sampleFood);
-        
+        // var userPreferences = UserPreferencesContext.GetUserPreferences(currentUser.UserId);
+        //totalCaloriesGoal = userPreferences.Result.DailyCalorieGoal;
         await LoadTodaysFoodLogs();
         await UpdateMacros();
+        await UpdateMealDistribution();
 
         _timer = new System.Timers.Timer(20);
         _timer.Elapsed += (sender, e) =>
@@ -285,71 +560,9 @@
     {
         if (firstRender)
         {
-            StateHasChanged(); // Trigger the update on first render to ensure the UI is consistent
+            StateHasChanged(); 
         }
     }
-
-    // private void SelectDay(DayModel day)
-    // {
-    //     // Reset active state for all days
-    //     days.ForEach(d => d.IsActive = false);
-
-    //     // Mark the selected day as active
-    //     day.IsActive = true;
-
-    //     // Update the label based on the selected day
-    //     UpdateSelectedDayLabel(day);
-
-    //     // Trigger UI update
-    //     StateHasChanged();
-
-    //     // Load data for the selected day
-    //     LoadDayData(day);
-    // }
-    // private void UpdateSelectedDayLabel(DayModel day)
-    // {
-    //     var today = DateTime.Now;
-    //     var selectedDayDate = GetDateFromDay(day);
-
-    //     if (selectedDayDate.Date == today.Date)
-    //     {
-    //         selectedDayLabel = "Today";
-    //     }
-    //     else if (selectedDayDate.Date == today.AddDays(1).Date)
-    //     {
-    //         selectedDayLabel = "Tomorrow";
-    //     }
-    //     else if (selectedDayDate.Date == today.AddDays(-1).Date)
-    //     {
-    //         selectedDayLabel = "Yesterday";
-    //     }
-    //     else
-    //     {
-    //         // Format the date as "Monday, 5 May" for other days
-    //         selectedDayLabel = selectedDayDate.ToString("dddd, d MMMM");
-    //     }
-    //}
-
-    // private DateTime GetDateFromDay(DayModel day)
-    // {
-    //     // Find the date that corresponds to this day
-    //     var today = DateTime.Now;
-    //     var startDate = today.AddDays(-3);
-    //     var dayIndex = days.IndexOf(day);
-    //     return startDate.AddDays(dayIndex);
-    // }
-
-    // // You can define this method to load data for the selected day.
-    // private void LoadDayData(DayModel day)
-    // {
-    //     // Example: Load meals or statistics related to the selected day
-    //     Console.WriteLine($"Loading data for: {day.Name} {day.Number}");
-
-    //     // Add your data fetching logic here, such as:
-    //     // - Fetch meals for the day
-    //     // - Load statistics
-    //     // - Update other UI elements related to the selected day
-    // }
 
     private async Task LoadTodaysFoodLogs()
     {
@@ -388,6 +601,28 @@
         Navigation.NavigateTo($"/add-food?mealType={meal.Name}");
     }
 
+    private async Task NavigateDate(int days)
+    {
+        selectedDate = selectedDate.AddDays(days);
+        await LoadTodaysFoodLogs();
+        await UpdateMacros();
+        await UpdateMealDistribution();
+    }
+
+    private async Task UpdateMealDistribution()
+    {
+        if (currentUser != null)
+        {
+            var logs = await FoodLogService.GetLogsForDate(currentUser.UserId, selectedDate);
+            mealDistribution = logs
+                .GroupBy(f => f.MealType.ToString())
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(f => (int)f.NutritionalInfo.Calories)
+                );
+        }
+    }
+
     public class DayModel
     {
         public string Name { get; set; }
@@ -415,220 +650,255 @@
 }
 
 <style>
-    .date-section {
+    .mobile-container {
+        max-width: 100%;
+        margin: 0 auto;
         padding: 1rem;
-        background: white;
-        margin-bottom: 1rem;
+        background-color: #f8f9fa;
+        min-height: 100vh;
     }
 
-    .today-label {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin-bottom: 1rem;
-        color: #333;
-    }
-
-    .days-scroll {
-        display: flex;
-        overflow-x: auto;
-        gap: 1rem;
-        padding: 0.5rem 0;
-        -ms-overflow-style: none; /* Hide scrollbar IE and Edge */
-        scrollbar-width: none; /* Hide scrollbar Firefox */
-    }
-
-        .days-scroll::-webkit-scrollbar {
-            display: none; /* Hide scrollbar Chrome, Safari, Opera */
-        }
-
-    .day-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        min-width: 45px;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 8px;
-        transition: all 0.3s ease;
-    }
-
-    .day-name {
-        font-size: 0.8rem;
-        color: #666;
-        text-transform: uppercase;
-        margin-bottom: 0.3rem;
-    }
-
-    .day-number {
-        font-size: 1.1rem;
-        font-weight: 500;
-        width: 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-    }
-
-    .day-item.active {
-        background-color: #FF5722;
-    }
-
-        .day-item.active .day-name,
-        .day-item.active .day-number {
-            color: white;
-        }
-
-    .active-number {
-        background-color: #FF4500;
-        color: white;
-    }
-
-    /* Today's special styling */
-    .day-item.today {
-        background-color: #FF5722;
-    }
-
-        .day-item.today .day-name,
-        .day-item.today .day-number {
-            color: white;
-        }
-
-    .progress-b {
-        margin-left: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .summary-content {
+    .top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 1rem 0;
+        margin-bottom: 1rem;
+    }
+
+    .nav-button {
+        background: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease;
+    }
+
+    .nav-button:hover {
+        background: #f8f9fa;
+        transform: scale(1.05);
+    }
+
+    .date-display {
+        text-align: center;
+    }
+
+    .date-display h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .date-display p {
+        margin: 0;
+        color: #6c757d;
+        font-size: 0.9rem;
+    }
+
+    .summary-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .summary-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .title-section span {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
     }
 
     .stats-section {
-        flex: 1;
+        background: #f8f9fa;
+        border-radius: 1rem;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
     }
 
+    .stats-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
 
-  .macros-section {
+    .stat-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-label {
+        color: #6c757d;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .stat-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .stat-value.light {
+        color: #6c757d;
+    }
+
+    .progress-section {
+        margin-top: 1rem;
+    }
+
+    .custom-progress {
+        --rz-progress-bar-background: #e9ecef;
+        --rz-progress-bar-color: #DC7C05;
+    }
+
+    .macros-section {
         margin-top: 2rem;
     }
 
+    .section-title {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
     .macro-grid {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.5rem;
-        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
     }
 
     .macro-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        flex: 1;
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1rem;
     }
 
     .macro-label {
-        margin-top: 0.5rem;
-        color: #666;
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
         font-size: 0.9rem;
         font-weight: 500;
     }
 
     .macro-values {
-        margin-top: 0.25rem;
-        color: #666;
-        font-size: 0.8rem;
+        display: block;
+        margin-top: 0.5rem;
+        color: #6c757d;
+        font-size: 0.85rem;
     }
 
-
-    /* Media query for mobile devices */
-    @@media (max-width: 768px) {
-        .macro-grid {
-            gap: 0.25rem;
-        }
-
-        .macro-item {
-            padding: 0.5rem;
-        }
-
-        .macro-label {
-            font-size: 0.8rem;
-        }
-
-        .macro-values {
-            font-size: 0.7rem;
-        }
+    .protein-progress {
+        --rz-progress-bar-color: #4CAF50;
     }
 
-    /* Ensure the summary card has proper padding */
-    .summary-card {
-        padding: 1.5rem 1rem;
-        background: white;
+    .fats-progress {
+        --rz-progress-bar-color: #d52f57;
+    }
+
+    .carbs-progress {
+        --rz-progress-bar-color: #42A5F5;
+    }
+
+    .insights-section {
+        margin-top: 2rem;
+    }
+
+    .insights-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .insight-card {
+        background: #f8f9fa;
         border-radius: 1rem;
-        margin: 1rem;
+        padding: 1.25rem;
     }
 
-    .meal-foods {
-        margin-top: 8px;
-        font-size: 0.9em;
+    .insight-header {
+        margin-bottom: 1rem;
     }
 
-    .food-item {
+    .insight-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .meal-distribution-item {
         display: flex;
-        justify-content: space-between;
-        padding: 4px 0;
-        color: #666;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.75rem;
     }
 
-    .food-name {
-        font-weight: 500;
+    .meal-name {
+        min-width: 80px;
+        color: #2c3e50;
+        font-size: 0.9rem;
     }
 
-    .food-calories {
-        color: #888;
+    .meal-progress {
+        flex: 1;
     }
 
-    .meal-item {
-        cursor: pointer;
-        transition: background-color 0.2s;
+    .meal-progress-bar {
+        --rz-progress-bar-color: #DC7C05;
     }
 
-    .meal-item:hover {
-        background-color: #f5f5f5;
+    .meal-calories {
+        min-width: 60px;
+        text-align: right;
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .meals-section {
+        margin-top: 2rem;
     }
 
     .meals-list {
-        padding: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
     }
 
     .meal-item {
-        filter: drop-shadow(1px 1px 10px #f1f1f1);
-        background-color: white;
+        background: white;
+        border-radius: 1rem;
+        padding: 1.25rem;
         display: flex;
         align-items: flex-start;
-        padding: 1rem;
-        border-radius: 12px;
-        margin-bottom: 0.75rem;
+        gap: 1rem;
         cursor: pointer;
-        transition: background-color 0.2s;
-        position: relative;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    .meal-item:active {
-        background-color: #f5f5f5;
+    .meal-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
 
     .meal-icon {
-        font-size: 1.25rem;
-        margin-right: 0.75rem;
+        font-size: 1.5rem;
         padding: 0.5rem;
-        background: #f8f8f8;
-        border-radius: 8px;
+        background: #f8f9fa;
+        border-radius: 0.75rem;
         min-width: 2.5rem;
         height: 2.5rem;
         display: flex;
@@ -638,104 +908,76 @@
 
     .meal-details {
         flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
     }
 
     .meal-name {
         font-weight: 600;
-        font-size: 1rem;
-        color: #333;
+        color: #2c3e50;
+        margin-bottom: 0.25rem;
     }
 
     .meal-calories {
-        color: #666;
-        font-size: 0.875rem;
+        color: #6c757d;
+        font-size: 0.9rem;
     }
 
     .meal-foods {
-        margin-top: 0.5rem;
-        width: 100%;
+        margin-top: 1rem;
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 0.75rem;
     }
 
     .food-item {
         display: flex;
         justify-content: space-between;
         padding: 0.5rem;
-        background: #f8f8f8;
-        border-radius: 8px;
-        margin-bottom: 0.25rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .food-item:last-child {
+        border-bottom: none;
     }
 
     .food-name {
-        font-weight: 500;
-        font-size: 0.875rem;
-        color: #444;
+        color: #2c3e50;
+        font-size: 0.9rem;
     }
 
     .food-calories {
-        color: #666;
-        font-size: 0.875rem;
+        color: #6c757d;
+        font-size: 0.85rem;
     }
 
-    .fa-chevron-right {
-        position: absolute;
-        right: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #ccc;
-        font-size: 0.875rem;
+    .material-icons {
+        color: #6c757d;
+        font-size: 1.25rem;
     }
 
-    /* Mobile-specific adjustments */
     @@media (max-width: 768px) {
-        .meals-list {
-            padding: 0.25rem;
+        .mobile-container {
+            padding: 0.75rem;
+        }
+
+        .summary-card {
+            padding: 1rem;
+        }
+
+        .macro-grid {
+            gap: 0.5rem;
+        }
+
+        .macro-item {
+            padding: 0.75rem;
         }
 
         .meal-item {
-            flex-direction: column;
-            align-items: flex-start;
-            padding: 0.75rem;
-            margin-bottom: 0.5rem;
+            padding: 1rem;
         }
 
         .meal-icon {
-            margin-right: 0;
-            margin-bottom: 0.5rem;
-            align-self: flex-start;
-        }
-
-        .meal-details {
-            width: 100%;
-            gap: 0.1rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .meal-foods {
-            width: 100%;
-            background: #f5f5f5;
-            border-radius: 8px;
-            padding: 0.5rem 0.75rem;
-            margin-top: 0.5rem;
-        }
-
-        .food-item {
-            padding: 0.375rem 0;
-            background: none;
-            border-bottom: 1px solid #ececec;
-            margin-bottom: 0;
-        }
-        .food-item:last-child {
-            border-bottom: none;
-        }
-
-        .fa-chevron-right {
-            position: static;
-            margin-top: 0.5rem;
-            align-self: flex-end;
-            transform: none;
+            padding: 0.5rem;
+            font-size: 1.25rem;
         }
     }
-</style>
+</style> *@

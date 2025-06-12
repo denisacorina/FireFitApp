@@ -14,6 +14,7 @@ namespace FireFitBlazor.Domain.ContextInterfaces
 
     public interface IUserPreferencesContext
     {
+        Task<UserPreferences> GetUserPreferences(string userId);
         Task<bool> UpdateDietaryPreferencesAsync(string userId, IEnumerable<DietaryPreference> preferences);
         Task<bool> UpdateWorkoutPreferencesAsync(string userId, List<WorkoutPreference> selectedTypes);
         Task<bool> UpdateUserPreferencesAsync(string userId, List<DietaryPreference> dietaryPreferences, int dailyCalorieGoal);

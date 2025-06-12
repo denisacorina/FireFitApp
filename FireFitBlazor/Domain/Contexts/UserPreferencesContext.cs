@@ -51,7 +51,26 @@ public class UserPreferencesContext : IUserPreferencesContext
             return false;
         }
     }
-
+    public async Task<UserPreferences> GetUserPreferences(string userId)
+    {
+        try
+        {
+            var userPreferences = await _context.UserPreferences.FirstOrDefaultAsync(u => u.UserId == userId);
+            if (userPreferences == null)
+            {
+                // If no preferences exist, create a new instance with default values
+                userPreferences = UserPreferences.Create(userId, new List<DietaryPreference>(), 0);
+                _context.UserPreferences.Add(userPreferences);
+                await _context.SaveChangesAsync();
+            }
+            return userPreferences;
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return null;
+        }
+    }
     public async Task<bool> UpdateDietaryPreferencesAsync(string userId, IEnumerable<DietaryPreference> preferences)
     {
         try

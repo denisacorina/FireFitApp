@@ -2,6 +2,7 @@
 @using FireFitBlazor.Application.Components
 @using FireFitBlazor.Application.Services
 @using FireFitBlazor.Domain.ValueObjects;
+@using FireFitBlazor.Domain.Models
 @inject IFoodLogService FoodLogService
 @inject NavigationManager Navigation
 @inject IJSRuntime JS
@@ -93,7 +94,7 @@ else
                     </div>
                 </div>
             </div>
-            
+
             <div class="actions">
                 @*  <RadzenButton Text="Validate My Meal" Style="width: 100%; margin-top: 1rem;" Click="ValidateMeal" /> *@
                 <RadzenTextBox @bind-Value="mealName" Placeholder="Name this meal..." Style="width: 100%; margin-top: 1rem;" />
@@ -204,16 +205,7 @@ else
             return;
         }
 
-        // Load food database from CSV
-        var csvPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "food.csv");
-        using var reader = new StreamReader(csvPath);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-        foodDatabase = csv.GetRecords<CsvFoodRecord>().ToList();
-        nameToFoodEntry = foodDatabase.ToDictionary(
-            x => NormalizeName(x.Ingredient),
-            x => x,
-            StringComparer.OrdinalIgnoreCase
-        );
+    
 
         allIngredients = await FoodLogService.GetAllIngredientNames();
     }

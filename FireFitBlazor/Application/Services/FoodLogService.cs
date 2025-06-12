@@ -1,8 +1,11 @@
-﻿using FireFitBlazor.Domain.Models;
+﻿using CsvHelper;
+using CsvHelper.Configuration.Attributes;
+using FireFitBlazor.Domain.Models;
 using FireFitBlazor.Domain.ValueObjects;
 using FireFitBlazor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace FireFitBlazor.Application.Services
 {
@@ -17,7 +20,7 @@ namespace FireFitBlazor.Application.Services
         {
             _db = db;
             _httpContextAccessor = httpContextAccessor;
-            
+
         }
 
         public async Task<List<FoodLog>> SearchFoodsAsync(string query)
@@ -34,6 +37,51 @@ namespace FireFitBlazor.Application.Services
                 .ToListAsync();
         }
 
+        public async Task ImportIngredientsSimple(string csvPath)
+        {
+            using var reader = new StreamReader(csvPath);
+            using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+            var records = csv.GetRecords<IngredientCsv>().ToList();
+
+            foreach (var r in records)
+            {
+                float calories = (float)Math.Round((r.Data_Carbohydrate * 4) + (r.Data_Protein * 4) + (r.Data_Fat_TotalLipid * 9), 2, MidpointRounding.AwayFromZero);
+
+                var ingredient = new Ingredient
+                {
+                    IngredientId = Guid.NewGuid(),
+                    Name = r.Category,
+                    Description = r.Description,
+                    Nutrition = NutritionalInfo.Create(calories, r.Data_Protein, r.Data_Carbohydrate, r.Data_Fat_TotalLipid)
+                };
+
+                _db.Ingredients.Add(ingredient);
+            }
+
+            await _db.SaveChangesAsync();
+        }
+
+
+        public class IngredientCsv
+        {
+            [Name("Category")]
+            public string Category { get; set; }  
+            
+            [Name("Description")]
+            public string? Description { get; set; }
+
+            [Name("Data.Carbohydrate")]
+            public float Data_Carbohydrate { get; set; }
+
+            [Name("Data.Protein")]
+            public float Data_Protein { get; set; }
+
+            [Name("Data.Fat.Total Lipid")]
+            public float Data_Fat_TotalLipid { get; set; }
+        }
+
+
         public async Task<List<string>> GetAllIngredientNames()
         {
             return await _db.Ingredients
@@ -45,12 +93,12 @@ namespace FireFitBlazor.Application.Services
 
         public async Task LogFoodAsync(FoodLog item)
         {
-    
+
             if (item.UserId == null)
                 throw new UnauthorizedAccessException("User not logged in.");
 
             var log = FoodLog.Create(
-                userId: item.UserId, 
+                userId: item.UserId,
                 foodName: item.FoodName,
                 calories: (int)item.NutritionalInfo.Calories,
                 proteins: item.NutritionalInfo.Proteins,
@@ -142,7 +190,8 @@ namespace FireFitBlazor.Application.Services
         }
     }
 
-    public class FoodItem {
+    public class FoodItem
+    {
         [Key]
         public Guid Id { get; set; }
         public string Name { get; set; }

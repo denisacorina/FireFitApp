@@ -30,7 +30,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // You may want to use a different model for the list, but this works for demo
+        //await FoodLogService.ImportIngredientsSimple("C://Users//DENI//Downloads//food.csv");
         var names = await FoodLogService.GetAllIngredientNames();
        // allIngredients = names.Select(n => new DetectedIngredient(n, 50, 50, "/images/default.png")).ToList();
     }

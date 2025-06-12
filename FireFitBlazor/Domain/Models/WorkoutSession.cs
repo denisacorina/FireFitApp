@@ -11,6 +11,7 @@ namespace FireFitBlazor.Domain.Models
         public WorkoutType WorkoutType { get; private init; }
         public DateTime StartTime { get; private init; }
         public DateTime? EndTime { get; private init; }
+        public DateTime Date { get; private init; }
         public int DurationMinutes { get; private init; }
         public int CaloriesBurned { get; private init; }
         public int IntensityLevel { get; private init; } // 1-10
@@ -26,6 +27,7 @@ namespace FireFitBlazor.Domain.Models
             WorkoutType workoutType,
             DateTime startTime,
             DateTime? endTime,
+            DateTime date,
             int durationMinutes,
             int caloriesBurned,
             int intensityLevel,
@@ -38,6 +40,7 @@ namespace FireFitBlazor.Domain.Models
             WorkoutType = workoutType;
             StartTime = startTime;
             EndTime = endTime;
+            Date = DateTime.UtcNow;
             DurationMinutes = durationMinutes;
             CaloriesBurned = caloriesBurned;
             IntensityLevel = intensityLevel;
@@ -59,6 +62,7 @@ namespace FireFitBlazor.Domain.Models
                 workoutType,
                 startTime,
                 null,
+                DateTime.UtcNow,
                 0,
                 0,
                 Math.Clamp(intensityLevel, 1, 10),
@@ -68,8 +72,9 @@ namespace FireFitBlazor.Domain.Models
             );
         }
 
-        public WorkoutSession CompleteSession(DateTime endTime, List<Exercise> exercises)
+        public WorkoutSession CompleteSession(List<Exercise> exercises)
         {
+            var endTime = DateTime.UtcNow;
             var duration = (int)(endTime - StartTime).TotalMinutes;
             var caloriesBurned = exercises.Sum(e => e.CaloriesBurned);
 
@@ -79,6 +84,7 @@ namespace FireFitBlazor.Domain.Models
                 WorkoutType,
                 StartTime,
                 endTime,
+                DateTime.UtcNow,
                 duration,
                 caloriesBurned,
                 IntensityLevel,
@@ -101,6 +107,7 @@ namespace FireFitBlazor.Domain.Models
                 WorkoutType,
                 StartTime,
                 EndTime,
+                DateTime.UtcNow,
                 DurationMinutes,
                 updatedCaloriesBurned,
                 IntensityLevel,
@@ -118,6 +125,7 @@ namespace FireFitBlazor.Domain.Models
                 WorkoutType,
                 StartTime,
                 EndTime,
+                DateTime.UtcNow,
                 DurationMinutes,
                 newCaloriesBurned,
                 IntensityLevel,

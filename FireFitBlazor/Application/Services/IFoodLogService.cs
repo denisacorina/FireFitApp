@@ -4,6 +4,7 @@ using FireFitBlazor.Domain.Models;
 
 public interface IFoodLogService
 {
+    Task ImportIngredientsSimple(string csvPath);
     Task<List<FoodLog>> SearchFoodsAsync(string query);
     Task<List<string>> GetAllIngredientNames();
     Task LogFoodAsync(FoodLog item);

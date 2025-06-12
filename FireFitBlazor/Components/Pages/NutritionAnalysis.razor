@@ -1,0 +1,201 @@
+@page "/nutrition-analysis"
+@using Domain.Models
+@using Application.Services
+@inject IFoodLogService FoodLogService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+@using static Microsoft.AspNetCore.Components.Web.RenderMode
+@rendermode InteractiveServer
+
+<div class="container mt-4">
+    <h2>Nutrition Analysis</h2>
+
+    <div class="row mb-4">
+        <div class="col">
+                   <div class="btn-group" role="group">
+                       <button class="btn btn-outline-primary @(selectedTimeFrame == "day" ? "active" : "")" 
+                               @onclick="@(() => ChangeTimeFrame("day"))">Today</button>
+                       <button class="btn btn-outline-primary @(selectedTimeFrame == "week" ? "active" : "")" 
+                               @onclick="@(() => ChangeTimeFrame("week"))">This Week</button>
+                       <button class="btn btn-outline-primary @(selectedTimeFrame == "month" ? "active" : "")" 
+                               @onclick="@(() => ChangeTimeFrame("month"))">This Month</button>
+                   </div>
+               </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Macronutrients</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h6>Calories</h6>
+                                <h3>@totalCalories</h3>
+                                <small>of @calorieGoal goal</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h6>Protein</h6>
+                                <h3>@totalProtein g</h3>
+                                <small>of @proteinGoal g goal</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h6>Carbs</h6>
+                                <h3>@totalCarbs g</h3>
+                                <small>of @carbsGoal g goal</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h6>Fat</h6>
+                                <h3>@totalFat g</h3>
+                                <small>of @fatGoal g goal</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h6>Fiber</h6>
+                                <h3>@totalFiber g</h3>
+                                <small>of @fiberGoal g goal</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h6>Sugar</h6>
+                                <h3>@totalSugar g</h3>
+                                <small>of @sugarGoal g goal</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Meal Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        @foreach (var meal in mealDistribution)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">@meal.Key</h6>
+                                    <small>@meal.Value calories</small>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar" role="progressbar" 
+                                         style="width: @(meal.Value * 100 / totalCalories)%"></div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Nutrition History</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Add chart component here -->
+                    <div style="height: 300px;">
+                        <!-- Placeholder for nutrition history chart -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private string selectedTimeFrame = "day";
+    private int totalCalories;
+    private int totalProtein;
+    private int totalCarbs;
+    private int totalFat;
+    private int totalFiber;
+    private int totalSugar;
+    
+    private int calorieGoal = 2000;
+    private int proteinGoal = 150;
+    private int carbsGoal = 250;
+    private int fatGoal = 65;
+    private int fiberGoal = 30;
+    private int sugarGoal = 50;
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+
+    private string? currentUserId;
+    private User? currentUser;
+
+    private Dictionary<string, int> mealDistribution = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNutritionData();
+    }
+
+    private async Task ChangeTimeFrame(string timeFrame)
+    {
+        selectedTimeFrame = timeFrame;
+        await LoadNutritionData();
+    }
+
+    private async Task LoadNutritionData()
+    {
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
+        if (!response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        var startDate = selectedTimeFrame switch
+        {
+            "day" => DateTime.Today,
+            "week" => DateTime.Today.AddDays(-7),
+            "month" => DateTime.Today.AddMonths(-1),
+            _ => DateTime.Today
+        };
+
+        var foodLogs = await FoodLogService.GetLogsForDate(currentUser.UserId, startDate);
+        
+ 
+        totalCalories = (int)foodLogs.Sum(f => f.NutritionalInfo.Calories);
+        totalProtein = (int)foodLogs.Sum(f => f.NutritionalInfo.Proteins);
+        totalCarbs = (int)foodLogs.Sum(f => f.NutritionalInfo.Carbs);
+        totalFat = (int)foodLogs.Sum(f => f.NutritionalInfo.Fats);
+
+        mealDistribution = foodLogs?.Where(f => f.NutritionalInfo != null)
+            .GroupBy(f => f.MealType)
+            .ToDictionary(
+                g => g.Key.ToString(),
+                g => g.Sum(f => (int)(f.NutritionalInfo.Calories))
+            );
+    }
+} 

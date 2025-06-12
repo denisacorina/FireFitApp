@@ -1,0 +1,119 @@
+@using Domain.Models  
+@using Application.Services  
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums  
+
+@inject IWorkoutService WorkoutService  
+@inject DialogService DialogService  
+@inject NotificationService NotificationService  
+@inject NavigationManager NavigationManager  
+@using static Microsoft.AspNetCore.Components.Web.RenderMode  
+@rendermode InteractiveServer  
+
+<RadzenStack Gap="1rem">
+    <RadzenTemplateForm Data="@workout" Submit="@FormSubmit" TItem="WorkoutSession">
+        <RadzenStack Gap="1rem">  
+            <RadzenFormField Text="Workout Type" Variant="Variant.Filled">  
+                <RadzenDropDown @bind-Value="@workoutType"   
+                Data="@workoutTypes"  
+                Class="w-100"  
+                Name="WorkoutType" />  
+            </RadzenFormField>  
+
+            <RadzenFormField Text="Date" Variant="Variant.Filled">  
+                <RadzenDatePicker @bind-Value="@workoutDate"   
+                Class="w-100"  
+                Name="Date" />  
+            </RadzenFormField>  
+
+            <RadzenFormField Text="Duration (minutes)" Variant="Variant.Filled">  
+                <RadzenNumeric @bind-Value="@workoutDurationMinutes"   
+                Class="w-100"  
+                Min="1"  
+                Name="Duration" />  
+            </RadzenFormField>  
+
+            <RadzenFormField Text="Calories Burned" Variant="Variant.Filled">  
+                <RadzenNumeric @bind-Value="@workoutCaloriesBurned"   
+                Class="w-100"  
+                Min="0"  
+                Name="CaloriesBurned" />  
+            </RadzenFormField>  
+
+            <RadzenFormField Text="Notes" Variant="Variant.Filled">  
+                <RadzenTextArea @bind-Value="@workoutNotes"   
+                Class="w-100"  
+                Name="Notes"  
+                Rows="3" />  
+            </RadzenFormField>  
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="1rem">  
+                <RadzenButton ButtonType="ButtonType.Submit"   
+                Text="Save"   
+                ButtonStyle="ButtonStyle.Primary" />  
+                <RadzenButton Text="Cancel"   
+                ButtonStyle="ButtonStyle.Light"   
+                Click="@Cancel" />  
+            </RadzenStack>  
+        </RadzenStack>  
+    </RadzenTemplateForm>  
+</RadzenStack>  
+
+@code {
+    private WorkoutType workoutType;  
+    private DateTime workoutDate;  
+    private int workoutDurationMinutes;  
+    private int workoutCaloriesBurned;  
+    private string? workoutNotes;
+    private WorkoutSession workout;
+
+   private List<WorkoutType> workoutTypes = new();  
+
+   [Inject]  
+   public IHttpClientFactory HttpClientFactory { get; set; } = default!;  
+
+   private string? currentUserId;  
+   private User? currentUser;  
+
+   private async Task FormSubmit()  
+   {  
+       try  
+       {  
+           var http = HttpClientFactory.CreateClient("ServerAPI");  
+           var response = await http.GetAsync("/api/customauth/me");  
+           if (!response.IsSuccessStatusCode)  
+           {  
+               NavigationManager.NavigateTo("/login");  
+               return;  
+           }  
+
+           currentUser = await response.Content.ReadFromJsonAsync<User>();  
+           if (currentUser == null)  
+           {  
+               NavigationManager.NavigateTo("/login");  
+               return;  
+           }  
+
+           var newWorkout = WorkoutSession.Create(  
+               currentUser.UserId,  
+               workoutType,  
+               workoutDate,  
+               5, 
+               workoutNotes  
+           );  
+
+           newWorkout = newWorkout.UpdateCaloriesBurned(workoutCaloriesBurned);  
+
+           await WorkoutService.AddWorkout(newWorkout);  
+           DialogService.Close(true);  
+       }  
+       catch (Exception ex)  
+       {  
+           NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to add workout: " + ex.Message);  
+       }  
+   }  
+
+   private void Cancel()  
+   {  
+       DialogService.Close();  
+   }  
+}
