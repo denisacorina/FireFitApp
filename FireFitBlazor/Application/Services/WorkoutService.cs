@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FireFitBlazor.Domain.Models;
 using FireFitBlazor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using FireFitBlazor.Application.DTOs;
 
 namespace Application.Services
 {
@@ -21,15 +22,15 @@ namespace Application.Services
         {
             return await _context.WorkoutSessions
                 .Where(w => w.UserId == userId)
-                .OrderByDescending(w => w.Date)
+                .OrderByDescending(w => w.StartTime)
                 .ToListAsync();
         }
 
         public async Task<List<WorkoutSession>> GetWorkoutsByDateRange(string userId, DateTime startDate, DateTime endDate)
         {
             return await _context.WorkoutSessions
-                .Where(w => w.UserId == userId && w.Date >= startDate && w.Date <= endDate)
-                .OrderByDescending(w => w.Date)
+                .Where(w => w.UserId == userId && w.StartTime >= startDate && w.EndTime <= endDate)
+                .OrderByDescending(w => w.StartTime)
                 .ToListAsync();
         }
 
@@ -38,30 +39,49 @@ namespace Application.Services
             return await _context.WorkoutSessions.FindAsync(id);
         }
 
-        public async Task<WorkoutSession> AddWorkout(WorkoutSession workout)
+        public async Task<WorkoutSession> AddWorkout(WorkoutSessionDto workout)
         {
-            var addedWorkout = WorkoutSession.Create(
+            if (workout == null)
+                throw new ArgumentNullException(nameof(workout), "Workout cannot be null.");
+
+            if (string.IsNullOrEmpty(workout.UserId))
+                throw new ArgumentException("UserId cannot be null or empty.", nameof(workout.UserId));
+
+            var newWorkout = WorkoutSession.Create(
                 workout.UserId,
                 workout.WorkoutType,
                 workout.StartTime,
+                workout.StartTime.AddMinutes(workout.DurationMinutes),
+                workout.DurationMinutes,
+                workout.CaloriesBurned,
                 workout.IntensityLevel,
                 workout.Notes);
-            _context.WorkoutSessions.Add(addedWorkout);
+
+            _context.WorkoutSessions.Add(newWorkout);
             await _context.SaveChangesAsync();
-            return workout;
+            return newWorkout;
         }
 
-        public async Task<WorkoutSession> UpdateWorkout(WorkoutSession workout)
+        public async Task<WorkoutSession> UpdateWorkout(WorkoutSessionDto workout)
         {
             var existingWorkout = await _context.WorkoutSessions.FindAsync(workout.SessionId);
             if (existingWorkout == null)
                 throw new KeyNotFoundException($"Workout with ID {workout.SessionId} not found.");
 
-            var updatedWorkout = existingWorkout.CompleteSession(
-                workout.Exercises.ToList());
+            var updatedWorkout = existingWorkout.Update(
+                workout.WorkoutType,
+                workout.StartTime,
+                workout.EndTime,
+                workout.DurationMinutes,
+                workout.CaloriesBurned,
+                workout.IntensityLevel,
+                workout.Notes,
+                true,
+                workout.Sets,
+                workout.Reps);
 
             await _context.SaveChangesAsync();
-            return existingWorkout;
+            return updatedWorkout;
         }
 
         public async Task DeleteWorkout(Guid id)
@@ -77,14 +97,14 @@ namespace Application.Services
         public async Task<int> GetTotalCaloriesBurned(string userId, DateTime startDate, DateTime endDate)
         {
             return await _context.WorkoutSessions
-                .Where(w => w.UserId == userId && w.Date >= startDate && w.Date <= endDate)
+                .Where(w => w.UserId == userId && w.StartTime >= startDate && w.EndTime <= endDate)
                 .SumAsync(w => w.CaloriesBurned);
         }
 
         public async Task<Dictionary<string, int>> GetWorkoutDistribution(string userId, DateTime startDate, DateTime endDate)
         {
             var workouts = await _context.WorkoutSessions
-                .Where(w => w.UserId == userId && w.Date >= startDate && w.Date <= endDate)
+                .Where(w => w.UserId == userId && w.StartTime >= startDate && w.EndTime <= endDate)
                 .ToListAsync();
 
             return workouts

@@ -6,20 +6,30 @@
 @inject NavigationManager NavigationManager
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@using FireFitBlazor.Application.DTOs;
 @rendermode InteractiveServer
 
 <RadzenStack Gap="1rem">
     <RadzenTemplateForm Data="@workout" Submit="@FormSubmit" TItem="WorkoutSessionDto">
         <RadzenStack Gap="1rem">
             <RadzenFormField Text="Workout Type" Variant="Variant.Filled">
-                <RadzenDropDown @bind-Value="@workout.WorkoutType"
-                                Data="@workoutTypes"
-                                Class="w-100"
-                                Name="WorkoutType" />
+                <RadzenDropDown Data="@WorkoutTypeOptions"
+                                TextProperty="Text"
+                                ValueProperty="Value"
+                                @bind-Value="workout.WorkoutType"
+                                TValue="WorkoutType"
+                                Name="WorkoutType"
+                                Class="w-100" />
             </RadzenFormField>
 
-            <RadzenFormField Text="Date" Variant="Variant.Filled">
-                <RadzenDatePicker @bind-Value="@workout.Date"
+            <RadzenFormField Text="Start Time" Variant="Variant.Filled">
+                <RadzenDatePicker @bind-Value="@workout.StartTime"
+                                  Class="w-100"
+                                  Name="Date" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="End Time" Variant="Variant.Filled">
+                <RadzenDatePicker @bind-Value="@workout.EndTime"
                                   Class="w-100"
                                   Name="Date" />
             </RadzenFormField>
@@ -29,13 +39,23 @@
                                Class="w-100"
                                Min="1"
                                Name="Duration" />
-            </RadzenFormField>
 
+            </RadzenFormField>
             <RadzenFormField Text="Calories Burned" Variant="Variant.Filled">
                 <RadzenNumeric @bind-Value="@workout.CaloriesBurned"
                                Class="w-100"
-                               Min="0"
+                               Min="1"
                                Name="CaloriesBurned" />
+            </RadzenFormField>
+
+
+
+                <RadzenFormField Text="Intensity Level" Variant="Variant.Filled">
+                    <RadzenNumeric @bind-Value="@workout.IntensityLevel"
+                                   Class="w-100"
+                                   Max="10"
+                                   Min="0"
+                                   Name="IntensityLevel" />
             </RadzenFormField>
 
             <RadzenFormField Text="Notes" Variant="Variant.Filled">
@@ -67,35 +87,29 @@
     private string? currentUserId;
     private User? currentUser;
 
-    private List<WorkoutType> workoutTypes = new();
 
-    private WorkoutSessionDto workoutDto = new();
+    private IEnumerable<object> WorkoutTypeOptions =>
+       Enum.GetValues<WorkoutType>()
+           .Cast<WorkoutType>()
+           .Where(w => w != WorkoutType.None)
+           .Select(w => new { Text = w.ToString(), Value = w });
+
 
     protected override async Task OnInitializedAsync()
     {
-        var http = HttpClientFactory.CreateClient("ServerAPI");
-        var response = await http.GetAsync("/api/customauth/me");
-        if (!response.IsSuccessStatusCode)
-        {
-            NavigationManager.NavigateTo("/login");
-            return;
-        }
-
-        currentUser = await response.Content.ReadFromJsonAsync<User>();
-        currentUserId = currentUser?.UserId;
-
-        workoutTypes = Enum.GetValues<WorkoutType>().ToList();
-
+      
         if (workout != null)
         {
-            workoutDto = new WorkoutSessionDto
+            workout = new WorkoutSessionDto
                 {
                     SessionId = workout.SessionId,
                     UserId = workout.UserId,
                     WorkoutType = workout.WorkoutType,
-                    Date = workout.Date,
+                    StartTime = workout.StartTime,
+                    EndTime = workout.EndTime,
                     DurationMinutes = workout.DurationMinutes,
                     CaloriesBurned = workout.CaloriesBurned,
+                    IntensityLevel = workout.IntensityLevel,
                     Notes = workout.Notes
                 };
         }
@@ -105,13 +119,18 @@
     {
         try
         {
-            var updatedWorkout = WorkoutSession.Create(
-                workoutDto.UserId ?? currentUserId,
-                workoutDto.WorkoutType,
-                DateTime.UtcNow,
-                5, // intensity
-                workoutDto.Notes
-            ).UpdateCaloriesBurned(workoutDto.CaloriesBurned);
+            var updatedWorkout = new WorkoutSessionDto
+                {
+                    SessionId = workout.SessionId,
+                    UserId = currentUserId ?? workout.UserId,
+                    WorkoutType = workout.WorkoutType,
+                    StartTime = workout.StartTime,
+                    EndTime = workout.EndTime,
+                    DurationMinutes = workout.DurationMinutes,
+                    CaloriesBurned = workout.CaloriesBurned,
+                    IntensityLevel = workout.IntensityLevel,
+                    Notes = workout.Notes
+                };
 
             await WorkoutService.UpdateWorkout(updatedWorkout);
             DialogService.Close(true);
@@ -122,19 +141,9 @@
         }
     }
 
+
     private void Cancel()
     {
         DialogService.Close();
-    }
-
-    public class WorkoutSessionDto
-    {
-        public Guid SessionId { get; set; }
-        public string UserId { get; set; }
-        public WorkoutType WorkoutType { get; set; }
-        public DateTime Date { get; set; }
-        public int DurationMinutes { get; set; }
-        public int CaloriesBurned { get; set; }
-        public string? Notes { get; set; }
     }
 } 

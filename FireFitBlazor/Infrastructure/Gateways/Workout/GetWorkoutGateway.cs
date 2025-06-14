@@ -19,7 +19,6 @@ namespace FireFitBlazor.Infrastructure.Gateways.Workout
             try
             {
                 var workout = await _dbSet
-                    .Include(w => w.Exercises)
                     .FirstOrDefaultAsync(w => w.UserId == id);
 
                 if (workout == null)

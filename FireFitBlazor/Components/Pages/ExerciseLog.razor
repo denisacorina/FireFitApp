@@ -1,5 +1,6 @@
 @page "/exercise-log"
 @using Domain.Models
+@using FireFitBlazor.Application.DTOs
 @using Application.Services
 @using FireFitBlazor.Components.Dialogs
 @inject IWorkoutService WorkoutService
@@ -21,9 +22,9 @@
     <RadzenRow>
         <RadzenColumn Size="12">
             <RadzenButton Click="@ShowAddWorkoutDialog" 
-                         ButtonStyle="ButtonStyle.Primary" 
-                         Icon="add"
-                         Class="w-100">
+            ButtonStyle="ButtonStyle.Primary" 
+            Icon="add"
+            Class="w-100">
                 Add Workout
             </RadzenButton>
         </RadzenColumn>
@@ -34,10 +35,10 @@
             <RadzenCard>
                 <RadzenStack>
                     <RadzenText TextStyle="TextStyle.H5">Recent Workouts</RadzenText>
-                    
+
                     @if (workoutSessions == null)
                     {
-                        <RadzenProgressBar Value="100" Mode="ProgressBarMode.Indeterminate" />
+                        <RadzenProgressBar Value="@loadingProgress" Mode="ProgressBarMode.Determinate" />
                     }
                     else if (!workoutSessions.Any())
                     {
@@ -46,26 +47,27 @@
                     else
                     {
                         <RadzenDataGrid Data="@workoutSessions" 
-                                      TItem="WorkoutSession"
-                                      AllowFiltering="true"
-                                      AllowSorting="true"
-                                      AllowPaging="true"
-                                      PageSize="5"
-                                      Class="w-100">
+                        TItem="WorkoutSession"
+                        AllowFiltering="true"
+                        AllowSorting="true"
+                        AllowPaging="true"
+                        PageSize="5"
+                        Class="w-100">
                             <Columns>
                                 <RadzenDataGridColumn TItem="WorkoutSession" Property="WorkoutType" Title="Type" />
-                                <RadzenDataGridColumn TItem="WorkoutSession" Property="Date" Title="Date" FormatString="{0:d}" />
-                                <RadzenDataGridColumn TItem="WorkoutSession" Property="Duration" Title="Duration (min)" />
+                                <RadzenDataGridColumn TItem="WorkoutSession" Property="StartTime" Title="StartTime" FormatString="{0:d}" />
+                                <RadzenDataGridColumn TItem="WorkoutSession" Property="DurationMinutes" Title="Duration (min)" />
+                                <RadzenDataGridColumn TItem="WorkoutSession" Property="IntensityLevel" Title="Intensity" />
                                 <RadzenDataGridColumn TItem="WorkoutSession" Property="CaloriesBurned" Title="Calories" />
                                 <RadzenDataGridColumn TItem="WorkoutSession" Context="workout" Title="Actions" TextAlign="TextAlign.Center">
                                     <Template Context="workout">
                                         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="0.5rem">
                                             <RadzenButton Icon="edit" 
-                                                        ButtonStyle="ButtonStyle.Light" 
-                                                        Click="@(() => EditWorkout(workout))" />
+                                            ButtonStyle="ButtonStyle.Light" 
+                                            Click="@(() => EditWorkout(workout))" />
                                             <RadzenButton Icon="delete" 
-                                                        ButtonStyle="ButtonStyle.Danger" 
-                                                        Click="@(() => DeleteWorkout(workout))" />
+                                            ButtonStyle="ButtonStyle.Danger" 
+                                            Click="@(() => DeleteWorkout(workout))" />
                                         </RadzenStack>
                                     </Template>
                                 </RadzenDataGridColumn>
@@ -80,7 +82,7 @@
             <RadzenCard>
                 <RadzenStack>
                     <RadzenText TextStyle="TextStyle.H5">Workout Summary</RadzenText>
-                    
+
                     <RadzenStack Gap="1rem">
                         <RadzenStack>
                             <RadzenText TextStyle="TextStyle.Subtitle1">This Week</RadzenText>
@@ -96,13 +98,17 @@
                                 <RadzenText>Calories Burned:</RadzenText>
                                 <RadzenText>@weeklyCaloriesBurned</RadzenText>
                             </RadzenStack>
+                            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                                <RadzenText>Avg. Intensity:</RadzenText>
+                                <RadzenText>@weeklyAverageIntensity</RadzenText>
+                            </RadzenStack>
                         </RadzenStack>
 
                         <RadzenChart>
                             <RadzenPieSeries Data="@weeklyWorkoutDistribution" 
-                                           Title="Workout Distribution"
-                                           ValueProperty="Count"
-                                           CategoryProperty="Type" />
+                            Title="Workout Distribution"
+                            ValueProperty="Count"
+                            CategoryProperty="Type" />
                         </RadzenChart>
                     </RadzenStack>
                 </RadzenStack>
@@ -111,12 +117,16 @@
     </RadzenRow>
 </RadzenStack>
 
+<RadzenDialog></RadzenDialog>
+
 @code {
     private List<WorkoutSession> workoutSessions;
     private int weeklyWorkoutCount;
     private int weeklyWorkoutMinutes;
     private int weeklyCaloriesBurned;
+    private double weeklyAverageIntensity;
     private List<WorkoutDistribution> weeklyWorkoutDistribution = new();
+    private int loadingProgress = 0;
     [Inject]
     public IHttpClientFactory HttpClientFactory { get; set; } = default!;
 
@@ -138,6 +148,8 @@
             return;
         }
 
+
+
         currentUser = await response.Content.ReadFromJsonAsync<User>();
         if (currentUser == null)
         {
@@ -145,33 +157,45 @@
             return;
         }
 
+
+
         workoutSessions = await WorkoutService.GetWorkoutsByUserId(currentUser.UserId);
-        
-        var weekStart = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
-        var weekEnd = weekStart.AddDays(7);
-        
+
+
+        var today = DateTime.Today;
+        var daysSinceMonday = (int)today.DayOfWeek - 1;
+        if (daysSinceMonday < 0) daysSinceMonday = 6; 
+
+        var weekStart = today.AddDays(-daysSinceMonday).Date;
+        var weekEnd = weekStart.AddDays(7).Date;
+
         var weeklyWorkouts = workoutSessions
-            .Where(w => w.Date >= weekStart && w.Date < weekEnd)
-            .ToList();
+          .Where(w => w.StartTime.Date >= weekStart && w.StartTime.Date < weekEnd)
+          .ToList();
 
         weeklyWorkoutCount = weeklyWorkouts.Count;
         weeklyWorkoutMinutes = weeklyWorkouts.Sum(w => w.DurationMinutes);
         weeklyCaloriesBurned = weeklyWorkouts.Sum(w => w.CaloriesBurned);
+        weeklyAverageIntensity = weeklyWorkouts.Any() 
+            ? Math.Round(weeklyWorkouts.Average(w => w.IntensityLevel), 1) 
+            : 0;
 
         weeklyWorkoutDistribution = weeklyWorkouts
             .GroupBy(w => w.WorkoutType)
             .Select(g => new WorkoutDistribution { Type = g.Key.ToString(), Count = g.Count() })
             .ToList();
+
+        StateHasChanged();
     }
 
     private async Task ShowAddWorkoutDialog()
     {
         var result = await DialogService.OpenAsync<AddWorkoutDialog>("Add Workout",
-            new Dictionary<string, object>(),
+            new Dictionary<string, object> { { "UserId", currentUser.UserId } },
             new DialogOptions
             {
                 Width = "500px",
-                Height = "600px",
+                Height="700px",
                 Resizable = true,
                 Draggable = true
             });
@@ -185,15 +209,28 @@
 
     private async Task EditWorkout(WorkoutSession workout)
     {
-        var result = await DialogService.OpenAsync<EditWorkoutDialog>("Edit Workout",
-            new Dictionary<string, object> { { "Workout", workout } },
-            new DialogOptions
+        var dto = new WorkoutSessionDto
             {
-                Width = "500px",
-                Height = "600px",
-                Resizable = true,
-                Draggable = true
-            });
+                SessionId = workout.SessionId,
+                UserId = workout.UserId,
+                WorkoutType = workout.WorkoutType,
+                StartTime = workout.StartTime,
+                EndTime = workout.EndTime,
+                DurationMinutes = workout.DurationMinutes,
+                CaloriesBurned = workout.CaloriesBurned,
+                IntensityLevel = workout.IntensityLevel,
+                Notes = workout.Notes
+            };
+
+        var result = await DialogService.OpenAsync<EditWorkoutDialog>("Edit Workout",
+            new Dictionary<string, object> { { "Workout", dto } },
+            new DialogOptions
+                {
+                    Width = "500px",
+                    Height = "700px",
+                    Resizable = true,
+                    Draggable = true
+                });
 
         if (result != null)
         {
