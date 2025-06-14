@@ -24,7 +24,7 @@
 <RadzenTemplateForm TItem="UserRegistrationModel" Data="@FormModel" Submit="@CreateUser" Style="width: 100%">
     @if (CurrentStep == 1)
     {
-        <!-- Step 1: Email, Password, Name -->
+  
         <div class="form-group">
             <RadzenTextBox @bind-Value="FormModel.Name" Name="Name" Placeholder="Name" Style="width: 100%" />
             <RadzenRequiredValidator Component="Name" Text="Name is required" />
@@ -61,7 +61,7 @@
 
     @if (CurrentStep == 2)
     {
-        <!-- Step 2: Age, Weight, Goal Weight, Height -->
+   
         <div class="form-step">
             <h3>Physical Stats</h3>
             <div class="form-group">
@@ -96,7 +96,7 @@
 
     @if (CurrentStep == 3)
     {
-        <!-- Step 3: Dietary Preferences & Plan Summary -->
+   
         <div class="form-step">
             <h3>Lifestyle & Goal</h3>
             <div class="form-group">

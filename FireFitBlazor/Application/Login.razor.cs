@@ -59,7 +59,7 @@ namespace FireFitBlazor.Application
             if (response.IsSuccessStatusCode)
             {
                 Message = "Login successful. Redirecting...";
-                NavigationManager.NavigateTo("/my-profile", forceLoad: true);
+                NavigationManager.NavigateTo("/dashboard", forceLoad: true);
             }
             else
             {

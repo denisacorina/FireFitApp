@@ -1,0 +1,328 @@
+﻿@page "/daily-log"
+@using Radzen.Blazor
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+@using FireFitBlazor.Components
+@using FireFitBlazor.Domain.ContextInterfaces
+@using Radzen;
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Application.Services
+@using FireFitBlazor.Domain.ValueObjects
+@using FireFitBlazor.Domain.Enums
+@inject IFoodLogService FoodLogService
+@inject NavigationManager NavigationManager
+
+
+<div class="diary-wrapper">
+    <div class="diary-nav">
+        <RadzenButton Icon="chevron_left" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="() => ChangeDate(-1)" />
+        <span>@selectedDate.ToString("dddd, MMM dd")</span>
+        <RadzenButton Icon="chevron_right" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="() => ChangeDate(1)" />
+    </div>
+
+    <div class="summary-card">
+        <div class="summary-title">Calories Remaining</div>
+        <div class="summary-values">
+            <span>@totalCaloriesGoal</span>
+            <span>-</span>
+            <span>@caloriesConsumed</span>
+            <span>+</span>
+            <span>@exerciseCalories</span>
+            <span>=</span>
+            <span class="highlight">@RemainingCalories</span>
+        </div>
+        <div class="summary-labels">
+            <span style="margin-left: 9px;">Goal</span>
+            <span>Food</span>
+            <span>Exercise</span>
+            <span>Remaining</span>
+        </div>
+    </div>
+
+    <div class="ingredient-macros">
+        <div class="summary-title">Total Macros</div>
+        <div class="macronutrients">
+            <span><b>Protein:</b> @todaysFoodLogs.Sum(f => f.NutritionalInfo.Proteins).ToString("0.##") g</span>
+            <span><b>Carbs:</b> @todaysFoodLogs.Sum(f => f.NutritionalInfo.Carbs).ToString("0.##") g</span>
+            <span><b>Fats:</b> @todaysFoodLogs.Sum(f => f.NutritionalInfo.Fats).ToString("0.##") g</span>
+        </div>
+    </div>
+    @foreach (var meal in meals)
+    {
+        var foods = todaysFoodLogs.Where(f => f.MealType.ToString() == meal.Name).ToList();
+
+        <div class="meal-section">
+            <div class="meal-header">@meal.Icon @meal.Name</div>
+            @if (foods.Any())
+            {
+                <ul class="food-list">
+                    @foreach (var food in foods)
+                    {
+                        <li class="food-item @(swipedItemId == food.FoodLogId ? "swiped" : "")"
+                            @onpointerdown="(e => HandleSwipeToggle(food.FoodLogId))">
+                            <div class="food-item-content">
+                                <div>
+                                    <h4>@food.FoodName</h4>
+                                    <h6 class="kcal">@((int)food.NutritionalInfo.Calories) kcal</h6>
+                                </div>
+                            </div>
+                            <div class="food-item-actions">
+                                <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="() => EditFood(food)" />
+                                <RadzenButton Icon="delete" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Danger" Click="() => DeleteFood(food.FoodLogId)" />
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            <div class="add-food-btn" @onclick="() => NavigateToAddFood(meal.Name)">+ Add Food</div>
+        </div>
+    }
+
+
+    <FireFitBlazor.Components.Layout.BottomNav />
+</div>
+
+
+@code {
+    private DateTime selectedDate = DateTime.Today;
+    private int caloriesConsumed = 0;
+    private int totalCaloriesGoal = 1750;
+    private int exerciseCalories = 0;
+    private int RemainingCalories => totalCaloriesGoal - caloriesConsumed + exerciseCalories;
+    [Inject] public DialogService DialogService { get; set; } = default!;
+    private List<MealModel> meals = new()
+    {
+        new MealModel { Name = "Breakfast", Icon = "🥣" },
+        new MealModel { Name = "Lunch", Icon = "🥗" },
+        new MealModel { Name = "Dinner", Icon = "🍛" },
+    };
+
+    private List<FoodLog> todaysFoodLogs = new();
+
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+
+    private User? currentUser;
+    private Guid? swipedItemId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
+        if (!response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
+        if (currentUser == null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        await LoadTodaysFoodLogs();
+    }
+
+    private async Task LoadTodaysFoodLogs()
+    {
+        todaysFoodLogs = await FoodLogService.GetLogsForDate(currentUser.UserId, selectedDate);
+        caloriesConsumed = (int)todaysFoodLogs.Sum(f => f.NutritionalInfo.Calories);
+
+        totalCaloriesGoal = await FoodLogService.GetDailyGoalCalories(currentUser.UserId);
+    }
+
+    private Task ChangeDate(int offset)
+    {
+        selectedDate = selectedDate.AddDays(offset);
+        return LoadTodaysFoodLogs();
+    }
+
+    private void NavigateToAddFood(string meal) => NavigationManager.NavigateTo($"/log-food/{meal.ToLowerInvariant()}", true);
+
+    private async Task EditFood(FoodLog log)
+    {
+        var result = await DialogService.OpenAsync<EditFoodLogDialog>(
+            title: "Edit Food Log",
+            parameters: new Dictionary<string, object> { ["EditableLog"] = log },
+            options: new DialogOptions { Width = "500px", Resizable = true, Draggable = true }
+        );
+
+        if (result is bool shouldReload && shouldReload)
+        {
+            await LoadTodaysFoodLogs();
+        }
+    }
+
+    private async Task DeleteFood(Guid foodId)
+    {
+        await FoodLogService.DeleteLog(foodId);
+        await LoadTodaysFoodLogs();
+    }
+
+    public class MealModel
+    {
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "";
+    }
+
+    private void HandleSwipeToggle(Guid id)
+    {
+        if (swipedItemId == id)
+        {
+            swipedItemId = null;
+        }
+        else
+        {
+            swipedItemId = id;
+        }
+    }
+}
+
+<style>
+    .diary-wrapper {
+        padding: 1rem;
+        max-width: 600px;
+        margin: auto;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .diary-nav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .summary-card {
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 1rem;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .summary-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-values {
+        display: flex;
+        justify-content: space-between;
+        font-size: 1.25rem;
+        font-weight: 500;
+        margin: 0.5rem 0;
+    }
+
+    .summary-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: #777;
+    }
+
+    .highlight {
+        color: #4CAF50;
+        font-weight: bold;
+    }
+
+    .meal-section {
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .meal-header {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .food-list {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .food-item:last-child {
+            border-bottom: none;
+        }
+
+    .kcal {
+        color: #E53935;
+        font-weight: 600;
+    }
+
+    .add-food-btn {
+        margin-top: 0.5rem;
+        text-align: left;
+        font-weight: 600;
+        color: #1976D2;
+        cursor: pointer;
+        font-size: 0.95rem;
+    }
+
+    .ingredient-macros {
+        background: #f9f9f9;
+        padding: 1.25rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+
+    .macronutrients {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+        .macronutrients > div {
+            flex: 1;
+        }
+
+    .food-item {
+        position: relative;
+        overflow: hidden;
+        background-color: #fff;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .food-item-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .food-item-actions {
+        position: absolute;
+        top: 0;
+        right: -100px;
+        height: 100%;
+        display: flex;
+        gap: 5px;
+        background-color: white;
+        transition: right 0.3s ease;
+        padding: 1rem;
+    }
+
+    .food-item.swiped .food-item-actions {
+        right: 0;
+    }
+</style>

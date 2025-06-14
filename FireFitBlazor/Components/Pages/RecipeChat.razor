@@ -13,8 +13,15 @@
 @inject IUserPreferencesContext UserPreferencesContext
 @inject DialogService DialogService
 @inject NotificationService NotificationService
+@inject NavigationManager Navigation
 @inject IJSRuntime JS
 @rendermode RenderMode.InteractiveServer
+<FireFitBlazor.Components.Layout.TopLogoNav></FireFitBlazor.Components.Layout.TopLogoNav>
+
+<RadzenButton Icon="chevron_left" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+              Style="cursor: pointer; font-size: 1.5rem; margin-left: 20px;"
+              Click="@(() => Navigation.NavigateTo("/dashboard", true))" />
+
 
 <PageTitle>Recipe Chat</PageTitle>
 
@@ -46,6 +53,7 @@
         Click="SendMessage" />
     </RadzenStack>
 </RadzenStack>
+<FireFitBlazor.Components.Layout.BottomNav></FireFitBlazor.Components.Layout.BottomNav>
 
 @code {
     private string userInput = "";

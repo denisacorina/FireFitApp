@@ -1,32 +1,50 @@
-﻿<nav class="bottom-nav">
+﻿
+<nav class="bottom-nav">
     <NavLink href="/dashboard" class="nav-button" Match="NavLinkMatch.All">
-        <i class="bi bi-house-door-fill"></i>
+        <i class="bi bi-house-fill"></i>
         <span>Home</span>
-    </NavLink> 
+    </NavLink>
+
+    <NavLink href="/daily-log" class="nav-button">
+        <i class="bi bi-journal-check"></i>
+        <span>Diary</span>
+    </NavLink>
+
+    <div class="nav-center-button-wrapper">
+        <NavLink href="/log-food" class="nav-center-button">
+            <i class="bi bi-plus-circle"></i>
+        </NavLink>
+    </div>
+
     <NavLink href="/recipe-chat" class="nav-button">
-        <i class="bi bi-card-checklist"></i>
-        <span>Get Recipe</span>
+        <i class="bi bi-lightbulb-fill"></i>
+        <span>Recipes</span>
     </NavLink>
-    <NavLink href="/add-food" class="nav-button">
-        <i class="bi bi-egg-fried"></i>
-        <span>Log Food</span>
+
+    <NavLink href="/my-profile" class="nav-button">
+        <i class="bi bi-person-heart"></i>
+        <span>Profile</span>
     </NavLink>
-   
+   @*  <NavLink href="/progress" class="nav-button">
+        <i class="bi bi-graph-up"></i>
+        <span>Progress</span>
+    </NavLink> *@
 </nav>
 
-<style>
+        <style>
     .bottom-nav {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 60px;
-        background: #f5f5f7;
-        border-top: 1px solid #ccc;
+        height: 65px;
+        background: #fff;
+        border-top: 1px solid #ddd;
         display: flex;
         justify-content: space-around;
         align-items: center;
         z-index: 999;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
     }
 
     .nav-button {
@@ -35,15 +53,37 @@
         align-items: center;
         justify-content: center;
         text-decoration: none;
-        color: #444;
+        color: #666;
         font-size: 0.75rem;
     }
 
         .nav-button i {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
+            margin-bottom: 2px;
         }
 
         .nav-button.active {
             color: #ff5722;
+            font-weight: 600;
         }
+
+    .nav-center-button-wrapper {
+        position: relative;
+        top: -20px;
+    }
+
+    .nav-center-button {
+        background-color: #ff5722;
+        color: #fff;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 1.7rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    }
+
 </style>

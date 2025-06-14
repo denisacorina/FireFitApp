@@ -38,7 +38,7 @@
                 </div>
                 <div class="card-body">
                     <div style="height: 300px;">
-                        <!-- Weight progress chart will go here -->
+                   
                     </div>
                     <div class="mt-3">
                         <h6>Summary</h6>
@@ -57,7 +57,7 @@
                 </div>
                 <div class="card-body">
                     <div style="height: 300px;">
-                        <!-- Calorie chart will go here -->
+              
                     </div>
                     <div class="mt-3">
                         <h6>Summary</h6>
@@ -78,13 +78,13 @@
                 </div>
                 <div class="card-body">
                     <div style="height: 300px;">
-                        <!-- Macronutrient pie chart will go here -->
+           
                     </div>
                     <div class="mt-3">
                         <h6>Average Daily Distribution</h6>
-                        <p>Protein: @averageProtein g (@(averageProtein * 4 * 100 / averageCalorieIntake)%)</p>
-                        <p>Carbs: @averageCarbs g (@(averageCarbs * 4 * 100 / averageCalorieIntake)%)</p>
-                        <p>Fat: @averageFat g (@(averageFat * 9 * 100 / averageCalorieIntake)%)</p>
+                        <p>Protein: @averageProtein g (@(averageCalorieIntake > 0 ? (averageProtein * 4 * 100 / averageCalorieIntake) : 0)%)</p>
+                        <p>Carbs: @averageCarbs g (@(averageCalorieIntake > 0 ? (averageCarbs * 4 * 100 / averageCalorieIntake) : 0)%)</p>
+                        <p>Fat: @averageFat g (@(averageCalorieIntake > 0 ? (averageFat * 9 * 100 / averageCalorieIntake) : 0)%)</p>
                     </div>
                 </div>
             </div>
@@ -97,7 +97,7 @@
                 </div>
                 <div class="card-body">
                     <div style="height: 300px;">
-                        <!-- Exercise chart will go here -->
+            
                     </div>
                     <div class="mt-3">
                         <h6>Summary</h6>
@@ -120,14 +120,15 @@
                     <div class="list-group">
                         @foreach (var goal in goalsProgress)
                         {
+                            var safeProgress = Math.Clamp(goal.Progress, 0, 100);
                             <div class="list-group-item">
                                 <div class="d-flex w-100 justify-content-between">
                                     <h6 class="mb-1">@goal.Name</h6>
-                                    <small>@goal.Progress% Complete</small>
+                                    <small>@safeProgress.ToString("0.#")% Complete</small>
                                 </div>
                                 <div class="progress mt-2">
-                                    <div class="progress-bar" role="progressbar" 
-                                         style="width: @goal.Progress%"></div>
+                                    <div class="progress-bar" role="progressbar"
+                                         style="width: @safeProgress%"></div>
                                 </div>
                             </div>
                         }

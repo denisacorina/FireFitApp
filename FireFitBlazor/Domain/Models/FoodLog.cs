@@ -25,7 +25,7 @@ namespace FireFitBlazor.Domain.Models
             Timestamp = DateTime.UtcNow;
         }
 
-        public static FoodLog Create(string userId, string foodName, int calories, float proteins, float carbs, float fats)
+        public static FoodLog Create(string userId, string foodName, int calories, float proteins, float carbs, float fats, MealType mealType)
         {
             return new FoodLog
             {
@@ -33,14 +33,18 @@ namespace FireFitBlazor.Domain.Models
                 UserId = userId,
                 FoodName = foodName,
                 NutritionalInfo = NutritionalInfo.Create(calories, proteins, carbs, fats),
+                MealType = mealType,
                 Timestamp = DateTime.UtcNow
             };
         }
 
-        public void Update(string foodName, int calories, float proteins, float carbs, float fats)
+        public void Update(string userId, string foodName, int calories, float proteins, float carbs, float fats, MealType mealType)
         {
+            UserId = userId;
             FoodName = FoodName;
             NutritionalInfo = NutritionalInfo.Create(calories, proteins, carbs, fats);
+            MealType = mealType;
+            Timestamp = DateTime.UtcNow;
         }
 
         public void Clear()

@@ -1,10 +1,11 @@
-﻿@page "/food-list"
+﻿@page "/food-list/{mealType}"
 @inject IFoodLogService FoodLogService
 @inject NavigationManager Navigation
 @using FireFitBlazor.Domain.Models
 @using Microsoft.AspNetCore.Components.Web
 @using Radzen.Blazor
 @using Microsoft.JSInterop;
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
 @using Microsoft.AspNetCore.Components.Forms;
 @rendermode RenderMode.InteractiveServer
 
@@ -21,6 +22,8 @@
 </ul>
 
 @code {
+    [Parameter] public string mealType { get; set; }
+    private MealType MealType { get; set; }
     private string searchTerm = "";
     private List<DetectedIngredient> allIngredients = new();
     private List<DetectedIngredient> FilteredIngredients =>
@@ -31,13 +34,20 @@
     protected override async Task OnInitializedAsync()
     {
         //await FoodLogService.ImportIngredientsSimple("C://Users//DENI//Downloads//food.csv");
+
+        if (mealType == "breakfast")
+            MealType = MealType.Breakfast;
+        if (mealType == "lunch")
+            MealType = MealType.Lunch;
+        if (mealType == "dinner")
+            MealType = MealType.Dinner;
         var names = await FoodLogService.GetAllIngredientNames();
        // allIngredients = names.Select(n => new DetectedIngredient(n, 50, 50, "/images/default.png")).ToList();
     }
 
     private void GoToIngredient(string name)
     {
-        Navigation.NavigateTo($"/ingredient-details/{Uri.EscapeDataString(name)}");
+        Navigation.NavigateTo($"/ingredient-details/{Uri.EscapeDataString(name)}/");
     }
 }
 <style>

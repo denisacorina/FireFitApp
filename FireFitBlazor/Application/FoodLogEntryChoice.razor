@@ -33,6 +33,8 @@
     </label>
 </RadzenCard>
 
+
+
 @code {
     [Parameter]
     [SupplyParameterFromQuery]
@@ -75,7 +77,7 @@
         text-align: center;
     }
 
-        /* Title */
+
         .rz-card h2, .rz-card-content h2 {
             font-size: 1.25rem;
             font-weight: 700;
@@ -84,7 +86,7 @@
             letter-spacing: 0.01em;
         }
 
-    /* Main button */
+
     .rz-button-primary, .rz-button[style*='background: #ff5722'] {
         background: #ff5722 !important;
         color: #fff !important;
@@ -101,7 +103,6 @@
             filter: brightness(0.95);
         }
 
-    /* Secondary (gallery) button */
     .upload-btn {
         background: #ffe0b2 !important;
         color: #ff9800 !important;
@@ -119,19 +120,17 @@
             filter: brightness(0.97);
         }
 
-    /* Hide the native file input */
+
     input[type='file'] {
         display: none !important;
     }
 
-    /* Icon styling */
     .rz-button .rz-icon, .rz-button .material-icons {
         font-size: 1.5em !important;
         margin-right: 0.7em;
         vertical-align: middle;
     }
 
-    /* Responsive adjustments */
     @@media (max-width: 500px) {
         .rz-card, .rz-card-content
 
@@ -144,5 +143,94 @@
         font-size: 1.1rem;
     }
 
+    }
+
+
+    .food-log-container {
+        max-width: 500px;
+        margin: auto;
+        padding: 1rem;
+        background-color: #121212;
+        color: white;
+        font-family: sans-serif;
+    }
+
+    .food-log-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .back-button {
+        font-size: 1.5rem;
+        cursor: pointer;
+    }
+
+    .meal-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+    }
+
+    .action-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .action-button {
+        flex: 1 1 30%;
+        min-width: 120px;
+        background-color: #1E88E5;
+        color: white;
+        border: none;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+
+    .ingredient-search {
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 8px;
+        border: none;
+        margin-bottom: 1rem;
+    }
+
+    .ingredient-history h4 {
+        margin: 1rem 0;
+        font-weight: 600;
+    }
+
+    .ingredient-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .ingredient-item {
+        display: flex;
+        justify-content: space-between;
+        background: #1e1e1e;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        margin-bottom: 0.5rem;
+        align-items: center;
+    }
+
+    .ingredient-info {
+        font-size: 0.9rem;
+    }
+
+    .add-icon {
+        color: #1E88E5;
+        font-size: 1.5rem;
+        cursor: pointer;
     }
             </style>

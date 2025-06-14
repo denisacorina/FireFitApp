@@ -66,8 +66,8 @@ namespace FireFitBlazor.Application.Services
         public class IngredientCsv
         {
             [Name("Category")]
-            public string Category { get; set; }  
-            
+            public string Category { get; set; }
+
             [Name("Description")]
             public string? Description { get; set; }
 
@@ -82,33 +82,31 @@ namespace FireFitBlazor.Application.Services
         }
 
 
-        public async Task<List<string>> GetAllIngredientNames()
+        public async Task<List<Ingredient>> GetAllIngredientNames()
         {
             return await _db.Ingredients
-                .Select(i => i.Name)
-                .Distinct()
                 .OrderBy(name => name)
                 .ToListAsync();
         }
 
-        public async Task LogFoodAsync(FoodLog item)
-        {
+        //public async Task LogFoodAsync(FoodLog item)
+        //{
 
-            if (item.UserId == null)
-                throw new UnauthorizedAccessException("User not logged in.");
+        //    if (item.UserId == null)
+        //        throw new UnauthorizedAccessException("User not logged in.");
 
-            var log = FoodLog.Create(
-                userId: item.UserId,
-                foodName: item.FoodName,
-                calories: (int)item.NutritionalInfo.Calories,
-                proteins: item.NutritionalInfo.Proteins,
-                carbs: item.NutritionalInfo.Carbs,
-                fats: item.NutritionalInfo.Fats
-            );
+        //    var log = FoodLog.Create(
+        //        userId: item.UserId,
+        //        foodName: item.FoodName,
+        //        calories: (int)item.NutritionalInfo.Calories,
+        //        proteins: item.NutritionalInfo.Proteins,
+        //        carbs: item.NutritionalInfo.Carbs,
+        //        fats: item.NutritionalInfo.Fats
+        //    );
 
-            _db.FoodLogs.Add(log);
-            await _db.SaveChangesAsync();
-        }
+        //    _db.FoodLogs.Add(log);
+        //    await _db.SaveChangesAsync();
+        //}
 
         public async Task<List<FoodLog>> GetLogsForDate(string userId, DateTime date)
         {
@@ -162,6 +160,13 @@ namespace FireFitBlazor.Application.Services
                 .ToListAsync();
         }
 
+
+        public async Task<Ingredient> GetIngredientDetails(Guid ingredientId)
+        {
+            var ingredient = _db.Ingredients.FirstOrDefault(i => i.IngredientId == ingredientId);
+            return ingredient;
+        }
+
         public async Task SaveFoodLogAsync(FoodLog log)
         {
             _db.FoodLogs.Add(log);
@@ -187,6 +192,37 @@ namespace FireFitBlazor.Application.Services
 
             //_db.Meals.Add(meal);
             //await _db.SaveChangesAsync();
+        }
+
+        public async Task DeleteLog(Guid logId)
+        {
+
+            var log = await _db.FoodLogs.FirstOrDefaultAsync(f => f.FoodLogId == logId);
+            if (log != null)
+            {
+                _db.FoodLogs.Remove(log);
+                await _db.SaveChangesAsync();
+            }
+
+        }
+
+        public async Task<FoodLog?> GetLogById(Guid logId)
+        {
+
+            return await _db.FoodLogs.FirstOrDefaultAsync(f => f.FoodLogId == logId);
+        }
+
+        public async Task UpdateFoodLogAsync(FoodLog updatedLog)
+        {
+            var existing = await _db.FoodLogs.FirstOrDefaultAsync(f => f.FoodLogId == updatedLog.FoodLogId);
+            if (existing != null)
+            {
+                existing.FoodName = updatedLog.FoodName;
+                existing.MealType = updatedLog.MealType;
+                existing.NutritionalInfo = updatedLog.NutritionalInfo;
+                existing.Timestamp = updatedLog.Timestamp;
+                await _db.SaveChangesAsync();
+            }
         }
     }
 

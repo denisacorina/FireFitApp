@@ -1,0 +1,193 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@using Radzen
+@using Radzen.Blazor
+@using Microsoft.JSInterop;
+@using Microsoft.AspNetCore.Components.Forms;
+@using FireFitBlazor.Domain.Models
+@inject WeightPredictionService WeightPredictionService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+@rendermode RenderMode.InteractiveServer
+@inject DialogService DialogService
+
+<RadzenCard>
+    @if (isLoading)
+    {
+        <div class="text-center p-4">
+            <RadzenText Text="Analyzing data, please wait..." Style="font-size: 1rem;" />
+        </div>
+    }
+    else if (prediction != null)
+    {
+        <RadzenStack Spacing="3" Style="padding-bottom: 60px;">
+            <RadzenCard Style="padding: 1rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Weight Prediction Summary</h3>
+                @foreach (var item in GetWeightSummary())
+                {
+                    <RadzenRow>
+                        <RadzenColumn Width="60%">
+                            <span style="font-weight: 500;">@item.Label</span>
+                        </RadzenColumn>
+                        <RadzenColumn Width="40%" Style="text-align: right;">
+                            <RadzenText>@item.Value</RadzenText>
+                        </RadzenColumn>
+                    </RadzenRow>
+                }
+            </RadzenCard>
+
+            <RadzenCard Style="padding: 1rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Behavior Analysis</h3>
+
+                <RadzenText>
+                    <b>Primary Issue:</b> @prediction.BehaviorAnalysis.PrimaryIssue
+                    <RadzenIcon Icon="help" Style="margin-left: 4px; color: gray;" />
+                </RadzenText><br />
+
+                <RadzenText>
+                    <b>Weight Trend:</b> @prediction.BehaviorAnalysis.WeightTrend
+                    <RadzenIcon Icon="help" Style="margin-left: 4px; color: gray;" />
+                </RadzenText><br />
+
+                <RadzenText>
+                    <b>Activity Consistency:</b> @prediction.BehaviorAnalysis.ActivityConsistency.Consistency.ToString("F2")
+                    <RadzenIcon Icon="help" Style="margin-left: 4px; color: gray;" />
+                </RadzenText>
+            </RadzenCard>
+
+            @if (prediction.RiskFactors.Any())
+            {
+                <RadzenCard Style="padding: 1rem; background-color: #fff3cd;">
+                    <h3 style="font-size: 1.25rem; font-weight: 600;">Risk Factors</h3>
+                    @foreach (var risk in prediction.RiskFactors)
+                    {
+                        <div style="margin-bottom: 1rem;">
+                            <RadzenText><b>@risk.Description</b></RadzenText><br />
+                            <RadzenText><i>Impact:</i> @risk.Impact</RadzenText>
+                            <RadzenText>Suggestions:</RadzenText>
+                            <div style="margin-top: 0.5rem;">
+
+                                @foreach (var suggestion in risk.Suggestions)
+                                {
+                                    <RadzenRow Style="align-items: center; margin-bottom: 0.4rem;">
+                                        <RadzenText>@suggestion</RadzenText>
+                                    </RadzenRow>
+                                }
+                            </div>
+                        </div>
+                    }
+                </RadzenCard>
+            }
+
+            @if (prediction.Recommendations.Any())
+            {
+                <RadzenCard Style="padding: 1rem;">
+                    <RadzenText>Recommendations</RadzenText>
+                    @foreach (var rec in prediction.Recommendations)
+                    {
+                        <RadzenRow Style="align-items: center; margin-bottom: 0.5rem;">
+                            <RadzenText>@rec</RadzenText>
+                        </RadzenRow>
+                    }
+                </RadzenCard>
+            }
+
+            <RadzenCard Style="padding: 1rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 600;">Safe Weight Change Limits</h3>
+                <RadzenText><b>Max Weight Loss:</b> @maxWeightChange.MaxLoss.ToString("F1") kg</RadzenText><br />
+                <RadzenText><b>Max Weight Gain:</b> @maxWeightChange.MaxGain.ToString("F1") kg</RadzenText>
+            </RadzenCard>
+        </RadzenStack>
+    }
+</RadzenCard>
+
+
+<RadzenNotification />
+
+@code {
+
+    [Parameter] public string UserId { get; set; }
+    private WeightPredictionService.WeightPredictionWithAnalysis prediction;
+    private WeightPredictionService.WeightChangeLimit maxWeightChange;
+
+    private bool isLoading = true;
+
+    private class WeightSummaryItem
+    {
+        public string Label { get; set; }
+        public string Value { get; set; }
+    }
+
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+
+    private User? currentUser;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        try
+        {
+            prediction = await WeightPredictionService.PredictWeight28Days(UserId);
+            maxWeightChange = WeightPredictionService.CalculateMaxSafeWeightChange((float)prediction.CurrentWeight, 28);
+        }
+        catch
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Not enough data", "You need at least 7 days of tracked data.");
+            DialogService.Close();
+        }
+        finally 
+        {
+            isLoading = false;
+        }
+    }
+
+    private List<WeightSummaryItem> GetWeightSummary()
+    {
+        return new List<WeightSummaryItem>
+        {
+            new() { Label = "Current Weight", Value = $"{prediction.CurrentWeight:F1} kg" },
+            new() { Label = "Predicted Weight (Day 28)", Value = $"{prediction.PredictedWeight:F1} kg" },
+            new() { Label = "Expected Change", Value = $"{(prediction.PredictedWeight - prediction.CurrentWeight):F1} kg" },
+            new() { Label = "Prediction Date", Value = $"{prediction.PredictionDate:d}" }
+        };
+    }
+
+    private AlertStyle GetBehaviorAlertStyle(BehaviorAnalysis analysis)
+    {
+        return analysis.IsAlignedWithGoal ? AlertStyle.Success :
+               analysis.IsPlateauing ? AlertStyle.Warning :
+               analysis.IsOvereating ? AlertStyle.Danger :
+               AlertStyle.Info;
+    }
+
+    private string GetActivityLevelDescription(ActivityMetrics metrics)
+    {
+        return metrics.AverageLevel switch
+        {
+            var x when x >= 4.0f => "Very High",
+            var x when x >= 3.0f => "High",
+            var x when x >= 2.0f => "Moderate",
+            var x when x >= 1.0f => "Low",
+            _ => "Very Low"
+        };
+    }
+
+}
+
+<style>
+    .mobile-sticky-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0.5rem;
+        background-color: white;
+        box-shadow: 0 -2px 6px rgba(0,0,0,0.1);
+        z-index: 999;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+</style>

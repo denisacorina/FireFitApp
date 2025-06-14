@@ -3,11 +3,24 @@
 @inject NavigationManager Navigation
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Forms;
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Application.Services
+@using FireFitBlazor.Domain.ContextInterfaces
+@using FireFitBlazor.Domain.ValueObjects
+@using FireFitBlazor.Domain.Enums
+@inject IFoodLogService FoodLogService
+@inject IUserProgressContext UserProgressContext
+@inject IBodyMeasurementContext BodyMeasurementContext
+@inject NavigationManager Navigation
+@using FireFitBlazor.Components
+@using Radzen;
+@inject DialogService DialogService
 @rendermode RenderMode.InteractiveServer
 
 @using BlazorBootstrap
-
+<FireFitBlazor.Components.Layout.TopLogoNav></FireFitBlazor.Components.Layout.TopLogoNav>
 <div class="dashboard-container">
+
     <div class="dashboard-header">
         <h1>Today</h1>
     </div>
@@ -39,11 +52,11 @@
             <div class="calories-details">
                 <div class="calories-item">
                     <span class="label">Goal</span>
-                    <span class="value">@baseGoal</span>
+                    <span class="value">@totalCaloriesGoal</span>
                 </div>
                 <div class="calories-item">
                     <span class="label">Food</span>
-                    <span class="value">-@foodCalories</span>
+                    <span class="value">-@caloriesConsumed</span>
                 </div>
                 <div class="calories-item">
                     <span class="label">Exercise</span>
@@ -52,77 +65,230 @@
             </div>
         </div>
 
-        <!-- Weight Change Insights -->
-
-
         <div class="calories-summary">
             <div class="container-fluid overflow-x-auto">
-                <LineChart @ref="lineChart" Width="350" Height="250" />
+                <LineChart @ref="lineChart" Width="350" />
             </div>
-
-
         </div>
+
+        <RadzenButton Text="🔮 Predict Future Weight"
+                      Click="@ShowPredictionDialog"
+                      ButtonStyle="Radzen.ButtonStyle.Secondary"
+                      Style="width: 100%;" />
     </div>
 </div>
 
+<RadzenDialog></RadzenDialog>
+
+<FireFitBlazor.Components.Layout.BottomNav></FireFitBlazor.Components.Layout.BottomNav>
+
 @code {
-    private int baseGoal = 1570;
-    private int foodCalories = 1200;
-    private int exerciseCalories = 300;
+    private int totalCaloriesGoal = 0;
+    private int caloriesConsumed = 0;
+    private int exerciseCalories = 0;
+    private List<WeightLog> measurementWeightLogs = new();
+    WeightLog? startingWeightLog = null;
+    WeightLog? currentWeightLog = null;
 
-    private int RemainingCalories => baseGoal - foodCalories + exerciseCalories;
-    private int CalculateProgress => (int)(((double)(baseGoal - RemainingCalories) / baseGoal) * 100);
+    List<WeightLog> totalWeightLogs = new();
 
-    private LineChart lineChart = default!;
+    private int RemainingCalories => totalCaloriesGoal - caloriesConsumed + exerciseCalories;
+    private int CalculateProgress => (int)(((double)(totalCaloriesGoal - RemainingCalories) / totalCaloriesGoal) * 100);
+
+    private LineChart? lineChart;
     private LineChartOptions lineChartOptions = default!;
+    private LineChartOptions? chartOptions;
     private ChartData chartData = default!;
+    private List<FoodLog> todaysFoodLogs = new();
+    private List<WeightLog> allWeightLogs = new();
+    private User? currentUser;
 
-    protected override void OnInitialized()
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
+
+    private bool isChartReady = false;
+    private bool _initialized = false;
+
+    protected override async Task OnInitializedAsync()
     {
-        var colors = ColorUtility.CategoricalTwelveColors;
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
 
-        var weights = new List<double?> { 96.5, 100.0, 95.6, 95.3, 95.1, 94.9 };
-        var dates = new List<string> { "01 Jan", "02 Jan", "03 Jan", "04 Jan", "05 Jan", "06 Jan" };
+        if (!response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
 
-        var datasets = new List<IChartDataset>();
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
 
-        var dataset1 = new LineChartDataset
+        if (currentUser == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        await LoadTodaysCalories();
+
+        await LoadUserWeightProgress();
+
+        var weights = allWeightLogs
+           .Select(w => (double)w.Weight)
+
+           .ToList();
+
+        var dates = allWeightLogs
+            .Select(w => w.Date.ToString("dd MMM"))
+            .ToList();
+
+
+        await LoadDashboardData();
+
+        StateHasChanged();
+    }
+
+
+    private async Task LoadDashboardData()
+    {
+        await LoadTodaysCalories();
+        await LoadUserWeightProgress();
+
+        var cleanedLogs = allWeightLogs
+            .Where(w => w.Weight > 0 && !double.IsNaN((double)w.Weight))
+            .GroupBy(w => w.Date)
+            .Select(g => g.OrderByDescending(x => x.Date).First())
+            .OrderBy(w => w.Date)
+            .ToList();
+
+        var weights = cleanedLogs.Select(w => (double)w.Weight).ToList();
+        var dates = cleanedLogs.Select(w => w.Date.ToString("dd MMM")).ToList();
+
+        chartData = new ChartData
+            {
+                Labels = dates,
+                Datasets = new List<IChartDataset>
+        {
+            new LineChartDataset
             {
                 Label = "Weight Change",
                 Data = weights,
-                BackgroundColor = colors[0],
-                BorderColor = colors[0],
-                BorderWidth = 2,
-                HoverBorderWidth = 4,
-                // PointBackgroundColor = colors[0],
-                // PointRadius = 0, // hide points
-                // PointHoverRadius = 4,
+                BorderColor = new List<string> {"rgba(75,192,192,1)" },
+                BackgroundColor = new List<string> {"rgba(75,192,192,0.2)" },
+                BorderWidth = new List<double> { 2 },
+                Fill = false,
+                PointRadius = new List<int> { 5 },
+                PointHoverRadius = new List<int> { 6 }
+            }
+        }
             };
-        datasets.Add(dataset1);
 
+        lineChartOptions = new()
+            {
+                Responsive = true,
+                Interaction = new Interaction { Mode = InteractionMode.Index }
+            };
 
-        chartData = new ChartData { Labels = dates, Datasets = datasets };
+        lineChartOptions.Scales.X = new()
+            {
+                Title = new() { Text = "Date", Display = true }
+            };
 
-        lineChartOptions = new();
-        lineChartOptions.Responsive = true;
-        lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+        lineChartOptions.Scales.Y = new()
+            {
+                Title = new() { Text = "Weight (kg)", Display = true }
+            };
 
-        lineChartOptions.Scales.X!.Title = new ChartAxesTitle { Text = "Date", Display = true };
-        lineChartOptions.Scales.Y!.Title = new ChartAxesTitle { Text = "Wieght (kg)", Display = true };
-
-        lineChartOptions.Plugins.Title!.Text = "Weight Change Over Time";
-        lineChartOptions.Plugins.Title.Display = true;
+        lineChartOptions.Plugins.Title = new()
+            {
+                Display = true,
+                Text = "Weight Change Over Time"
+            };
     }
+
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            await lineChart.InitializeAsync(chartData, lineChartOptions);
-        }
-        await base.OnAfterRenderAsync(firstRender);
+        await lineChart.InitializeAsync(chartData, lineChartOptions);
     }
 
+    private async Task LoadTodaysCalories()
+    {
+        totalCaloriesGoal = await FoodLogService.GetDailyGoalCalories(currentUser.UserId);
+
+        todaysFoodLogs = await FoodLogService.GetLogsForDate(currentUser.UserId, DateTime.Today);
+        caloriesConsumed = todaysFoodLogs.Sum(f => (int)f.NutritionalInfo.Calories);
+    }
+
+    private async Task LoadUserWeightProgress()
+    {
+        var userProgress = await UserProgressContext.GetUserProgressAsync(currentUser.UserId);
+        if (userProgress.IsSuccess)
+        {
+            startingWeightLog = new WeightLog
+                {
+                    Weight = userProgress.Value.StartingWeight,
+                    Date = DateOnly.FromDateTime(userProgress.Value.CreatedAt)
+                };
+
+        };
+
+        var measurements = await BodyMeasurementContext.GetByUserIdAsync(currentUser.UserId);
+
+        measurementWeightLogs = measurements
+            .Where(m => m.Weight.HasValue)
+            .GroupBy(m => m.MeasurementDate.Date)
+            .Select(g =>
+            {
+                var latest = g.OrderByDescending(m => m.MeasurementDate).First();
+                return new WeightLog
+                    {
+                        Weight = latest.Weight!.Value,
+                        Date = DateOnly.FromDateTime(latest.MeasurementDate)
+                    };
+            })
+            .ToList();
+
+        if (startingWeightLog != null && !measurementWeightLogs.Any(w => w.Date == startingWeightLog.Date))
+        {
+            allWeightLogs.Add(startingWeightLog);
+        }
+
+
+        allWeightLogs.AddRange(measurementWeightLogs);
+
+        allWeightLogs = allWeightLogs
+    .OrderBy(w => w.Date)
+    .ToList();
+
+    }
+
+    private async Task LoadTodaysFoodLogs()
+    {
+        if (currentUser != null)
+        {
+            todaysFoodLogs = await FoodLogService.GetLogsForDate(currentUser.UserId, DateTime.Today);
+            caloriesConsumed = todaysFoodLogs.Sum(f => (int)f.NutritionalInfo.Calories);
+        }
+    }
+
+    private async Task ShowPredictionDialog()
+    {
+        await DialogService.OpenAsync<WeightPrediction>(
+            "28-Day Prediction Weight Change",
+            new Dictionary<string, object>
+                    {
+                { "UserId", currentUser?.UserId }
+                    },
+            new DialogOptions { Width = "700px", CloseDialogOnOverlayClick = true, ShowClose = true }
+        );
+    }
+
+    public class WeightLog
+    {
+        public decimal Weight { get; set; }
+        public DateOnly Date { get; set; }
+    }
 }
 <style>
     .dashboard-container {
@@ -254,7 +420,6 @@
         color: #6c757d;
     }
 
-    /* Mobile responsiveness */
     @@media (max-width: 600px) {
         .calories-summary {
             flex-direction: column;
@@ -274,710 +439,3 @@
         }
     }
 </style>
-
-@* @page "/dashboard"
-@using FireFitBlazor.Components
-@using FireFitBlazor.Domain.ContextInterfaces
-@using Radzen;
-@using Radzen.Blazor;
-@using FireFitBlazor.Domain.Models
-@using FireFitBlazor.Application.Services
-@using FireFitBlazor.Domain.ValueObjects
-@using FireFitBlazor.Domain.Enums
-@inject IFoodLogService FoodLogService
-@inject IUserPreferencesContext UserPreferencesContext
-@inject NavigationManager Navigation
-@inject IHttpContextAccessor HttpContextAccessor
-@using Microsoft.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components.Forms;
-@rendermode RenderMode.InteractiveServer
-
-<div class="mobile-container">
-    <!-- Top Navigation -->
-    <div class="top-nav">
-        <button class="nav-button" @onclick="() => NavigateDate(-1)">
-            <RadzenIcon Icon="chevron_left" />
-        </button>
-        <div class="date-display">
-            <h2>@selectedDate.ToString("dddd")</h2>
-            <p>@selectedDate.ToString("MMMM d, yyyy")</p>
-        </div>
-        <button class="nav-button" @onclick="() => NavigateDate(1)">
-            <RadzenIcon Icon="chevron_right" />
-        </button>
-    </div>
-
-    <!-- Summary Card -->
-    <div class="summary-card">
-        <div class="summary-header">
-            <div class="title-section">
-                <span>Daily Summary</span>
-            </div>
-        </div>
-
-        <div class="summary-content">
-            <div class="stats-section">
-                <div class="stats-list">
-                    <div class="stat-row">
-                        <span class="stat-label">Consumed</span>
-                        <span class="stat-value">@caloriesConsumed</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Left</span>
-                        <span class="stat-value light">@RemainingCalories</span>
-                    </div>
-                    <div class="stat-row">
-                        <span class="stat-label">Goal</span>
-                        <span class="stat-value">@totalCaloriesGoal</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="progress-section">
-                <RadzenProgressBar Value="@((double)caloriesConsumed / totalCaloriesGoal * 100)"
-                ShowValue="true"
-                Unit="%"
-                Style="height: 8px;"
-                class="custom-progress" />
-            </div>
-        </div>
-
-        <div class="macros-section">
-            <h3 class="section-title">Macronutrients</h3>
-            <div class="macro-grid">
-                <div class="macro-item">
-                    <span class="macro-label">Protein</span>
-                    <RadzenProgressBar Value="@(macros[0].GetProgress())"
-                    ShowValue="true"
-                    Unit="%"
-                    Style="height: 6px;"
-                    class="protein-progress" />
-                    <span class="macro-values">@macros[0].Current/@macros[0].Goal g</span>
-                </div>
-                <div class="macro-item">
-                    <span class="macro-label">Fats</span>
-                    <RadzenProgressBar Value="@(macros[1].GetProgress())"
-                    ShowValue="true"
-                    Unit="%"
-                    Style="height: 6px;"
-                    class="fats-progress" />
-                    <span class="macro-values">@macros[1].Current/@macros[1].Goal g</span>
-                </div>
-                <div class="macro-item">
-                    <span class="macro-label">Carbs</span>
-                    <RadzenProgressBar Value="@(macros[2].GetProgress())"
-                    ShowValue="true"
-                    Unit="%"
-                    Style="height: 6px;"
-                    class="carbs-progress" />
-                    <span class="macro-values">@macros[2].Current/@macros[2].Goal g</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Nutrition Insights -->
-        <div class="insights-section">
-            <h3 class="section-title">Nutrition Insights</h3>
-            <div class="insights-grid">
-                <div class="insight-card">
-                    <div class="insight-header">
-                        <span class="insight-title">Meal Distribution</span>
-                    </div>
-                    <div class="insight-content">
-                        @foreach (var meal in mealDistribution)
-                        {
-                            <div class="meal-distribution-item">
-                                <span class="meal-name">@meal.Key</span>
-                                <div class="meal-progress">
-                                    <RadzenProgressBar Value="@(meal.Value * 100 / caloriesConsumed)"
-                                    ShowValue="true"
-                                    Unit="%"
-                                    Style="height: 4px;"
-                                    class="meal-progress-bar" />
-                                </div>
-                                <span class="meal-calories">@meal.Value cal</span>
-                            </div>
-                        }
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Meals List -->
-        <div class="meals-section">
-            <h3 class="section-title">Meals</h3>
-            <div class="meals-list">
-                @foreach (var meal in meals)
-                {
-                    var foodsForMeal = todaysFoodLogs.Where(f => f.MealType.ToString() == meal.Name).ToList();
-                    <div class="meal-item" @onclick="() => SelectMeal(meal)">
-                        <div class="meal-icon">@meal.Icon</div>
-                        <div class="meal-details">
-                            <span class="meal-name">@meal.Name</span>
-                            <span class="meal-calories">@meal.Calories kcal</span>
-                        </div>
-                        @if (foodsForMeal.Any())
-                        {
-                            <div class="meal-foods">
-                                @foreach (var food in foodsForMeal)
-                                {
-                                    <div class="food-item">
-                                        <span class="food-name">@food.FoodName</span>
-                                        <span class="food-calories">@((int)food.NutritionalInfo.Calories) kcal</span>
-                                    </div>
-                                }
-                            </div>
-                        }
-                        <RadzenIcon Icon="chevron_right" />
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
-
-<FireFitBlazor.Components.Layout.BottomNav></FireFitBlazor.Components.Layout.BottomNav>
-
-@code {
-    private string currentMonth = DateTime.Now.ToString("MMMM");
-    private int caloriesConsumed = 0;
-    private int totalCaloriesGoal = 1570;
-    private string selectedDayLabel = "Today"; 
-    private DateTime selectedDate = DateTime.Now;
-
-    private List<FoodLog> todaysFoodLogs = new();
-    private List<DayModel> days = new List<DayModel>();
-    [Inject]
-    public HttpClient Http { get; set; } = default!;
-    private string? currentUserId;
-    private User? currentUser;
-
-    // Calculated property for remaining calories
-    private int RemainingCalories => totalCaloriesGoal - caloriesConsumed;
-
-    // Calculated property for progress percentage
-    private int CalculateProgress => (int)((double)caloriesConsumed / totalCaloriesGoal * 100);
-
-    private List<MacroModel> macros = new List<MacroModel>
-    {
-        new MacroModel
-        {
-            Name = "Protein",
-            Current = 0,
-            Goal = 70,
-            ProgressClass = "protein-progress"
-        },
-        new MacroModel
-        {
-            Name = "Carbs",
-            Current = 0,
-            Goal = 158,
-            ProgressClass = "carbs-progress"
-        },
-        new MacroModel
-        {
-            Name = "Fats",
-            Current = 0,
-            Goal = 55,
-            ProgressClass = "fats-progress"
-        }
-    };
-
-    private List<MealModel> meals = new List<MealModel>
-    {
-        new MealModel
-        {
-            Name = "Breakfast",
-            Calories = 0,
-            Icon = "🥗"
-        },
-        new MealModel
-        {
-            Name = "Lunch",
-            Calories = 0,
-            Icon = "🍜"
-        },
-        new MealModel
-        {
-            Name = "Dinner",
-            Calories = 0,
-            Icon = "🍲"
-        }
-    };
-
-    private int _progress;
-    private System.Timers.Timer _timer;
-
-    [Inject]
-    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
-
-    private Dictionary<string, int> mealDistribution = new();
-
-    public void Dispose()
-    {
-        _timer?.Dispose();
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var http = HttpClientFactory.CreateClient("ServerAPI");
-        var response = await http.GetAsync("/api/customauth/me");
-        if (!response.IsSuccessStatusCode)
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
-
-        currentUser = await response.Content.ReadFromJsonAsync<User>();
-        if (currentUser == null)
-        {
-            Navigation.NavigateTo("/login");
-            return;
-        }
-        // var userPreferences = UserPreferencesContext.GetUserPreferences(currentUser.UserId);
-        //totalCaloriesGoal = userPreferences.Result.DailyCalorieGoal;
-        await LoadTodaysFoodLogs();
-        await UpdateMacros();
-        await UpdateMealDistribution();
-
-        _timer = new System.Timers.Timer(20);
-        _timer.Elapsed += (sender, e) =>
-        {
-            if (_progress < CalculateProgress)
-            {
-                _progress++;
-                InvokeAsync(StateHasChanged);
-            }
-            else
-            {
-                _timer.Stop();
-            }
-        };
-        _timer.Start();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            StateHasChanged(); 
-        }
-    }
-
-    private async Task LoadTodaysFoodLogs()
-    {
-        if (currentUser != null)
-        {
-            todaysFoodLogs = await FoodLogService.GetLogsForDate(currentUser.UserId, DateTime.Today);
-            caloriesConsumed = todaysFoodLogs.Sum(f => (int)f.NutritionalInfo.Calories);
-
-            foreach (var meal in meals)
-            {
-                meal.Calories = todaysFoodLogs
-                    .Where(f => f.MealType.ToString() == meal.Name)
-                    .Sum(f => (int)f.NutritionalInfo.Calories);
-            }
-        }
-    }
-
-    private async Task UpdateMacros()
-    {
-        var totalProtein = todaysFoodLogs.Sum(f => f.NutritionalInfo.Proteins);
-        var totalCarbs = todaysFoodLogs.Sum(f => f.NutritionalInfo.Carbs);
-        var totalFats = todaysFoodLogs.Sum(f => f.NutritionalInfo.Fats);
-
-        macros[0].Current = (int)totalProtein;
-        macros[1].Current = (int)totalCarbs;
-        macros[2].Current = (int)totalFats;
-    }
-
-    private void NavigateToAddFood(string mealType)
-    {
-        Navigation.NavigateTo($"/add-food?mealType={mealType}");
-    }
-
-    private void SelectMeal(MealModel meal)
-    {
-        Navigation.NavigateTo($"/add-food?mealType={meal.Name}");
-    }
-
-    private async Task NavigateDate(int days)
-    {
-        selectedDate = selectedDate.AddDays(days);
-        await LoadTodaysFoodLogs();
-        await UpdateMacros();
-        await UpdateMealDistribution();
-    }
-
-    private async Task UpdateMealDistribution()
-    {
-        if (currentUser != null)
-        {
-            var logs = await FoodLogService.GetLogsForDate(currentUser.UserId, selectedDate);
-            mealDistribution = logs
-                .GroupBy(f => f.MealType.ToString())
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Sum(f => (int)f.NutritionalInfo.Calories)
-                );
-        }
-    }
-
-    public class DayModel
-    {
-        public string Name { get; set; }
-        public int Number { get; set; }
-        public bool IsActive { get; set; }
-        public bool IsToday { get; set; }
-    }
-
-    public class MacroModel
-    {
-        public string Name { get; set; }
-        public int Current { get; set; }
-        public int Goal { get; set; }
-        public string ProgressClass { get; set; }
-
-        public int GetProgress() => (int)((double)Current / Goal * 100);
-    }
-
-    public class MealModel
-    {
-        public string Name { get; set; }
-        public int Calories { get; set; }
-        public string Icon { get; set; }
-    }
-}
-
-<style>
-    .mobile-container {
-        max-width: 100%;
-        margin: 0 auto;
-        padding: 1rem;
-        background-color: #f8f9fa;
-        min-height: 100vh;
-    }
-
-    .top-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 0;
-        margin-bottom: 1rem;
-    }
-
-    .nav-button {
-        background: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        transition: all 0.2s ease;
-    }
-
-    .nav-button:hover {
-        background: #f8f9fa;
-        transform: scale(1.05);
-    }
-
-    .date-display {
-        text-align: center;
-    }
-
-    .date-display h2 {
-        margin: 0;
-        font-size: 1.25rem;
-        color: #2c3e50;
-        font-weight: 600;
-    }
-
-    .date-display p {
-        margin: 0;
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-
-    .summary-card {
-        background: white;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    }
-
-    .summary-header {
-        margin-bottom: 1.5rem;
-    }
-
-    .title-section span {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-
-    .stats-section {
-        background: #f8f9fa;
-        border-radius: 1rem;
-        padding: 1.25rem;
-        margin-bottom: 1rem;
-    }
-
-    .stats-list {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-    }
-
-    .stat-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .stat-label {
-        color: #6c757d;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    .stat-value {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-
-    .stat-value.light {
-        color: #6c757d;
-    }
-
-    .progress-section {
-        margin-top: 1rem;
-    }
-
-    .custom-progress {
-        --rz-progress-bar-background: #e9ecef;
-        --rz-progress-bar-color: #DC7C05;
-    }
-
-    .macros-section {
-        margin-top: 2rem;
-    }
-
-    .section-title {
-        font-size: 1.1rem;
-        color: #2c3e50;
-        margin-bottom: 1rem;
-        font-weight: 600;
-    }
-
-    .macro-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-    }
-
-    .macro-item {
-        background: #f8f9fa;
-        border-radius: 0.75rem;
-        padding: 1rem;
-    }
-
-    .macro-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: #2c3e50;
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    .macro-values {
-        display: block;
-        margin-top: 0.5rem;
-        color: #6c757d;
-        font-size: 0.85rem;
-    }
-
-    .protein-progress {
-        --rz-progress-bar-color: #4CAF50;
-    }
-
-    .fats-progress {
-        --rz-progress-bar-color: #d52f57;
-    }
-
-    .carbs-progress {
-        --rz-progress-bar-color: #42A5F5;
-    }
-
-    .insights-section {
-        margin-top: 2rem;
-    }
-
-    .insights-grid {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .insight-card {
-        background: #f8f9fa;
-        border-radius: 1rem;
-        padding: 1.25rem;
-    }
-
-    .insight-header {
-        margin-bottom: 1rem;
-    }
-
-    .insight-title {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #2c3e50;
-    }
-
-    .meal-distribution-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .meal-name {
-        min-width: 80px;
-        color: #2c3e50;
-        font-size: 0.9rem;
-    }
-
-    .meal-progress {
-        flex: 1;
-    }
-
-    .meal-progress-bar {
-        --rz-progress-bar-color: #DC7C05;
-    }
-
-    .meal-calories {
-        min-width: 60px;
-        text-align: right;
-        color: #6c757d;
-        font-size: 0.85rem;
-    }
-
-    .meals-section {
-        margin-top: 2rem;
-    }
-
-    .meals-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .meal-item {
-        background: white;
-        border-radius: 1rem;
-        padding: 1.25rem;
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .meal-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .meal-icon {
-        font-size: 1.5rem;
-        padding: 0.5rem;
-        background: #f8f9fa;
-        border-radius: 0.75rem;
-        min-width: 2.5rem;
-        height: 2.5rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .meal-details {
-        flex: 1;
-    }
-
-    .meal-name {
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 0.25rem;
-    }
-
-    .meal-calories {
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-
-    .meal-foods {
-        margin-top: 1rem;
-        background: #f8f9fa;
-        border-radius: 0.75rem;
-        padding: 0.75rem;
-    }
-
-    .food-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    }
-
-    .food-item:last-child {
-        border-bottom: none;
-    }
-
-    .food-name {
-        color: #2c3e50;
-        font-size: 0.9rem;
-    }
-
-    .food-calories {
-        color: #6c757d;
-        font-size: 0.85rem;
-    }
-
-    .material-icons {
-        color: #6c757d;
-        font-size: 1.25rem;
-    }
-
-    @@media (max-width: 768px) {
-        .mobile-container {
-            padding: 0.75rem;
-        }
-
-        .summary-card {
-            padding: 1rem;
-        }
-
-        .macro-grid {
-            gap: 0.5rem;
-        }
-
-        .macro-item {
-            padding: 0.75rem;
-        }
-
-        .meal-item {
-            padding: 1rem;
-        }
-
-        .meal-icon {
-            padding: 0.5rem;
-            font-size: 1.25rem;
-        }
-    }
-</style> *@

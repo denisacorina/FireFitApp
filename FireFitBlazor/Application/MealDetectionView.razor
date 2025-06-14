@@ -8,6 +8,7 @@
 @inject IJSRuntime JS
 @inject IFoodLogService FoodLogService
 @inject NavigationManager Navigation
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
 @using FireFitBlazor.Domain.Models
 @using Microsoft.AspNetCore.Components.Web
 @using Radzen.Blazor
@@ -32,7 +33,6 @@
 else
 {
     <div class="meal-detect-card">
-        <!-- Camera Upload -->
         @* <div class="camera-upload">
             <label class="upload-btn">
                 <span>Take Picture</span>
@@ -40,7 +40,6 @@ else
             </label>
         </div> *@
 
-        <!-- Meal Photo with Bounding Boxes -->
         <div class="meal-photo-section">
             <div class="meal-photo-wrapper">
                 <img src="@capturedImage" class="meal-photo" />
@@ -57,7 +56,6 @@ else
             </div>
         </div>
 
-        <!-- Meal Info Card -->
         <div class="meal-info-section">
             <h3>@MealName</h3>
 
@@ -107,6 +105,8 @@ else
 <FireFitBlazor.Components.Layout.BottomNav></FireFitBlazor.Components.Layout.BottomNav>
 
 @code {
+    [Parameter] public string? mealType { get; set; }
+    private MealType MealType { get; set; }
     [Inject] IHttpClientFactory Http { get; set; }
     private string? capturedImage = null;
     private List<DetectedIngredient> detectedIngredients = new();
@@ -116,7 +116,7 @@ else
     private float TotalCarbs = 0;
     private float TotalFats = 0;
     private string manualEntry;
-    private List<string> allIngredients = new();
+    private List<Ingredient> allIngredients = new();
     private string mealName = string.Empty;
     private string PrepTime = "11-15 min";
 
@@ -125,8 +125,6 @@ else
     private string? currentUserId;
     private User? currentUser;
 
-
-    private string UserId; // Replace with real user logic
 
     private IHttpContextAccessor _httpContextAccessor;
     [Inject]
@@ -408,7 +406,12 @@ else
         try
         {
 
-
+            if (mealType == "breakfast")
+                MealType = MealType.Breakfast;
+            if (mealType == "lunch")
+                MealType = MealType.Lunch;
+            if (mealType == "dinner")
+                MealType = MealType.Dinner;
           
             var log = FoodLog.Create(
          userId: currentUser.UserId,
@@ -416,7 +419,9 @@ else
          calories: (int)(TotalCalories),
          proteins: TotalProtein,
          carbs: TotalCarbs,
-         fats: TotalFats
+         fats: TotalFats,
+         mealType: MealType
+
      );
 
             await FoodLogService.SaveFoodLogAsync(log);

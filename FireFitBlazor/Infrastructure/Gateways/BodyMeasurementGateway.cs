@@ -13,9 +13,9 @@ namespace FireFitBlazor.Infrastructure.Gateways
         {
         }
 
-        public Task<bool> AddAsync(BodyMeasurement measurement)
+        public async Task<bool> AddAsync(BodyMeasurement measurement)
         {
-            throw new NotImplementedException();
+            return await base.AddAsync(measurement);
         }
 
         public Task<bool> DeleteAsync(Guid id)
@@ -37,19 +37,19 @@ namespace FireFitBlazor.Infrastructure.Gateways
                 .ToListAsync();
         }
 
-        public Task<bool> UpdateAsync(BodyMeasurement measurement)
-        {
-            throw new NotImplementedException();
-        }
+        //public Task<bool> UpdateAsync(BodyMeasurement measurement)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         Task<BodyMeasurement> IBodyMeasurementGateway.GetByIdAsync(Guid id)
         {
             throw new NotImplementedException();
         }
 
-        Task<IEnumerable<BodyMeasurement>> IBodyMeasurementGateway.GetByUserIdAsync(int userId)
-        {
-            throw new NotImplementedException();
-        }
+        //Task<IEnumerable<BodyMeasurement>> IBodyMeasurementGateway.GetByUserIdAsync(int userId)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 } 

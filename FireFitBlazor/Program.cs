@@ -29,6 +29,8 @@ using Microsoft.AspNetCore.Components.Authorization;
 using static FireFitBlazor.Application.FoodLogEntryChoice;
 using IntentClassification;
 using RecipeRecommendation;
+using FireFitBlazor.Domain.Contexts.ProgressContexts;
+using BlazorBootstrap;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -81,6 +83,8 @@ builder.Services.AddScoped<IRecipeGateway, RecipeGateway>();
 builder.Services.AddScoped<IGoalContext, GoalContext>();
 builder.Services.AddScoped<IUserProgressContext, UserProgressContext>();
 builder.Services.AddScoped<IUpdateUserContext, UpdateUserContext>();
+builder.Services.AddScoped<IBodyMeasurementGateway, BodyMeasurementGateway>();
+builder.Services.AddScoped<IBodyMeasurementContext, BodyMeasurementContext>();
 builder.Services.AddScoped<IUpdateUserProgressContext, UpdateUserProgressContext>();
 builder.Services.AddScoped<IAddBodyMeasurementContext, AddBodyMeasurementContext>();
 builder.Services.AddScoped<IDeleteBodyMeasurementContext, DeleteBodyMeasurementContext>();
@@ -98,7 +102,7 @@ builder.Services.AddScoped<IGoalContext, GoalContext>();
 //builder.Services.AddScoped<IMarkGoalAsCompletedContext, MarkGoalAsCompletedContext>();
 //builder.Services.AddScoped<IReactivateGoalContext, ReactivateGoalContext>();
 //builder.Services.AddScoped<IUpdateGoalContext, UpdateGoalContext>();
-builder.Services.AddScoped<IWeightPredictionService, WeightPredictionService>();
+builder.Services.AddScoped<WeightPredictionService>();
 
 //builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 //builder.Services.AddScoped<IEmailService, EmailService>();

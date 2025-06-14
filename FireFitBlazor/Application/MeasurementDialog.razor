@@ -8,7 +8,7 @@
 
 
 <div class="measurement-dialog">
-    <RadzenTemplateForm Data="@bodyMeasurementResult" TItem="@BodyMeasurementResult" Submit="@SubmitMeasurement">
+    <RadzenTemplateForm Data="@bodyMeasurementResult" TItem="@BodyMeasurementResult" Submit="SubmitMeasurement">
         <div class="form-group">
             <RadzenNumeric TValue="decimal?" @bind-Value="bodyMeasurementResult.Weight" Placeholder="Weight (kg)" Class="w-100 mb-2" />
             <RadzenNumeric TValue="decimal?" @bind-Value="bodyMeasurementResult.BodyFatPercentage" Placeholder="Body Fat %" Class="w-100 mb-2" />
@@ -28,7 +28,8 @@
 @code {
         [Parameter] public string? UserId { get; set; }
         [Inject] DialogService DialogService { get; set; } = default!;
-    private IUpdateUserProgressContext IUpdateUserProgressContext { get; set; } = default!;
+    private IUpdateUserProgressContext UpdateUserProgressContext { get; set; } = default!;
+    [Inject] IBodyMeasurementContext BodyMeasurementContext { get; set; } = default!;
 
     public BodyMeasurementResult bodyMeasurementResult = new();
 
@@ -37,7 +38,7 @@
         DialogService.Close();
     }
 
-    private void SubmitMeasurement()
+    private async Task SubmitMeasurement()
     {
         var newMeasurement = BodyMeasurement.Create(
             userId: UserId, 
@@ -48,6 +49,8 @@
             hips: bodyMeasurementResult.Hips,
             notes: bodyMeasurementResult.Notes
         );
+
+        var result = await BodyMeasurementContext.AddMeasurement(newMeasurement);
 
         DialogService.Close(newMeasurement);
     }

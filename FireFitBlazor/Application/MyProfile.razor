@@ -28,10 +28,11 @@
 @inject IUpdateUserContext UpdateUserContext
 @inject IUpdateUserProgressContext UpdateUserProgressContext
 @using Microsoft.AspNetCore.Components.Web
-@using FireFitBlazor.MachineLearning
+@* @using FireFitBlazor.MachineLearning *@
 @rendermode RenderMode.InteractiveServer
-@inject IWeightPredictionService PredictionService
 
+
+<FireFitBlazor.Components.Layout.TopLogoNav></FireFitBlazor.Components.Layout.TopLogoNav>
 <div class="profile-container">
     @if (currentUser == null)
     {
@@ -81,10 +82,10 @@
                                         PageSize="5">
                                             <Columns>
                                                 <RadzenDataGridColumn TItem="FoodLog" Property="FoodName" Title="Food" />
-                                                <RadzenDataGridColumn TItem="FoodLog" Property="Calories" Title="Calories" />
-                                                <RadzenDataGridColumn TItem="FoodLog" Property="Proteins" Title="Protein" />
-                                                <RadzenDataGridColumn TItem="FoodLog" Property="Carbs" Title="Carbs" />
-                                                <RadzenDataGridColumn TItem="FoodLog" Property="Fats" Title="Fats" />
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="NutritionalInfo.Calories" Title="Calories" />
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="NutritionalInfo.Proteins" Title="Protein" />
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="NutritionalInfo.Carbs" Title="Carbs" />
+                                                <RadzenDataGridColumn TItem="FoodLog" Property="NutritionalInfo.Fats" Title="Fats" />
                                             </Columns>
                                         </RadzenDataGrid>
                                         <RadzenButton Text="Add Food" Click="@(() => NavigateToAddFood(mealType))"
@@ -236,7 +237,7 @@
     private ActivityLevel activityLevel;
     private string? profilePicturePath;
     private ExperienceLevel fitnessExperience;
-    private PredictUserProgress PredictUserProgress = new PredictUserProgress();
+    //private PredictUserProgress PredictUserProgress = new PredictUserProgress();
 
     [Inject]
     public IHttpClientFactory HttpClientFactory { get; set; } = default!;
@@ -278,7 +279,6 @@
             return;
         }
 
-        // Load user and their progress
         name = currentUser.Name;
         age = currentUser.Age;
         height = currentUser.Height;
@@ -487,7 +487,7 @@
             new Dictionary<string, object> { { "UserId", currentUser.UserId } },
             new DialogOptions { Width = "400px", Height = "600px" });
 
-        if (result == true)
+        if (result is BodyMeasurement measurement)
         {
             await OnInitializedAsync();
         }
@@ -496,13 +496,13 @@
     private async Task Predict()
     {
         //PredictUserProgress.PredictUserProgressNow();
-        PredictUserProgress.PredictWeightForNextWeek();
+        //PredictUserProgress.PredictWeightForNextWeek();
     }
     private WeightPredictionWithAnalysis? prediction;
 
-    private async Task GeneratePrediction()
-    {
-        prediction = await PredictionService.PredictWeight28Days(currentUserId);
-    }
+    // private async Task GeneratePrediction()
+    // {
+    //     prediction = await PredictionService.PredictWeight28Days(currentUserId);
+    // }
 
 }

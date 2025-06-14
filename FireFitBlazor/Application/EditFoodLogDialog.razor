@@ -1,0 +1,76 @@
+﻿@using Radzen.Blazor
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+@using FireFitBlazor.Components
+@using FireFitBlazor.Domain.ContextInterfaces
+@using Radzen;
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Application.Services
+@using FireFitBlazor.Domain.ValueObjects
+@using FireFitBlazor.Domain.Enums
+@inject IFoodLogService FoodLogService
+@inject DialogService DialogService
+@using Microsoft.JSInterop;
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums;
+
+<RadzenTemplateForm Data="@editableLog" TItem="FoodLog" Submit="UpdateLog">
+    <ChildContent>
+        <RadzenCard Style="padding: 20px; width: 100%;">
+            <RadzenTextBox @bind-Value="foodName" Name="FoodName" Style="width: 100%;" Placeholder="Food name" />
+            <RadzenNumeric @bind-Value="calories" Name="Calories" Style="width: 100%;" Placeholder="Calories" />
+            <RadzenNumeric @bind-Value="proteins" Name="Proteins" Style="width: 100%;" Placeholder="Proteins" />
+            <RadzenNumeric @bind-Value="carbs" Name="Carbs" Style="width: 100%;" Placeholder="Carbs" />
+            <RadzenNumeric @bind-Value="fats" Name="Fats" Style="width: 100%;" Placeholder="Fats" />
+            <RadzenDropDown @bind-Value="mealType"
+                            Data="@mealTypes"
+                            Style="width: 100%;" />
+            <RadzenDatePicker @bind-Value="timestamp" Style="width: 100%;" />
+
+
+            <div class="mt-3 text-end">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Save" Type="Submit" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="close" Text="Cancel" Click="() => DialogService.Close(null)" />
+            </div>
+        </RadzenCard>
+    </ChildContent>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public FoodLog EditableLog { get; set; } = default!;
+    private string foodName;
+    private float calories;
+    private float proteins;
+    private float carbs;
+    private float fats;
+    private MealType? mealType;
+    private DateTime timestamp;
+    private FoodLog editableLog = default!;
+    private MealType[] mealTypes = Enum.GetValues<MealType>();
+
+    protected override void OnInitialized()
+    {
+        if (EditableLog != null)
+        {
+            foodName = EditableLog.FoodName;
+            calories = EditableLog.NutritionalInfo.Calories;
+            proteins = EditableLog.NutritionalInfo.Proteins;
+            carbs = EditableLog.NutritionalInfo.Carbs;
+            fats = EditableLog.NutritionalInfo.Fats;
+            mealType = EditableLog.MealType ?? default;
+            timestamp = EditableLog.Timestamp;
+        }
+    }
+
+    private async Task UpdateLog()
+    {
+        EditableLog.FoodName = foodName;
+        EditableLog.MealType = mealType;
+        EditableLog.Timestamp = timestamp;
+        EditableLog.NutritionalInfo = NutritionalInfo.Create(calories, proteins, carbs, fats);
+
+        await FoodLogService.UpdateFoodLogAsync(EditableLog);
+        DialogService.Close(true);
+    }
+}

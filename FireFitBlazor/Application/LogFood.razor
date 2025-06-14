@@ -1,0 +1,463 @@
+﻿@page "/log-food/"
+@page "/log-food/{mealType}"
+@using Radzen.Blazor
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+@using FireFitBlazor.Components
+@using FireFitBlazor.Domain.ContextInterfaces
+@using Radzen;
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Application.Services
+@using FireFitBlazor.Domain.ValueObjects
+@using FireFitBlazor.Domain.Enums
+@inject IFoodLogService FoodLogService
+@inject DialogService DialogService
+@using Microsoft.JSInterop;
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@inject ImageTransferService ImageTransferService
+@inject NotificationService NotificationService
+
+
+<div class="meal-selector" style="margin-bottom: 1rem;">
+
+    <div class="dropdown-container">
+        <RadzenDropDown @bind-Value="selectedMeal"
+        Data="@meals"
+        TextProperty="Name"
+        ValueProperty="Name"
+        Placeholder="Select meal type..."
+        Style="width: 200px; border: none; color: #ff6600; text-align: center; font-weight: 600;"
+        PopupStyle="text-align: center;"
+        Change="@OnMealChanged" />
+    </div>
+</div>
+
+<RadzenTextBox Style="width: 93%; margin: 1rem 1rem 1rem 1rem;"
+Placeholder="Search for a food"
+Value="@searchTerm"
+@oninput="HandleInput" />
+
+
+@if (string.IsNullOrWhiteSpace(searchTerm))
+{
+    <div class=" action-buttons-scroll">
+
+        <label class="scroll-btn orange-btn" style="position: relative;" @onclick="@(() => Navigation.NavigateTo("/barcode-scanner", true))">
+            <i class="bi bi-upc-scan large-icon"></i> 
+            <span class="small-text">Barcode <br />scan</span>
+        </label>
+
+        <label class="scroll-btn orange-btn" style="position: relative;">
+            <i class="bi bi-qr-code-scan large-icon"></i> 
+            <span class="small-text">Scan<br /> Meal</span>
+            <InputFile OnChange="OnImageSelected" accept="image/*" capture="environment"
+                       style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0;" />
+        </label>
+
+        <label class="scroll-btn orange-btn" style="position: relative;">
+            <i class="bi bi-images large-icon"></i>
+            <span class="small-text">Choose from gallery</span>
+            <InputFile OnChange="OnImageSelected" accept="image/*"
+                       style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0;" />
+        </label>
+
+        <label class="scroll-btn orange-btn" style="position: relative;" @onclick="ShowQuickAddDialog">
+            <i class="bi bi-plus-circle large-icon"></i>
+            <span class="small-text">Quick <br /> Add</span>
+        </label>
+    </div>
+    
+}
+
+
+    @if (FilteredIngredients.Any())
+    {
+        <ul class="ingredient-list">
+            @foreach (var ingredient in FilteredIngredients)
+            {
+                <li class="ingredient-item">
+                    <div class="ingredient-info">
+                        <strong>@ingredient.Name</strong><br />
+                        <small><b>@ingredient.Nutrition.Calories kcal</b>, @ingredient.Description</small>
+                        
+                    </div>
+                    <RadzenIcon Icon="add_circle" Style="color: #1E88E5; font-size: 1.5rem; cursor: pointer;" @onclick="() => AddIngredient(ingredient.Name)" />
+                </li>
+            }
+        </ul>
+    }
+    else if (!string.IsNullOrWhiteSpace(searchTerm))
+    {
+        <div style="text-align: center; color: #6c757d; margin-top: 2rem;">
+            No results found for "<strong>@searchTerm</strong>"
+        </div>
+    }
+    else
+    {
+    <div class="empty-search-container">
+        <img src="/images/fire-flame-logo-design-template-vector.png" class="logo-faded" />
+        <div class="empty-search-text">Search for an ingredient</div>
+    </div>
+    }
+
+
+<FireFitBlazor.Components.Layout.BottomNav />
+<RadzenNotification />
+
+@code {
+    [Parameter] public string? mealType { get; set; }
+    private MealType MealType { get; set; }
+  
+    private string searchTerm = "";
+    private bool isLoading = false;
+    private List<Ingredient> allIngredients = new();
+    private List<Ingredient> FilteredIngredients =>
+     string.IsNullOrWhiteSpace(searchTerm)
+         ? historyIngredients
+         : allIngredients
+             .Where(i =>
+                 i.Name.StartsWith(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+                 i.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+             .ToList();
+
+    private List<Ingredient> historyIngredients = new();
+
+    private MealType ParsedMealType => Enum.TryParse<MealType>(mealType, true, out var result)
+    ? result
+    : MealType.Breakfast;
+
+    private string? selectedMeal;
+
+    private List<MealModel> meals = new()
+    {
+        new MealModel { Name = "Breakfast", Icon = "🥣" },
+        new MealModel { Name = "Lunch", Icon = "🥗" },
+        new MealModel { Name = "Dinner", Icon = "🍛" },
+    };
+
+    public class MealModel
+    {
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "";
+    }
+
+    private async Task OnImageSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        try
+        {
+            isLoading = true;
+            StateHasChanged();
+
+            using var stream = new MemoryStream();
+            await file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024).CopyToAsync(stream);
+            var base64 = Convert.ToBase64String(stream.ToArray());
+
+            ImageTransferService.CapturedImage = $"data:{file.ContentType};base64,{base64}";
+            await Task.Delay(50);
+            Navigation.NavigateTo($"/meal-detect-demo?mealType={mealType}");
+        }
+        catch
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ShowQuickAddDialog()
+    {
+        // future: show a RadzenDialog with quick entry form
+    }
+
+    private void AddIngredient(string name)
+    {
+        if (string.IsNullOrWhiteSpace(mealType) && string.IsNullOrWhiteSpace(selectedMeal))
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Meal type required", "Please select a meal type before adding an ingredient."); 
+            return;
+        }
+
+        var ingredient = allIngredients.FirstOrDefault(i => i.Name == name);
+        if (ingredient != null && !historyIngredients.Any(i => i.Name == name))
+        {
+            historyIngredients.Insert(0, ingredient);
+            if (historyIngredients.Count > 10)
+                historyIngredients.RemoveAt(historyIngredients.Count - 1);
+        }
+
+        var meal = !string.IsNullOrWhiteSpace(mealType) ? mealType : selectedMeal?.ToLower();
+        Navigation.NavigateTo($"/ingredient-details/{ingredient.IngredientId}/{meal}");
+    }
+
+    private string Capitalize(string value)
+    {
+        return string.IsNullOrEmpty(value) ? value : char.ToUpper(value[0]) + value[1..];
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(mealType))
+        {
+
+            var normalized = char.ToUpper(mealType[0]) + mealType[1..].ToLower();
+            if (meals.Any(m => m.Name == normalized))
+            {
+                selectedMeal = normalized;
+            }
+        }
+
+        allIngredients = await FoodLogService.GetAllIngredientNames();
+    }
+
+    private void OnMealChanged(object value)
+    {
+        var newMeal = value?.ToString()?.ToLowerInvariant();
+        if (!string.IsNullOrEmpty(newMeal))
+        {
+            Navigation.NavigateTo($"/log-food/{newMeal}", forceLoad: false);
+        }
+    }
+
+    private void HandleInput(ChangeEventArgs e)
+    {
+        searchTerm = e.Value?.ToString() ?? "";
+    }
+}
+
+<style>
+    .food-log-container {
+        max-width: 500px;
+        margin: auto;
+        padding: 1rem;
+        color: white;
+    }
+
+    .empty-search, .no-results {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 150px;
+        font-size: 1rem;
+        color: #6c757d;
+        text-align: center;
+    }
+    .food-log-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .meal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+        margin-right: 20px;
+        margin-left: 20px;
+    }
+
+  @*   .action-button {
+        flex: 1 1 30%;
+        min-width: 120px;
+        font-weight: bold;
+    } *@
+
+    .ingredient-history {
+        margin-top: 2rem;
+    }
+
+    .ingredient-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .ingredient-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f8f9fa; /* Light background for mobile readability */
+        color: #212529;
+        padding: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        transition: background-color 0.2s ease;
+    }
+
+        .ingredient-item:hover {
+            background-color: #e9ecef;
+            cursor: pointer;
+        }
+
+    .ingredient-info {
+        flex-grow: 1;
+        font-size: 0.95rem;
+    }
+
+        .ingredient-info strong {
+            display: block;
+            font-size: 1.05rem;
+            color: #333;
+            margin-bottom: 0.10rem;
+        }
+
+        .ingredient-info small {
+            color: #6c757d;
+            font-size: 0.85rem;
+        }
+
+    .add-icon:hover {
+        transform: scale(1.2);
+    }
+
+    .add-icon,
+    .material-icons {
+        font-size: 1.75rem;
+        color: #007bff;
+        margin-left: 1rem;
+        flex-shrink: 0;
+        transition: transform 0.1s ease-in-out;
+    }
+
+    .dropdown-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+
+    .rz-dropdown {
+        border: none !important;
+        text-align: center;
+    }
+
+    .rz-dropdown-label {
+        justify-content: center;
+        color: #ff6600;
+    }
+
+    .rz-dropdown-item {
+        text-align: center;
+        color: #ff6600;
+    }
+
+    .action-buttons-scroll {
+        display: flex;
+        overflow-x: auto;
+        gap: 0.75rem;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+        margin-left: 20px;
+        margin-right: 20px;
+        scroll-snap-type: x mandatory;
+    }
+
+  
+
+    .rz-button.scroll-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .rz-button.scroll-btn .rz-button-text {
+            display: block;
+            margin-top: 0.3rem;
+            text-align: center;
+        }
+
+    .orange-btn {
+        background-color: #ff7043;
+        color: white;
+    }
+
+    .action-buttons-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+
+     .rz-button.scroll-btn {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 100px;
+        min-height: 100px;
+        max-width: 120px;
+        text-align: center;
+        gap: 0.4rem;
+        border-radius: 10px;
+    }
+
+    .rz-button.scroll-btn .rz-button-icon {
+        font-size: 1.4rem;
+    }
+
+    .rz-button.scroll-btn .rz-button-text {
+        display: block;
+        font-weight: 600;
+        margin-top: 0.2rem;
+        font-size: 0.9rem;
+    }
+
+    .large-icon {
+        font-size: 2rem; 
+    }
+
+    .small-text {
+        font-size: 0.75rem;
+        margin-top: 4px;
+        display: block;
+        text-align: center;
+    }
+
+    .scroll-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-width: 100px;
+        min-height: 100px;
+        padding: 8px;
+        background-color: #ff7043;
+        color: white;
+        border-radius: 12px;
+        text-align: center;
+    }
+
+        .scroll-btn:hover {
+            background-color: #f4511e;
+            cursor: pointer;
+        }
+
+    .empty-search-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 3rem;
+    }
+
+    .logo-faded {
+        width: 400px;
+        opacity: 0.10;
+    }
+
+    .empty-search-text {
+        margin-top: -20px;
+        color: dimgrey;
+        text-align: center;
+        font-size: 20px;
+    }
+</style>

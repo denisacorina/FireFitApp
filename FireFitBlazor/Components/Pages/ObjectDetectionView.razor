@@ -5,6 +5,7 @@
 @inject NavigationManager Navigation
 @using FireFitBlazor.Domain.Models
 @using Radzen.Blazor
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
 @rendermode InteractiveServer
 @inject ImageTransferService ImageTransferService
 
@@ -74,13 +75,14 @@
 </RadzenCard>
 
 @code {
+    [Parameter] public MealType MealType { get; set; }
     private string? capturedImage = null;
     private List<DetectedIngredient> detectedIngredients = new();
     private string MealName = "Lunch";
     private string MoodText = "Very Good";
     private int TotalCalories = 0;
     private string manualEntry; 
-    private List<string> allIngredients = new();
+    private List<Ingredient> allIngredients = new();
     private string mealName = string.Empty;
 
     private IHttpContextAccessor _httpContextAccessor;
@@ -164,7 +166,8 @@
                 calories: (int)(match.Nutrition.Calories * ratio),
                 proteins: match.Nutrition.Proteins * ratio,
                 carbs: match.Nutrition.Carbs * ratio,
-                fats: match.Nutrition.Fats * ratio
+                fats: match.Nutrition.Fats * ratio,
+                mealType: MealType
             );
 
             await FoodLogService.SaveFoodLogAsync(log);

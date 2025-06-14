@@ -8,6 +8,7 @@ using FireFitBlazor.Domain.Models;
         Task<BodyMeasurement> Execute(Guid id);
         Task<IEnumerable<BodyMeasurement>> GetUserMeasurements(string userId);
         Task<bool> AddMeasurement(BodyMeasurement measurement);
-        Task<bool> UpdateMeasurement(BodyMeasurement measurement);
-        Task<bool> DeleteMeasurement(Guid id);
+    Task<IEnumerable<BodyMeasurement>> GetByUserIdAsync(string userId);
+        //Task<bool> UpdateMeasurement(BodyMeasurement measurement);
+        //Task<bool> DeleteMeasurement(Guid id);
     }

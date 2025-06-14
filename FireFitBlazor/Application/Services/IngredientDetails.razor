@@ -1,4 +1,4 @@
-﻿@page "/ingredient-details/{Name}"
+﻿@page "/ingredient-details/{IngredientId:guid}/{mealType}"
 @inject IFoodLogService FoodLogService
 @inject NavigationManager Navigation
 @using FireFitBlazor.Domain.Models
@@ -6,72 +6,216 @@
 @using Radzen.Blazor
 @using Microsoft.JSInterop;
 @using Microsoft.AspNetCore.Components.Forms;
-@rendermode RenderMode.InteractiveServer
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@inject NavigationManager Navigation
 
-<h2>@ingredient?.Name</h2>
-@if (ingredient != null)
-{
-    <div class="ingredient-macros">
-        <div><b>Protein:</b> @ingredient.Nutrition.Proteins g</div>
-        <div><b>Fats:</b> @ingredient.Nutrition.Fats g</div>
-        <div><b>Carbs:</b> @ingredient.Nutrition.Carbs g</div>
-        <div><b>Calories:</b> @ingredient.Nutrition.Calories</div>
-    </div>
-    <div>
-        <label>Quantity (g):</label>
-        <input type="number" min="1" max="1000" @bind="quantity" />
-    </div>
-    <button @onclick="LogIngredient">Log Ingredient</button>
-}
-else
-{
-    <p>Loading...</p>
-}
+@rendermode RenderMode.InteractiveServer
+@using FireFitBlazor.Components
+@using FireFitBlazor.Domain.ContextInterfaces
+@using Radzen;
+
+<RadzenButton Icon="chevron_left" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small"
+Style="cursor: pointer; font-size: 1.5rem; margin-left: 20px;"
+              Click="@(() => Navigation.NavigateTo($"/log-food/{mealType}", true))" />
+<div class="ingredient-container">
+    <h2 class="ingredient-title">@ingredient?.Name</h2>
+
+    @if (ingredient != null)
+    {
+        <div class="ingredient-macros">
+            <div class="calories-highlight">
+                <span>@(Math.Round(ingredient.Nutrition.Calories * quantity / 100, 2))</span>
+                <small>kcal</small>
+            </div>
+            <div class="macronutrients">
+                <div><b>Protein</b><br />@(Math.Round(ingredient.Nutrition.Proteins * quantity / 100, 2)) g</div>
+                <div><b>Carbs</b><br />@(Math.Round(ingredient.Nutrition.Carbs * quantity / 100, 2)) g</div>
+                <div><b>Fats</b><br />@(Math.Round(ingredient.Nutrition.Fats * quantity / 100, 2)) g</div>
+            </div>
+        </div>
+        <div class="quantity-input">
+            <label>Quantity (g):</label>
+            <input type="number" step="0.01" min="1" max="1000"
+            @bind-value="quantity"
+            @bind-value:event="oninput"
+            class="quantity-box" />
+        </div>
+        <button class="log-button" @onclick="SaveAsMeal">Log Ingredient</button>
+    }
+    else
+    {
+        <p>Loading...</p>
+    }
+</div>
+
+<FireFitBlazor.Components.Layout.BottomNav />
 
 @code {
-    [Parameter] public string Name { get; set; }
+    [Parameter] public Guid IngredientId { get; set; }
+    [Parameter] public string mealType { get; set; }
+    private MealType MealType { get; set; }
     private Ingredient ingredient;
-    private decimal quantity = 100;
+    private float quantity = 100;
+
+    private User? currentUser;
+    private IHttpContextAccessor _httpContextAccessor;
+    [Inject]
+    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
-        var details = await FoodLogService.GetIngredientDetails(new List<string> { Name });
-        ingredient = details.FirstOrDefault();
+
+        var http = HttpClientFactory.CreateClient("ServerAPI");
+        var response = await http.GetAsync("/api/customauth/me");
+        if (!response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        currentUser = await response.Content.ReadFromJsonAsync<User>();
+        if (currentUser == null)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
+        var details = await FoodLogService.GetIngredientDetails(IngredientId);
+        ingredient = details;
     }
 
-    private async Task LogIngredient()
+
+
+    private async Task SaveAsMeal()
     {
-        // Implement your logging logic here
-        // e.g., call FoodLogService.SaveFoodLogAsync(...)
-        Navigation.NavigateTo("/daily-food-log");
+        if (mealType == "breakfast")
+            MealType = MealType.Breakfast;
+        if (mealType == "lunch")
+            MealType = MealType.Lunch;
+        if (mealType == "dinner")
+            MealType = MealType.Dinner;
+
+        var log = FoodLog.Create(
+        userId: currentUser.UserId,
+        foodName: ingredient.Name,
+        calories: (int)(ingredient.Nutrition.Calories * (double)quantity / 100),
+        proteins: (float)(ingredient.Nutrition.Proteins * (double)quantity / 100),
+        carbs: (float)(ingredient.Nutrition.Carbs * (double)quantity / 100),
+        fats: (float)(ingredient.Nutrition.Fats * (double)quantity / 100),
+        mealType: MealType
+        );
+
+        await FoodLogService.SaveFoodLogAsync(log);
+
+        Navigation.NavigateTo("/daily-log", true);
+    }
+
+    protected override void OnParametersSet()
+    {
+        MealType = mealType?.ToLower() switch
+        {
+            "breakfast" => MealType.Breakfast,
+            "lunch" => MealType.Lunch,
+            "dinner" => MealType.Dinner,
+            _ => MealType.Breakfast 
+        };
     }
 }
+
 <style>
+    .ingredient-container {
+        max-width: 500px;
+        margin: auto;
+        padding: 1rem;
+        color: #2c3e50;
+        font-family: 'Segoe UI', sans-serif;
+    }
+
+    .ingredient-title {
+        font-size: 1.75rem;
+        font-weight: 500;
+        margin-bottom: 1.5rem;
+        text-align: left;
+    }
+
     .ingredient-macros {
-        margin: 1.5em 0;
-        font-size: 1.1em;
-        background: #fff7f0;
-        border-radius: 12px;
-        padding: 1em;
+        background: #f9f9f9;
+        padding: 1.25rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        margin-bottom: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
-    input[type="number"] {
-        width: 80px;
-        padding: 0.5em;
-        border-radius: 8px;
-        border: 1.5px solid #ffe0b2;
-        margin-left: 1em;
+    .calories-highlight {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: baseline;
+        gap: 0.25rem;
     }
 
-    button {
-        margin-top: 1.5em;
-        background: #ff5722;
-        color: #fff;
-        border: none;
-        border-radius: 12px;
-        padding: 0.8em 2em;
-        font-size: 1.1em;
+    .macronutrients {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        text-align: center;
+        font-size: 0.95rem;
+    }
+
+        .macronutrients > div {
+            flex: 1;
+        }
+
+    .quantity-input {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1.5rem;
+    }
+
+    .quantity-box {
+        padding: 0.6rem;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        margin-top: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .log-button {
+        width: 100%;
+        padding: 0.9rem;
+        background-color: #1E88E5;
+        color: white;
         font-weight: 600;
+        border: none;
+        border-radius: 10px;
         cursor: pointer;
+        font-size: 1.1rem;
+        transition: background-color 0.3s;
+    }
+
+        .log-button:hover {
+            background-color: #1565C0;
+        }
+
+    @@media (max-width: 600px) {
+        .ingredient-title {
+            font-size: 1.5rem;
+        }
+
+        .ingredient-container {
+            padding: 0.75rem;
+        }
+
+        .ingredient-macros {
+            font-size: 0.95rem;
+        }
+
+        .log-button {
+            font-size: 1rem;
+        }
     }
 </style>
