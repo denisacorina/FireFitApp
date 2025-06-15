@@ -18,21 +18,42 @@
 <RadzenTemplateForm Data="@editableLog" TItem="FoodLog" Submit="UpdateLog">
     <ChildContent>
         <RadzenCard Style="padding: 20px; width: 100%;">
-            <RadzenTextBox @bind-Value="foodName" Name="FoodName" Style="width: 100%;" Placeholder="Food name" />
-            <RadzenNumeric @bind-Value="calories" Name="Calories" Style="width: 100%;" Placeholder="Calories" />
-            <RadzenNumeric @bind-Value="proteins" Name="Proteins" Style="width: 100%;" Placeholder="Proteins" />
-            <RadzenNumeric @bind-Value="carbs" Name="Carbs" Style="width: 100%;" Placeholder="Carbs" />
-            <RadzenNumeric @bind-Value="fats" Name="Fats" Style="width: 100%;" Placeholder="Fats" />
-            <RadzenDropDown @bind-Value="mealType"
-                            Data="@mealTypes"
-                            Style="width: 100%;" />
-            <RadzenDatePicker @bind-Value="timestamp" Style="width: 100%;" />
+            <RadzenStack Gap="1rem">
+                <RadzenFormField Text="Food Name" Variant="Variant.Filled">
+                    <RadzenTextBox @bind-Value="foodName" Name="FoodName" Style="width: 100%;" Placeholder="Food name" />
+                </RadzenFormField>
 
+                <RadzenFormField Text="Calories" Variant="Variant.Filled">
+                    <RadzenNumeric @bind-Value="calories" Name="Calories" Style="width: 100%;" Placeholder="Calories" />
+                </RadzenFormField>
 
-            <div class="mt-3 text-end">
-                <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Save" Type="Submit" />
-                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="close" Text="Cancel" Click="() => DialogService.Close(null)" />
-            </div>
+                <RadzenFormField Text="Proteins (g)" Variant="Variant.Filled">
+                    <RadzenNumeric @bind-Value="proteins" Name="Proteins" Style="width: 100%;" Placeholder="Proteins" />
+                </RadzenFormField>
+
+                <RadzenFormField Text="Carbs (g)" Variant="Variant.Filled">
+                    <RadzenNumeric @bind-Value="carbs" Name="Carbs" Style="width: 100%;" Placeholder="Carbs" />
+                </RadzenFormField>
+
+                <RadzenFormField Text="Fats (g)" Variant="Variant.Filled">
+                    <RadzenNumeric @bind-Value="fats" Name="Fats" Style="width: 100%;" Placeholder="Fats" />
+                </RadzenFormField>
+
+                <RadzenFormField Text="Meal Type" Variant="Variant.Filled">
+                    <RadzenDropDown @bind-Value="mealType"
+                                    Data="@mealTypes"
+                                    Style="width: 100%;" />
+                </RadzenFormField>
+
+                <RadzenFormField Text="Date & Time" Variant="Variant.Filled">
+                    <RadzenDatePicker @bind-Value="timestamp" Style="width: 100%;" />
+                </RadzenFormField>
+
+                <div class="mt-3 text-end">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="save" Text="Save" Type="Submit" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="close" Text="Cancel" Click="() => DialogService.Close(null)" />
+                </div>
+            </RadzenStack>
         </RadzenCard>
     </ChildContent>
 </RadzenTemplateForm>

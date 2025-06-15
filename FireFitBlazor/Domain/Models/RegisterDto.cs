@@ -57,5 +57,9 @@ namespace FireFitBlazor.Domain.Models
         [Required]
         [Range(1000, 6000, ErrorMessage = "Daily Calorie Goal must be between 1000 and 6000 kcal")]
         public int DailyCalorieGoal { get; set; } = new();
+
+        public float ProteinGoal { get; set; }
+        public float CarbsGoal { get; set; }
+        public float FatsGoal { get; set; }
     }
 } 

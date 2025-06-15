@@ -1,4 +1,5 @@
 using FireFitBlazor.Domain.Models;
+using FireFitBlazor.Domain.ValueObjects;
 
 namespace FireFitBlazor.Domain.ContextInterfaces
 {
@@ -11,5 +12,6 @@ namespace FireFitBlazor.Domain.ContextInterfaces
         Task<bool> DeleteGoalAsync(Guid goalId);
         Task<Goal> MarkGoalAsCompletedAsync(Guid goalId);
         Task<Goal> ReactivateGoalAsync(Guid goalId);
+        Task<NutritionalInfo> GetUserMacroGoalsAsync(string userId);
     }
 } 

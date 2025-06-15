@@ -1,0 +1,28 @@
+@using Radzen
+@inject DialogService DialogService
+@using Radzen.Blazor
+@inject NavigationManager Navigation
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+
+@using FireFitBlazor.Components
+
+<div class="weight-input-dialog">
+    <h3>Enter your new weight</h3>
+    <RadzenNumeric @bind-Value="Weight" Min="30" Max="300" Step="0.1" Style="width:100%;" />
+    <div class="dialog-buttons" style="margin-top:1rem;">
+        <RadzenButton Text="Cancel" Click="() => DialogService.Close(null)" ButtonStyle="ButtonStyle.Light" />
+        <RadzenButton Text="Save" Click="Save" ButtonStyle="ButtonStyle.Primary" />
+    </div>
+</div>
+
+@code {
+    [Parameter] public decimal? Weight { get; set; }
+
+    private void Save()
+    {
+        if (Weight.HasValue && Weight.Value > 0)
+            DialogService.Close(Weight.Value);
+    }
+} 

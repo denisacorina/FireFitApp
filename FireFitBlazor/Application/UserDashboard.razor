@@ -11,7 +11,9 @@
 @inject IFoodLogService FoodLogService
 @inject IUserProgressContext UserProgressContext
 @inject IBodyMeasurementContext BodyMeasurementContext
+@inject WeightPredictionService WeightPredictionService
 @inject NavigationManager Navigation
+@inject NotificationService NotificationService
 @using FireFitBlazor.Components
 @using Radzen;
 @inject DialogService DialogService
@@ -79,7 +81,7 @@
 </div>
 
 <RadzenDialog></RadzenDialog>
-
+<RadzenNotification></RadzenNotification>
 <FireFitBlazor.Components.Layout.BottomNav></FireFitBlazor.Components.Layout.BottomNav>
 
 @code {
@@ -102,6 +104,8 @@
     private List<FoodLog> todaysFoodLogs = new();
     private List<WeightLog> allWeightLogs = new();
     private User? currentUser;
+
+    private bool _weightCheckDialogShown = false;
 
     [Inject]
     public IHttpClientFactory HttpClientFactory { get; set; } = default!;
@@ -129,21 +133,17 @@
         }
 
         await LoadTodaysCalories();
-
         await LoadUserWeightProgress();
 
         var weights = allWeightLogs
            .Select(w => (double)w.Weight)
-
            .ToList();
 
         var dates = allWeightLogs
             .Select(w => w.Date.ToString("dd MMM"))
             .ToList();
 
-
         await LoadDashboardData();
-
         StateHasChanged();
     }
 
@@ -210,6 +210,13 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await lineChart.InitializeAsync(chartData, lineChartOptions);
+
+        var lastWeightLog = allWeightLogs.OrderByDescending(w => w.Date).FirstOrDefault();
+        if (lastWeightLog != null && lastWeightLog.Date < DateOnly.FromDateTime(DateTime.Today) && !_weightCheckDialogShown)
+        {
+            _weightCheckDialogShown = true;
+            await ShowWeightCheckDialog();
+        }
     }
 
     private async Task LoadTodaysCalories()
@@ -258,8 +265,8 @@
         allWeightLogs.AddRange(measurementWeightLogs);
 
         allWeightLogs = allWeightLogs
-    .OrderBy(w => w.Date)
-    .ToList();
+        .OrderBy(w => w.Date)
+        .ToList();
 
     }
 
@@ -274,6 +281,14 @@
 
     private async Task ShowPredictionDialog()
     {
+        var userData = await WeightPredictionService.GetUserDailyData(currentUser.UserId);
+        if (userData.Length < 7)
+        {
+           NotificationService.Notify(NotificationSeverity.Warning, "Insufficient Data", "You need at least 7 days of tracked data to generate a weight prediction.");
+           // await DialogService.Alert("Not enough data", "You need at least 7 days of tracked data to generate a weight prediction.");
+            return;
+        }
+
         await DialogService.OpenAsync<WeightPrediction>(
             "28-Day Prediction Weight Change",
             new Dictionary<string, object>
@@ -282,6 +297,53 @@
                     },
             new DialogOptions { Width = "700px", CloseDialogOnOverlayClick = true, ShowClose = true }
         );
+    }
+
+    private async Task ShowWeightCheckDialog()
+    {
+        var result = await DialogService.Confirm(
+            "Has your weight changed since yesterday?",
+            "Weight Check",
+            new ConfirmOptions { OkButtonText = "Yes", CancelButtonText = "No" }
+        );
+        if (result == true)
+        {
+            await ShowWeightInputDialog();
+        }
+        else
+        {
+            var lastWeightLog = allWeightLogs.OrderByDescending(w => w.Date).FirstOrDefault();
+            if (lastWeightLog != null)
+            {
+                var measurement = BodyMeasurement.Create(
+                    userId: currentUser.UserId,
+                    weight: lastWeightLog.Weight
+                );
+                await BodyMeasurementContext.AddMeasurement(measurement);
+                await LoadUserWeightProgress();
+                await LoadDashboardData();
+            }
+        }
+    }
+
+    private async Task ShowWeightInputDialog()
+    {
+        var result = await DialogService.OpenAsync<WeightInputDialog>(
+            "New Weight",
+            new Dictionary<string, object>(),
+            new DialogOptions { Width = "400px", CloseDialogOnOverlayClick = true }
+        );
+
+        if (result is decimal inputWeight && inputWeight > 0)
+        {
+            var measurement = BodyMeasurement.Create(
+                userId: currentUser.UserId,
+                weight: inputWeight
+            );
+            await BodyMeasurementContext.AddMeasurement(measurement);
+            await LoadUserWeightProgress();
+            await LoadDashboardData();
+        }
     }
 
     public class WeightLog
@@ -437,5 +499,18 @@
             justify-content: space-between;
             max-width: 300px;
         }
+    }
+
+    .weight-check-dialog,
+    .weight-input-dialog {
+        padding: 1rem;
+        text-align: center;
+    }
+
+    .dialog-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
     }
 </style>

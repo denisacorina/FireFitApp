@@ -12,6 +12,8 @@ using FireFitBlazor.Domain.ValueObjects;
 using FireFitBlazor.Application.Controllers;
 using FireFitBlazor.Domain.Models;
 using System.Net.Http;
+using FireFitBlazor.Application.Services;
+using FireFitBlazor.Domain.Enums;
 
 namespace FireFitBlazor.Application
 {
@@ -34,15 +36,18 @@ namespace FireFitBlazor.Application
         [Inject]
         public IHttpClientFactory HttpClientFactory { get; set; } = default!;
 
+        [Inject]
+        private IGoalService GoalService { get; set; } = default!;
+
         public UserRegistrationModel FormModel { get; set; } = new();
 
         public string Message = "";
         public bool IsError = false;
         public bool IsLoading = false;
         public int CurrentStep = 1;
-        public int ProteinGrams => (int)(0.3 * DailyCalories / 4);
-        public int CarbsGrams => (int)(0.4 * DailyCalories / 4);
-        public int FatsGrams => (int)(0.3 * DailyCalories / 9);
+        public int ProteinGrams => CalculateProteinGoal();
+        public int CarbsGrams => (int)((DailyCalories - (ProteinGrams * 4) - (FatsGrams * 9)) / 4); 
+        public int FatsGrams => (int)((DailyCalories * 0.3) / 9); 
         public IEnumerable<object> GoalIntensityOptions =>
     Enum.GetValues<GoalIntensity>()
         .Cast<GoalIntensity>()
@@ -100,20 +105,17 @@ namespace FireFitBlazor.Application
 
         public void OnGenderChange(object value)
         {
-            // Handle the change when gender selection changes
             FormModel.Gender = (Gender)value;
             Console.WriteLine($"Gender selected: {FormModel.Gender}");
         }
 
         public void OnActivityLevelChange(object value)
         {
-            // Handle the change when activity level selection changes
             FormModel.ActivityLevel = (ActivityLevel)value;
             Console.WriteLine($"Activity Level selected: {FormModel.ActivityLevel}");
         }
         public void OnWeightChangeTypeChange(object value)
         {
-            // Handle the change when activity level selection changes
             FormModel.WeightGoal = (WeightChangeType)value;
             Console.WriteLine($"Weight Goal selected: {FormModel.WeightGoal}");
         }
@@ -143,18 +145,6 @@ namespace FireFitBlazor.Application
                 ? 10 * (double)FormModel.CurrentWeight + 6.25 * FormModel.Height - 5 * FormModel.Age + 5
                 : 10 * (double)FormModel.CurrentWeight + 6.25 * FormModel.Height - 5 * FormModel.Age - 161;
         }
-
-
-
-        //public int EstimatedWeeks
-        //{
-        //    get
-        //    {
-        //        var diff = Math.Abs(FormModel.CurrentWeight - FormModel.TargetWeight);
-        //        var rate = GetWeeklyRate();
-        //        return rate > 0 ? (int)Math.Ceiling((double)diff / rate) : 0;
-        //    }
-        //}
 
         public int EstimatedWeeks
         {
@@ -332,17 +322,48 @@ namespace FireFitBlazor.Application
                     WeightGoal = FormModel.WeightGoal,
                     DietaryPreferences = FormModel.SelectedDietary,
                     WorkoutTypes = FormModel.SelectedWorkoutTypes,
-                    DailyCalorieGoal = DailyCalories
+                    DailyCalorieGoal = DailyCalories,
+                    ProteinGoal = ProteinGrams,
+                    CarbsGoal = CarbsGrams,
+                    FatsGoal = FatsGrams
                 };
                 var http = HttpClientFactory.CreateClient("ServerAPI");
 
                 var response = await http.PostAsJsonAsync("/api/customauth/register", dto);
-                //var response = await Http.PostAsJsonAsync("/api/customauth/register", dto);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    Message = "Registration successful. Redirecting to login...";
-                    NavigationManager.NavigateTo("/login", forceLoad: true);
+                    // Get the created user's ID from the response
+                    var user = await response.Content.ReadFromJsonAsync<User>();
+                    if (user != null)
+                    {
+                        // Create initial goal
+                        var goalType = FormModel.WeightGoal switch
+                        {
+                            WeightChangeType.Lose => GoalType.WeightLoss,
+                            WeightChangeType.Gain => GoalType.WeightGain,
+                            _ => GoalType.Maintenance
+                        };
+
+                        // Calculate target date (e.g., 12 weeks from now)
+                        var targetDate = DateTime.UtcNow.AddDays(EstimatedWeeks * 7);
+
+                        await GoalService.CreateGoalAsync(
+                            userId: user.UserId,
+                            type: goalType,
+                            calorieGoal: DailyCalories,
+                            proteinGoal: ProteinGrams,
+                            carbGoal: CarbsGrams,
+                            fatGoal: FatsGrams,
+                            intermittentFasting: false, 
+                            fastingWindow: 0,
+                            targetWeight: FormModel.TargetWeight,
+                            targetDate: targetDate
+                        );
+
+                        Message = "Registration successful. Redirecting to login...";
+                        NavigationManager.NavigateTo("/login", forceLoad: true);
+                    }
                 }
                 else
                 {
@@ -350,7 +371,6 @@ namespace FireFitBlazor.Application
                     IsError = true;
                     Message = $"Registration failed: {error}";
                 }
-
             }
             catch (Exception ex)
             {
@@ -437,6 +457,33 @@ namespace FireFitBlazor.Application
                     WorkoutTypes[workoutType] = false;
                 }
             }
+        }
+
+        private int CalculateProteinGoal()
+        {
+            // Base protein calculation: 1.6g per kg of bodyweight for general fitness
+            double baseProtein = (double)FormModel.CurrentWeight * 1.6;
+
+            double activityMultiplier = FormModel.ActivityLevel switch
+            {
+                ActivityLevel.Sedentary => 1.0,
+                ActivityLevel.Light => 1.1,
+                ActivityLevel.Moderate => 1.2,
+                ActivityLevel.Active => 1.3,
+                ActivityLevel.VeryActive => 1.4,
+                _ => 1.0
+            };
+
+            double goalMultiplier = FormModel.WeightGoal switch
+            {
+                WeightChangeType.Lose => 1.2, // Higher protein for weight loss to preserve muscle
+                WeightChangeType.Gain => 1.3, // Higher protein for muscle gain
+                _ => 1.0 // Maintenance
+            };
+
+            double finalProtein = baseProtein * activityMultiplier * goalMultiplier;
+
+            return Math.Max((int)Math.Round(finalProtein), 50);
         }
     }
 }

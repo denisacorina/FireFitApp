@@ -1,0 +1,293 @@
+﻿@using FireFitBlazor.Application.Services
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Domain.Enums
+@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
+@inject OpenFoodFactsService OpenFoodFactsService
+@inject IFoodLogService FoodLogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+<div class="barcode-scanner">
+    @* <div class="camera-upload">
+        <label class="upload-btn">
+            <span>Scan Barcode</span>
+        </label>
+    </div>
+    <div id="interactive" class="viewport"></div>
+
+    @if (errorMessage != null)
+    {
+        <div class="alert alert-danger mt-2">
+            @errorMessage
+        </div>
+    } *@
+    @if (ScannedProduct == null)
+    {
+        <div class="barcode-manual">
+            <video id="cameraPreview" autoplay playsinline style="width: 100%; border-radius: 8px;"></video>
+            <button class="btn btn-primary mt-2" @onclick="CaptureBarcode">📸 Capture Barcode</button>
+        </div>
+    }
+</div>
+
+@if (ScannedProduct != null)
+{
+    <div class="product-info mt-3">
+        <h3>@ScannedProduct.Product_name</h3>
+        <p>Brand: @ScannedProduct.Brands</p>
+        <p>Quantity: @ScannedProduct.Quantity</p>
+
+        @if (ScannedProduct?.Nutriments != null)
+        {
+            <div class="nutrition-info">
+                <h4>Nutrition Facts (for @ConsumedQuantityInGrams g)</h4>
+                <p>Energy: @Math.Round(AdjustedKcal, 2) kcal</p>
+                <p>Proteins: @Math.Round(AdjustedProteins, 2) g</p>
+                <p>Carbs: @Math.Round(AdjustedCarbs, 2) g</p>
+                <p>Fats: @Math.Round(AdjustedFats, 2) g</p>
+            </div>
+        }
+
+        <div class="form-group mt-2">
+            <label for="gramsInput">Quantity consumed (grams):</label>
+            <input id="quantityInput" type="number" class="form-control"
+                   @bind="ConsumedQuantityInGrams"
+                   @bind:event="oninput"
+                   min="1" step="1" />
+        </div>
+
+        <div class="mt-3">
+            <button class="btn btn-success" @onclick="AddToFoodLog">Add to Food Log</button>
+        </div>
+    </div>
+}
+
+<button class="btn btn-secondary mt-2" @onclick="RestartScanner">Scan Another</button>
+
+@code {
+    [Parameter]
+    public string? UserId { get; set; }
+
+    [Parameter]
+    public MealType? MealType { get; set; }
+
+    private FoodProduct? ScannedProduct { get; set; }
+    private float ConsumedQuantityInGrams { get; set; } = 100;
+    private string? errorMessage;
+
+    private float AdjustedKcal => (ScannedProduct?.Nutriments?.Energy_kcal_100g ?? 0) * ConsumedQuantityInGrams / 100;
+    private float AdjustedProteins => (ScannedProduct?.Nutriments?.Proteins_100g ?? 0) * ConsumedQuantityInGrams / 100;
+    private float AdjustedCarbs => (ScannedProduct?.Nutriments?.Carbohydrates_100g ?? 0) * ConsumedQuantityInGrams / 100;
+    private float AdjustedFats => (ScannedProduct?.Nutriments?.Fat_100g ?? 0) * ConsumedQuantityInGrams / 100;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            //await JS.InvokeVoidAsync("barcodeScanner.init", DotNetObjectReference.Create(this));
+            //await JS.InvokeVoidAsync("barcodeScanner.captureOnce", DotNetObjectReference.Create(this));
+            await JS.InvokeVoidAsync("barcodeScannerManual.startCamera", DotNetObjectReference.Create(this));
+        }
+    }
+
+    [JSInvokable]
+    private async Task CaptureBarcode()
+    {
+        await JS.InvokeVoidAsync("barcodeScannerManual.captureBarcode");
+    }
+
+    [JSInvokable]
+    public async Task OnBarcodeDetected(string barcode)
+    {
+        try
+        {
+            ScannedProduct = await OpenFoodFactsService.GetProductByBarcodeAsync(barcode);
+
+            if (ScannedProduct == null)
+            {
+                errorMessage = $"No product found for barcode: {barcode}";
+            }
+
+            // var quantityMatch = System.Text.RegularExpressions.Regex.Match(ScannedProduct.Quantity ?? "", @"(\d+)");
+            // if (quantityMatch.Success)
+            // {
+            //     ConsumedQuantityInGrams = float.Parse(quantityMatch.Value);
+            // }
+            // else
+            // {
+                ConsumedQuantityInGrams = 100;
+            //}
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = "Error processing barcode: " + ex.Message;
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable]
+    private async Task RestartScanner()
+    {
+        ScannedProduct = null;
+        errorMessage = null;
+
+        await JS.InvokeVoidAsync("barcodeScannerManual.stop");
+        await JS.InvokeVoidAsync("barcodeScannerManual.startCamera", DotNetObjectReference.Create(this));
+    }
+
+    [JSInvokable]
+    public Task OnScannerError(string error)
+    {
+        errorMessage = "Camera error: " + error;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task AddToFoodLog()
+    {
+        if (ScannedProduct == null || string.IsNullOrEmpty(UserId) || MealType == null)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", "Missing required information");
+            return;
+        }
+
+        try
+        {
+            var kcal100 = ScannedProduct.Nutriments?.Energy_kcal_100g ?? 0;
+            var protein100 = ScannedProduct.Nutriments?.Proteins_100g ?? 0;
+            var carb100 = ScannedProduct.Nutriments?.Carbohydrates_100g ?? 0;
+            var fat100 = ScannedProduct.Nutriments?.Fat_100g ?? 0;
+
+            var log = FoodLog.Create(
+                 userId: UserId,
+                 foodName: ScannedProduct.Product_name,
+                 calories: (int)AdjustedKcal,
+                 proteins: AdjustedProteins,
+                 carbs: AdjustedCarbs,
+                 fats: AdjustedFats,
+                 mealType: MealType.Value
+                 );
+
+            await FoodLogService.SaveFoodLogAsync(log);
+            NotificationService.Notify(NotificationSeverity.Success, "Success", "Food added to log");
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to add food to log: " + ex.Message);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (JS is not null)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("barcodeScannerManual.stop");
+            }
+            catch (JSDisconnectedException)
+            {
+                // Circuit already disposed, ignore
+            }
+        }
+    }
+}
+
+<style>
+    .barcode-scanner {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .camera-upload {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .upload-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        background: #7ED957;
+        color: #fff;
+        border-radius: 18px;
+        padding: 0.7em 2em;
+        font-size: 1.1em;
+        font-weight: 600;
+    }
+
+    .scanned-image {
+        width: 100%;
+        margin: 1rem 0;
+    }
+
+        .scanned-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+    .product-info {
+        padding: 1rem;
+        background-color: #f8f9fa;
+        border-radius: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .nutrition-info {
+        margin-top: 1rem;
+        padding: 1rem;
+        background-color: #fff;
+        border-radius: 0.25rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+        max-width: 200px;
+        height: auto;
+        margin-top: 1rem;
+        border-radius: 0.25rem;
+    }
+
+    .alert {
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 1rem;
+        border: 1px solid transparent;
+        border-radius: 0.25rem;
+    }
+
+    .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+    }
+
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        margin-top: 1rem;
+        width: 100%;
+    }
+
+    .btn-success {
+        color: #fff;
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+</style>

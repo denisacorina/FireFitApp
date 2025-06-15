@@ -6,56 +6,57 @@
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
 @rendermode InteractiveServer
 
-<div class="login-mobile-bg">
+<div class="login-page">
     <div style="margin-bottom: -150px!important;">
-    <img src="/images/fire-flame-logo-design-template-vector.png"
+        <img src="/images/fire-flame-logo-design-template-vector.png"
              style="width: 200px; height: 200px; display: block; margin-left: auto; margin-right: auto;  margin-top: auto;  margin-bottom: -30px;" />
         <h2 style="color: #db5e16; text-align: center;">FireFit</h2>
     </div>
-<div  class="login-container">
-    <RadzenCard Class="login-card" Style="margin-top: -150px!important;">
-        <div class="login-header">
-            <h1>Welcome Back</h1>
-            <p>Sign in to continue to FireFit</p>
-        </div>
-
-        <RadzenTemplateForm Data="@UserLogin" Submit="@HandleValidSubmit" TItem="LoginModel">
-            <div class="form-group">
-                <RadzenLabel Text="Email" Component="Email" />
-                <RadzenTextBox @bind-Value="@UserLogin.Email" Name="Email" Style="width: 100%" />
-                <RadzenRequiredValidator Component="Email" Text="Email is required" />
-                <RadzenEmailValidator Component="Email" Text="Invalid email address" />
+    <div class="login-container">
+        <RadzenCard Class="login-card" Style="margin-top: -150px!important;">
+            <div class="login-header">
+                <h1>Welcome Back</h1>
+                <p>Sign in to continue to FireFit</p>
             </div>
 
-            <div class="form-group">
-                <RadzenLabel Text="Password" Component="Password" />
-                <RadzenPassword @bind-Value="@UserLogin.Password" Name="Password" Style="width: 100%" />
-                <RadzenRequiredValidator Component="Password" Text="Password is required" />
-            </div>
-
-            @if (!string.IsNullOrEmpty(Message))
-            {
-                <div class="alert @(IsError ? "alert-danger" : "alert-success")">
-                    @Message
+            <RadzenTemplateForm Data="@UserLogin" Submit="@HandleValidSubmit" TItem="LoginModel">
+                <div class="form-group">
+                    <RadzenLabel Text="Email" Component="Email" />
+                    <RadzenTextBox @bind-Value="@UserLogin.Email" Name="Email" Style="width: 100%" />
+                    <RadzenRequiredValidator Component="Email" Text="Email is required" />
+                    <RadzenEmailValidator Component="Email" Text="Invalid email address" />
                 </div>
-            }
 
-            <div class="form-group">
-                <RadzenButton ButtonType="ButtonType.Submit" Text="Sign In" ButtonStyle="ButtonStyle.Primary" 
-                            Disabled="@IsLoading" Style="width: 100%">Login
-                    @if (IsLoading)
-                    {
-                        <RadzenIcon Icon="refresh" Class="spin" />
-                    }
-                </RadzenButton>
-            </div>
-        </RadzenTemplateForm>
-    </RadzenCard>
-</div>
+                <div class="form-group">
+                    <RadzenLabel Text="Password" Component="Password" />
+                    <RadzenPassword @bind-Value="@UserLogin.Password" Name="Password" Style="width: 100%" />
+                    <RadzenRequiredValidator Component="Password" Text="Password is required" />
+                </div>
+
+                @if (!string.IsNullOrEmpty(Message))
+                {
+                    <div class="alert @(IsError ? "alert-danger" : "alert-success")">
+                        @Message
+                    </div>
+                }
+
+                <div class="form-group">
+                    <RadzenButton ButtonType="ButtonType.Submit" Text="Sign In" ButtonStyle="ButtonStyle.Primary"
+                                  Disabled="@IsLoading" Style="width: 100%">
+                        Login
+                        @if (IsLoading)
+                        {
+                            <RadzenIcon Icon="refresh" Class="spin" />
+                        }
+                    </RadzenButton>
+                </div>
+            </RadzenTemplateForm>
+        </RadzenCard>
+    </div>
 </div>
 
 <style>
-    
+
     .login-container {
         display: flex;
         justify-content: center;
@@ -74,21 +75,21 @@
     html, body {
         overflow: hidden !important;
     }
+
     .login-header {
         text-align: center;
         margin-bottom: 2rem;
-        
     }
 
-    .login-header h1 {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+        .login-header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
             color: #000;
-    }
+        }
 
-    .login-header p {
+        .login-header p {
             color: #000;
-    }
+        }
 
     .form-group {
         margin-bottom: 1rem;
@@ -115,22 +116,21 @@
     .spin {
         animation: spin 1s linear infinite;
     }
-    
+
     @@keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
     }
 
-   /*  @@media only screen and (max-width: 768px) {
-     .login-mobile-bg {
-        background-image: url('/images/login_bg.jpg')!important;
-        background-repeat: no-repeat;
-        background-size: contain;
-        background-position: bottom;
-        background-attachment: fixed;
-        min-height: 100vh;
-        }
-    } */
-}
+    .login-page {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
 </style>
 

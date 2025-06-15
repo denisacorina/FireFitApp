@@ -629,30 +629,26 @@ public class WeightPredictionService
 
     public async Task<DailyData[]> GetUserDailyData(string userId)
     {
+        // Get all weight logs for the last 60 days
+        var endDate = DateTime.Today;
+        var startDate = endDate.AddDays(-60);
+        
         var weightLogs = await _context.BodyMeasurements
-            .Where(w => w.UserId == userId)
-            .OrderBy(w => w.MeasurementDate)
-            .OrderByDescending(f => f.MeasurementDate.Date)
-            .Take(7)
+            .Where(w => w.UserId == userId && w.MeasurementDate.Date >= startDate && w.MeasurementDate.Date <= endDate)
+            .OrderByDescending(w => w.MeasurementDate)
             .ToListAsync();
 
         var foodLogs = await _context.FoodLogs
-         .Where(f => f.UserId == userId)
-         .Select(f => new
-         {
-             Date = f.Timestamp.Date,
-             Calories = f.NutritionalInfo.Calories
-         })
-         .ToListAsync();
-
-        var calorieLogs = foodLogs
-            .GroupBy(f => f.Date)
-            .OrderByDescending(g => g.Key)
-            .Take(7)
-            .ToDictionary(g => g.Key, g => g.Sum(x => x.Calories));
+            .Where(f => f.UserId == userId && f.Timestamp.Date >= startDate && f.Timestamp.Date <= endDate)
+            .Select(f => new
+            {
+                Date = f.Timestamp.Date,
+                Calories = f.NutritionalInfo.Calories
+            })
+            .ToListAsync();
 
         var exerciseLogs = await _context.ExerciseLogs
-            .Where(e => e.UserId == userId)
+            .Where(e => e.UserId == userId && e.Timestamp.Date >= startDate && e.Timestamp.Date <= endDate)
             .Select(e => new
             {
                 Date = e.Timestamp.Date,
@@ -660,53 +656,77 @@ public class WeightPredictionService
             })
             .ToListAsync();
 
+        // Group and organize the data
+        var calorieLogs = foodLogs
+            .GroupBy(f => f.Date)
+            .ToDictionary(g => g.Key, g => g.Sum(x => x.Calories));
+
         var activities = exerciseLogs
             .GroupBy(e => e.Date)
-            .OrderByDescending(g => g.Key)
-            .Take(7)
             .ToDictionary(g => g.Key, g => g.Sum(x => x.Duration / 30f));
 
-        var data = new List<DailyData>();
+        // Find continuous data starting from today (or yesterday if today has no logs)
+        var continuousData = new List<DailyData>();
+        var currentDate = endDate;
+        var lastWeight = weightLogs.FirstOrDefault()?.Weight ?? 0;
 
-
-        if (weightLogs.Count == 0 || calorieLogs.Count == 0)
-            return data.ToArray();
-
-        //foreach (var w in weightLogs)
-        //{
-        //    calorieLogs.TryGetValue(w.MeasurementDate.Date, out var kcal);
-        //    activities.TryGetValue(w.MeasurementDate.Date, out var activity);
-
-        //    data.Add(new DailyData
-        //    {
-        //        Date = w.MeasurementDate,
-        //        Weight = (float)w.Weight,
-        //        CaloriesConsumed = (int)(kcal > 0 ? kcal : 1800),
-        //        ActivityLevel = activity != 0 ? activity : 1f
-        //    });
-        //}
-
-
-        var lastWeight = (float)weightLogs.Last().Weight;
-
-        foreach (var day in calorieLogs.Keys.OrderBy(d => d))
+        // If no logs for today, start from yesterday
+        if (!calorieLogs.ContainsKey(currentDate))
         {
-            var weightLog = weightLogs.FirstOrDefault(w => w.MeasurementDate.Date == day);
-            var weight = weightLog != null ? (float)weightLog.Weight : lastWeight;
-
-            calorieLogs.TryGetValue(day, out var kcal);
-            activities.TryGetValue(day, out var activity);
-
-            data.Add(new DailyData
-            {
-                Date = day,
-                Weight = weight,
-                CaloriesConsumed = (int)(kcal > 0 ? kcal : 1800),
-                ActivityLevel = activity != 0 ? activity : 1f
-            });
+            currentDate = currentDate.AddDays(-1);
         }
 
-        return data.ToArray();
+        // Collect continuous data
+        while (currentDate >= startDate)
+        {
+            // Check if we have both weight and calorie data for this day
+            var hasWeight = weightLogs.Any(w => w.MeasurementDate.Date == currentDate);
+            var hasCalories = calorieLogs.ContainsKey(currentDate);
+
+            if (hasWeight)
+            {
+                lastWeight = (decimal)weightLogs.First(w => w.MeasurementDate.Date == currentDate).Weight;
+            }
+
+            if (hasCalories)
+            {
+                calorieLogs.TryGetValue(currentDate, out var kcal);
+                activities.TryGetValue(currentDate, out var activity);
+
+                continuousData.Add(new DailyData
+                {
+                    Date = currentDate,
+                    Weight = (float)lastWeight,
+                    CaloriesConsumed = (int)(kcal > 0 ? kcal : 1800),
+                    ActivityLevel = activity != 0 ? activity : 1f
+                });
+            }
+            else
+            {
+                // If we find a gap, we need to start over from the previous day
+                // But only if we haven't collected enough days yet
+                if (continuousData.Count < 7)
+                {
+                    continuousData.Clear();
+                }
+                else
+                {
+                    // If we already have 7+ days, we can stop at the gap
+                    break;
+                }
+            }
+
+            currentDate = currentDate.AddDays(-1);
+        }
+
+        // Ensure we have at least 7 days of data
+        if (continuousData.Count < 7)
+        {
+            return Array.Empty<DailyData>();
+        }
+
+        // Return the data in chronological order
+        return continuousData.OrderBy(d => d.Date).ToArray();
     }
     public class CalorieTrend
     {

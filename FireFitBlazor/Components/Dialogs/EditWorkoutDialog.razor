@@ -35,27 +35,26 @@
             </RadzenFormField>
 
             <RadzenFormField Text="Duration (minutes)" Variant="Variant.Filled">
-                <RadzenNumeric @bind-Value="@workout.DurationMinutes"
-                               Class="w-100"
-                               Min="1"
-                               Name="Duration" />
+                <InputNumber @bind-Value="workout.DurationMinutes"
+                             class="rz-input w-100"
+                             min="1"
+                             style="padding: 0.5rem; height: 60px;" />
 
             </RadzenFormField>
             <RadzenFormField Text="Calories Burned" Variant="Variant.Filled">
-                <RadzenNumeric @bind-Value="@workout.CaloriesBurned"
-                               Class="w-100"
-                               Min="1"
-                               Name="CaloriesBurned" />
+                <InputNumber @bind-Value="workout.CaloriesBurned"
+                             class="rz-input w-100"
+                             min="1"
+                             style="padding: 0.5rem; height: 60px;" />
             </RadzenFormField>
 
 
 
-                <RadzenFormField Text="Intensity Level" Variant="Variant.Filled">
-                    <RadzenNumeric @bind-Value="@workout.IntensityLevel"
-                                   Class="w-100"
-                                   Max="10"
-                                   Min="0"
-                                   Name="IntensityLevel" />
+            <RadzenFormField Text="Intensity Level" Variant="Variant.Filled">
+                <InputNumber @bind-Value="workout.IntensityLevel"
+                             class="rz-input w-100"
+                             min="1"
+                             style="padding: 0.5rem; height: 60px;" />
             </RadzenFormField>
 
             <RadzenFormField Text="Notes" Variant="Variant.Filled">
@@ -66,12 +65,12 @@
             </RadzenFormField>
 
             <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="1rem">
-                <RadzenButton ButtonType="ButtonType.Submit" 
-                Text="Save" 
-                ButtonStyle="ButtonStyle.Primary" />
-                <RadzenButton Text="Cancel" 
-                ButtonStyle="ButtonStyle.Light" 
-                Click="@Cancel" />
+                <RadzenButton ButtonType="ButtonType.Submit"
+                              Text="Save"
+                              ButtonStyle="ButtonStyle.Primary" />
+                <RadzenButton Text="Cancel"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@Cancel" />
             </RadzenStack>
         </RadzenStack>
     </RadzenTemplateForm>
@@ -97,7 +96,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-      
+
         if (workout != null)
         {
             workout = new WorkoutSessionDto

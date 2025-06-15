@@ -162,28 +162,6 @@
 //        return (double)(bmr * activityFactor);
 //    }
 
-//    private async Task<User> CollectUser(string userId)
-//    {
-//        var user = await _context.Users
-//            .Include(u => u.CalorieLogs)
-//            .FirstOrDefaultAsync(u => u.UserId == userId);
-
-//        if (user == null)
-//            throw new Exception("User not found.");
-
-//        return user;
-//    }
-
-//    private async Task<UserProgress> CollectUserProgress(string userId)
-//    {
-//        var user = await _context.UserProgress
-//            .FirstOrDefaultAsync(u => u.UserId == userId);
-
-//        if (user == null)
-//            throw new Exception("User not found.");
-
-//        return user;
-//    }
 
 //    public class WeightPredictionInput
 //    {

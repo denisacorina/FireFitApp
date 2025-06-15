@@ -116,8 +116,8 @@ builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 
 builder.Services.AddHttpClient("ServerAPI", client =>
 {
-   /* client.BaseAddress = new Uri("https://localhost:7128/");*/ // Use your actual dev URL
-    client.BaseAddress = new Uri("http://192.168.100.87:5000/"); // Use your actual dev URL
+   /* client.BaseAddress = new Uri("https://localhost:7128/");*/ 
+    client.BaseAddress = new Uri("http://192.168.100.87:5000/");
 });
 
 builder.Services.AddHttpClient("MLAPI", client =>
@@ -204,6 +204,8 @@ builder.Services.AddScoped<IntentClassification.MLModel1>();
 builder.Services.AddScoped<RecipeGeneratorService>();
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+
+builder.Services.AddHttpClient<OpenFoodFactsService>();
 
 var app = builder.Build();
 

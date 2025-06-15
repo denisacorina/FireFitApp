@@ -1,5 +1,6 @@
 using FireFitBlazor.Application.DTOs;
 using FireFitBlazor.Domain.Enums;
+using FireFitBlazor.Domain.ValueObjects;
 using static FireFitBlazor.Domain.Enums.FoodTrackingEnums;
 
 namespace FireFitBlazor.Application.Services
@@ -15,5 +16,6 @@ namespace FireFitBlazor.Application.Services
         Task<bool> DeleteGoalAsync(Guid goalId);
         Task<GoalDto> MarkGoalAsCompletedAsync(Guid goalId);
         Task<GoalDto> ReactivateGoalAsync(Guid goalId);
+        Task<NutritionalInfo> GetUserMacroGoalsAsync(string userId);
     }
 } 

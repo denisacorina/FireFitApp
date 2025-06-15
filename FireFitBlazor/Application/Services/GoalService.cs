@@ -2,6 +2,7 @@ using FireFitBlazor.Application.DTOs;
 using FireFitBlazor.Domain.ContextInterfaces;
 using FireFitBlazor.Domain.Enums;
 using FireFitBlazor.Domain.Models;
+using FireFitBlazor.Domain.ValueObjects;
 using static FireFitBlazor.Domain.Enums.FoodTrackingEnums;
 
 namespace FireFitBlazor.Application.Services
@@ -85,6 +86,11 @@ namespace FireFitBlazor.Application.Services
         {
             var goal = await _goalContext.ReactivateGoalAsync(goalId);
             return MapToDto(goal);
+        }
+
+        public async Task<NutritionalInfo> GetUserMacroGoalsAsync(string userId)
+        {
+            return await _goalContext.GetUserMacroGoalsAsync(userId);
         }
 
         private static GoalDto MapToDto(Goal goal)

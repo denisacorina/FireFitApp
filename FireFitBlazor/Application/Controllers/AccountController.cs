@@ -56,7 +56,7 @@ namespace FireFitBlazor.Application.Controllers
 
             _context.UserProgress.Add(initialUserProgress);
 
-            var initialUserPreferences = UserPreferences.Create(initialUser.UserId, dto.DietaryPreferences, dto.DailyCalorieGoal);
+            var initialUserPreferences = UserPreferences.Create(initialUser.UserId, dto.DietaryPreferences);
 
             _context.UserPreferences.Add(initialUserPreferences);
 

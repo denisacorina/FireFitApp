@@ -1,0 +1,108 @@
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Domain.Enums
+@using FireFitBlazor.Application.Services
+@using Radzen.Blazor
+@inject IFoodLogService FoodLogService
+@inject DialogService DialogService
+
+<RadzenTemplateForm TItem="QuickAddModel" Data="@model" Submit="@OnSubmit">
+    <div class="quick-add-container">
+        <div class="form-group">
+            <label>Food Name:</label>
+            <RadzenTextBox @bind-Value="model.FoodName" Style="width: 100%;" />
+        </div>
+
+        <div class="form-group">
+            <label>Calories (per 100g):</label>
+            <RadzenNumeric @bind-Value="model.Calories" Style="width: 100%;" />
+        </div>
+
+        <div class="form-group">
+            <label>Protein (g per 100g):</label>
+            <RadzenNumeric @bind-Value="model.Proteins" Style="width: 100%;" />
+        </div>
+
+        <div class="form-group">
+            <label>Carbs (g per 100g):</label>
+            <RadzenNumeric @bind-Value="model.Carbs" Style="width: 100%;" />
+        </div>
+
+        <div class="form-group">
+            <label>Fats (g per 100g):</label>
+            <RadzenNumeric @bind-Value="model.Fats" Style="width: 100%;" />
+        </div>
+
+        <div class="form-group">
+            <label>Quantity (g):</label>
+            <RadzenNumeric @bind-Value="model.Quantity" Style="width: 100%;" />
+        </div>
+
+        <div class="button-group">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" ButtonStyle="ButtonStyle.Primary" />
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@(() => DialogService.Close())" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public string UserId { get; set; }
+    [Parameter] public string MealType { get; set; }
+
+    private QuickAddModel model = new();
+
+    private class QuickAddModel
+    {
+        public string FoodName { get; set; }
+        public float Calories { get; set; }
+        public float Proteins { get; set; }
+        public float Carbs { get; set; }
+        public float Fats { get; set; }
+        public float Quantity { get; set; } = 100;
+    }
+
+    private async Task OnSubmit()
+    {
+        var mealTypeEnum = MealType.ToLower() switch
+        {
+            "breakfast" => FoodTrackingEnums.MealType.Breakfast,
+            "lunch" => FoodTrackingEnums.MealType.Lunch,
+            "dinner" => FoodTrackingEnums.MealType.Dinner,
+            _ => FoodTrackingEnums.MealType.Breakfast
+        };
+
+        var log = FoodLog.Create(
+            userId: UserId,
+            foodName: model.FoodName,
+            calories: (int)(model.Calories * model.Quantity / 100),
+            proteins: model.Proteins * model.Quantity / 100,
+            carbs: model.Carbs * model.Quantity / 100,
+            fats: model.Fats * model.Quantity / 100,
+            mealType: mealTypeEnum
+        );
+
+        await FoodLogService.SaveFoodLogAsync(log);
+        DialogService.Close(true);
+    }
+}
+
+<style>
+    .quick-add-container {
+        padding: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+</style> 

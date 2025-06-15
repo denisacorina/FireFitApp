@@ -131,9 +131,8 @@
             prediction = await WeightPredictionService.PredictWeight28Days(UserId);
             maxWeightChange = WeightPredictionService.CalculateMaxSafeWeightChange((float)prediction.CurrentWeight, 28);
         }
-        catch
+        catch (Exception ex)
         {
-            NotificationService.Notify(NotificationSeverity.Warning, "Not enough data", "You need at least 7 days of tracked data.");
             DialogService.Close();
         }
         finally 

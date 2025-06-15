@@ -28,6 +28,7 @@ namespace FireFitBlazor.Infrastructure.Data
         public DbSet<ExerciseLog> ExerciseLogs { get; set; }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<UserIngredientHistory> UserIngredientHistory { get; set; }
         public DbSet<UserProgress> UserProgresses { get; set; }
 
         public DbSet<Achievement> Achievements { get; set; }

@@ -59,7 +59,7 @@ public class UserPreferencesContext : IUserPreferencesContext
             if (userPreferences == null)
             {
                 // If no preferences exist, create a new instance with default values
-                userPreferences = UserPreferences.Create(userId, new List<DietaryPreference>(), 0);
+                userPreferences = UserPreferences.Create(userId, new List<DietaryPreference>());
                 _context.UserPreferences.Add(userPreferences);
                 await _context.SaveChangesAsync();
             }
@@ -81,14 +81,13 @@ public class UserPreferencesContext : IUserPreferencesContext
             {
                 if (userPreferences.DietaryPreferences == null)
                 {
-                    var newPreferences = UserPreferences.Create(userId, new List<DietaryPreference>(), 0);
+                    var newPreferences = UserPreferences.Create(userId, new List<DietaryPreference>());
                     _context.UserPreferences.Add(newPreferences);
                 }
                 else
                 {
                     var updatedPreferences = userPreferences.Update(
-                      dietaryPreferences: preferences.ToList(),
-                      newCalorieGoal: userPreferences.DailyCalorieGoal
+                      dietaryPreferences: preferences.ToList() 
                     );
 
                     _context.UserPreferences.Remove(userPreferences);
@@ -108,8 +107,7 @@ public class UserPreferencesContext : IUserPreferencesContext
 
     public async Task<bool> UpdateUserPreferencesAsync(
         string userId,
-        List<DietaryPreference> dietaryPreferences,
-        int dailyCalorieGoal)
+        List<DietaryPreference> dietaryPreferences)
     {
         try
         {
@@ -120,16 +118,14 @@ public class UserPreferencesContext : IUserPreferencesContext
             {
                 preferences = UserPreferences.Create(
                     userId,
-                    dietaryPreferences,
-                    dailyCalorieGoal
+                    dietaryPreferences
                 );
                 await _context.UserPreferences.AddAsync(preferences);
             }
             else
             {
                 preferences = preferences.Update(
-                    dietaryPreferences,
-                    dailyCalorieGoal
+                    dietaryPreferences
                 );
             }
 

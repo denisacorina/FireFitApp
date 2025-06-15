@@ -1,0 +1,114 @@
+@using FireFitBlazor.Domain.Models
+@using FireFitBlazor.Domain.ValueObjects
+@using Radzen
+@inject DialogService DialogService
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
+
+
+<div class="finish-day-dialog">
+    <h3>Daily Summary</h3>
+
+    <div class="summary-item @(IsInRange(CaloriesConsumed, CalorieGoal) ? "good" : "warning")">
+        <span>Calories:</span>
+        <span>@CaloriesConsumed / @CalorieGoal</span>
+        @if (!IsInRange(CaloriesConsumed, CalorieGoal))
+        {
+            <span class="warning-text">@GetRangeMessage(CaloriesConsumed, CalorieGoal, "calorie")</span>
+        }
+    </div>
+
+    <div class="summary-item @(IsInRange(FoodLogs.Sum(f => f.NutritionalInfo.Proteins), ProteinGoal) ? "good" : "warning")">
+        <span>Protein:</span>
+        <span>@FoodLogs.Sum(f => f.NutritionalInfo.Proteins).ToString("0.##")g / @ProteinGoal g</span>
+        @if (!IsInRange(FoodLogs.Sum(f => f.NutritionalInfo.Proteins), ProteinGoal))
+        {
+            <span class="warning-text">@GetRangeMessage(FoodLogs.Sum(f => f.NutritionalInfo.Proteins), ProteinGoal, "protein")</span>
+        }
+    </div>
+
+    <div class="summary-item @(IsInRange(FoodLogs.Sum(f => f.NutritionalInfo.Carbs), CarbsGoal) ? "good" : "warning")">
+        <span>Carbs:</span>
+        <span>@FoodLogs.Sum(f => f.NutritionalInfo.Carbs).ToString("0.##")g / @CarbsGoal g</span>
+        @if (!IsInRange(FoodLogs.Sum(f => f.NutritionalInfo.Carbs), CarbsGoal))
+        {
+            <span class="warning-text">@GetRangeMessage(FoodLogs.Sum(f => f.NutritionalInfo.Carbs), CarbsGoal, "carbs")</span>
+        }
+    </div>
+
+    <div class="summary-item @(IsInRange(FoodLogs.Sum(f => f.NutritionalInfo.Fats), FatsGoal) ? "good" : "warning")">
+        <span>Fats:</span>
+        <span>@FoodLogs.Sum(f => f.NutritionalInfo.Fats).ToString("0.##")g / @FatsGoal g</span>
+        @if (!IsInRange(FoodLogs.Sum(f => f.NutritionalInfo.Fats), FatsGoal))
+        {
+            <span class="warning-text">@GetRangeMessage(FoodLogs.Sum(f => f.NutritionalInfo.Fats), FatsGoal, "fats")</span>
+        }
+    </div>
+
+    <div class="summary-item @(HasEnoughMeals ? "good" : "warning")">
+        <span>Meals:</span>
+        <span>@MealCount meals logged</span>
+        @if (!HasEnoughMeals)
+        {
+            <span class="warning-text">Try to log all your meals for better tracking</span>
+        }
+    </div>
+
+    <div class="dialog-buttons">
+        <RadzenButton Text="Close" Click="() => DialogService.Close()" ButtonStyle="ButtonStyle.Light" />
+    </div>
+</div>
+
+
+@code {
+    [Parameter] public List<FoodLog> FoodLogs { get; set; } = new();
+    [Parameter] public int CalorieGoal { get; set; }
+    [Parameter] public int ExerciseCalories { get; set; }
+    [Parameter] public int ProteinGoal { get; set; }
+    [Parameter] public int CarbsGoal { get; set; }
+    [Parameter] public int FatsGoal { get; set; }
+
+    private int CaloriesConsumed => (int)FoodLogs.Sum(f => f.NutritionalInfo.Calories);
+
+    private bool IsInRange(double actual, double goal) => goal == 0 ? true : actual / goal is >= 0.8 and <= 1.2;
+    private string GetRangeMessage(double actual, double goal, string macro) => actual / goal < 0.8 ? $"You're under your {macro} goal" : $"You're over your {macro} goal";
+    private int MealCount => FoodLogs.Select(f => f.MealType).Distinct().Count();
+    private bool HasEnoughMeals => MealCount >= 2;
+}
+
+
+<style>
+    .finish-day-dialog {
+        padding: 1.5rem;
+    }
+
+    .summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+    }
+
+        .summary-item.good {
+            border-left: 4px solid #4CAF50;
+        }
+
+        .summary-item.warning {
+            border-left: 4px solid #FFC107;
+        }
+
+    .warning-text {
+        color: #E53935;
+        font-size: 0.9rem;
+    }
+
+    .dialog-buttons {
+        display: flex;
+        justify-content: center;
+        margin-top: 1.5rem;
+    }
+</style> 

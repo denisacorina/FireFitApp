@@ -1,0 +1,36 @@
+.barcode-scanner {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+}
+
+.viewport {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background-color: #000;
+    overflow: hidden;
+}
+
+.product-info {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+}
+
+.nutrition-info {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #fff;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.product-image {
+    max-width: 200px;
+    height: auto;
+    margin-top: 1rem;
+    border-radius: 0.25rem;
+} 

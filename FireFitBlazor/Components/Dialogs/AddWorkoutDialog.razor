@@ -12,13 +12,15 @@
 <RadzenStack Gap="1rem">
     <RadzenTemplateForm Data="@workout" Submit="@FormSubmit" TItem="WorkoutSessionDto">
         <RadzenStack Gap="1rem">
-            <RadzenDropDown Data="@WorkoutTypeOptions"
-                            TextProperty="Text"
-                            ValueProperty="Value"
-                            @bind-Value="workout.WorkoutType"
-                            TValue="WorkoutType"
-                            Name="WorkoutType"
-                            Class="w-100" />
+            <RadzenFormField Text="Workout Type" Variant="Variant.Filled">
+                <RadzenDropDown Data="@WorkoutTypeOptions"
+                                TextProperty="Text"
+                                ValueProperty="Value"
+                                @bind-Value="workout.WorkoutType"
+                                TValue="WorkoutType"
+                                Name="WorkoutType"
+                                Class="w-100" />
+            </RadzenFormField>
 
             <RadzenFormField Text="Date" Variant="Variant.Filled">  
                 <RadzenDatePicker @bind-Value="@workoutDate"   
@@ -26,22 +28,27 @@
                 Name="Date" />  
             </RadzenFormField>
 
-            <InputNumber @bind-Value="workoutDurationMinutes"
-                         class="rz-input w-100"
-                         min="1"
-                         style="padding: 0.5rem; height: 38px;" />
+            <RadzenFormField Text="Duration (minutes)" Variant="Variant.Filled">
+                <InputNumber @bind-Value="workoutDurationMinutes"
+                            class="rz-input w-100"
+                            min="1"
+                            style="padding: 0.5rem; height: 60px;" />
+            </RadzenFormField>
 
+            <RadzenFormField Text="Intensity Level (1-10)" Variant="Variant.Filled">
+                <InputNumber @bind-Value="workoutIntensityLevel"
+                            class="rz-input w-100"
+                            min="1"
+                            max="10"
+                            style="padding: 0.5rem; height: 60px;" />
+            </RadzenFormField>
 
-
-            <InputNumber @bind-Value="workoutIntensityLevel"
-                         class="rz-input w-100"
-                         min="1"
-                         style="padding: 0.5rem; height: 38px;" />
-
-            <InputNumber @bind-Value="workoutCaloriesBurned"
-                         class="rz-input w-100"
-                         min="1"
-                         style="padding: 0.5rem; height: 38px;" />
+            <RadzenFormField Text="Calories Burned" Variant="Variant.Filled">
+                <InputNumber @bind-Value="workoutCaloriesBurned"
+                            class="rz-input w-100"
+                            min="1"
+                             style="padding: 0.5rem; height: 60px;" />
+            </RadzenFormField>
 
             <RadzenFormField Text="Notes" Variant="Variant.Filled">  
                 <RadzenTextArea @bind-Value="@workoutNotes"   
@@ -90,7 +97,6 @@
        try  
        {  
            var newWorkout = new WorkoutSessionDto{
-
                     UserId = UserId,
                     WorkoutType = workout.WorkoutType,
                     StartTime = workoutDate,

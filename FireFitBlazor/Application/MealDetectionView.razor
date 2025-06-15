@@ -57,7 +57,15 @@ else
         </div>
 
         <div class="meal-info-section">
-            <h3>@MealName</h3>
+            <h3>
+                @(detectedIngredients.Any() ? MealName : "No ingredients detected")
+            </h3>
+            @if (!detectedIngredients.Any())
+            {
+                <p style="color: #888; font-size: 0.95rem;">
+                    No ingredients were detected from the image. You can manually add an ingredient below.
+                </p>
+            }
 
             <div class="macros-row">
                 @foreach (var m in Macros)
@@ -203,6 +211,11 @@ else
             return;
         }
 
+
+        var csvPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "data", "food.csv");
+        var (entries, map) = LoadFoodEntries(csvPath);
+        foodDatabase = entries;
+        nameToFoodEntry = map;
     
 
         allIngredients = await FoodLogService.GetAllIngredientNames();
@@ -248,8 +261,8 @@ else
                 ));
             }
         }
-        // If your boxes are [x, y, width, height, ...] for each label:
-        int boxStride = 4; // Change to 2 if your model outputs [x, y] only
+
+        int boxStride = 4; 
         if (labels != null)
         {
 
@@ -263,7 +276,6 @@ else
                 float width = boxes[boxIndex + 2];
                 float height = boxes[boxIndex + 3];
 
-                // Convert to percent for CSS positioning (assuming image size is known)
                 float xPercent = x / mlImage.Width * 100f;
                 float yPercent = y / mlImage.Height * 100f;
                 float widthPercent = width / mlImage.Width * 100f;
@@ -450,7 +462,12 @@ else
 
         var normalizedName = NormalizeName(manualEntry.Trim());
 
-        // Try to find exact match first
+        if (nameToFoodEntry == null)
+        {
+            await JS.InvokeVoidAsync("alert", "Ingredient database not loaded. Please try again.");
+            return;
+        }
+
         if (!nameToFoodEntry.TryGetValue(normalizedName, out var foodEntry))
         {
             // Try partial match
@@ -463,11 +480,11 @@ else
         if (foodEntry != null)
         {
             var ingredient = new DetectedIngredient(
-                foodEntry.Ingredient, // Use the original name from CSV
-                50, // default x position
-                50, // default y position
-                10, // default width
-                10, // default height
+                foodEntry.Ingredient, 
+                50,
+                50, 
+                10, 
+                10, 
                 "/images/default.png"
             )
                 {
@@ -520,7 +537,7 @@ else
         foreach (var ingredient in detectedIngredients)
         {
             var normalized = NormalizeName(ingredient.Name);
-            FoodEntry match = null;
+            CsvFoodRecord match = null;
 
             // Try exact match first
             if (!nameToEntry.TryGetValue(normalized, out match))
@@ -533,17 +550,29 @@ else
 
             if (match != null)
             {
+                // float ratio = ingredient.QuantityGrams / 100f;
+
+                // ingredient.Calories = match.Calories;
+                // ingredient.Protein = match.Protein;
+                // ingredient.Fat = match.Fat;
+                // ingredient.Carbs = match.Carbs;
+
+                // TotalCalories += (int)(match.Calories * ratio);
+                // TotalProtein += match.Protein * ratio;
+                // TotalFats += match.Fat * ratio;
+                // TotalCarbs += match.Carbs * ratio;
+
                 float ratio = ingredient.QuantityGrams / 100f;
 
-                ingredient.Calories = match.Calories;
-                ingredient.Protein = match.Protein;
-                ingredient.Fat = match.Fat;
-                ingredient.Carbs = match.Carbs;
+                ingredient.Calories = float.TryParse(match.Calories, out var cal) ? cal : 0;
+                ingredient.Protein = float.TryParse(match.Protein, out var pro) ? pro : 0;
+                ingredient.Fat = float.TryParse(match.Fat, out var fat) ? fat : 0;
+                ingredient.Carbs = float.TryParse(match.Carbs, out var carb) ? carb : 0;
 
-                TotalCalories += (int)(match.Calories * ratio);
-                TotalProtein += match.Protein * ratio;
-                TotalFats += match.Fat * ratio;
-                TotalCarbs += match.Carbs * ratio;
+                TotalCalories += (int)(ingredient.Calories * ratio);
+                TotalProtein += ingredient.Protein * ratio;
+                TotalFats += ingredient.Fat * ratio;
+                TotalCarbs += ingredient.Carbs * ratio;
             }
         }
 
@@ -557,44 +586,65 @@ else
     }
 
 
-    public static (List<FoodEntry> entries, Dictionary<string, FoodEntry> nameToEntry) LoadFoodEntries(string path)
+    // public static (List<FoodEntry> entries, Dictionary<string, FoodEntry> nameToEntry) LoadFoodEntries(string path)
+    // {
+    //     using var reader = new StreamReader(path);
+    //     using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+    //     var records = csv.GetRecords<CsvFoodRecord>().ToList();
+
+    //     var entries = new List<FoodEntry>();
+    //     var nameToEntry = new Dictionary<string, FoodEntry>();
+
+    //     foreach (var record in records)
+    //     {
+    //         string originalName = record.Ingredient;
+    //         //string normalized = NormalizeName(originalName);
+
+    //         bool parsedCalories = float.TryParse(record.Calories, out float calories);
+    //         bool parsedProtein = float.TryParse(record.Protein, out float protein);
+    //         bool parsedFat = float.TryParse(record.Fat, out float fat);
+    //         bool parsedCarbs = float.TryParse(record.Carbs, out float carbs);
+
+    //         if (parsedCalories && parsedProtein && parsedFat && parsedCarbs)
+    //         {
+    //             var entry = new FoodEntry
+    //                 {
+    //                     Name = originalName,
+    //                     Calories = calories,
+    //                     Protein = protein,
+    //                     Fat = fat,
+    //                     Carbs = carbs
+    //                 };
+
+    //             entries.Add(entry);
+    //             nameToEntry[originalName] = entry;
+    //         }
+    //     }
+
+    //     return (entries, nameToEntry);
+    // }
+
+
+    public static (List<CsvFoodRecord>, Dictionary<string, CsvFoodRecord>) LoadFoodEntries(string path)
+{
+    using var reader = new StreamReader(path);
+    using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+
+    var records = csv.GetRecords<CsvFoodRecord>().ToList();
+    var nameToEntry = new Dictionary<string, CsvFoodRecord>();
+
+    foreach (var record in records)
     {
-        using var reader = new StreamReader(path);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-        var records = csv.GetRecords<CsvFoodRecord>().ToList();
-
-        var entries = new List<FoodEntry>();
-        var nameToEntry = new Dictionary<string, FoodEntry>();
-
-        foreach (var record in records)
+        if (!string.IsNullOrWhiteSpace(record.Ingredient))
         {
-            string originalName = record.Ingredient;
-            //string normalized = NormalizeName(originalName);
-
-            bool parsedCalories = float.TryParse(record.Calories, out float calories);
-            bool parsedProtein = float.TryParse(record.Protein, out float protein);
-            bool parsedFat = float.TryParse(record.Fat, out float fat);
-            bool parsedCarbs = float.TryParse(record.Carbs, out float carbs);
-
-            if (parsedCalories && parsedProtein && parsedFat && parsedCarbs)
-            {
-                var entry = new FoodEntry
-                    {
-                        Name = originalName,
-                        Calories = calories,
-                        Protein = protein,
-                        Fat = fat,
-                        Carbs = carbs
-                    };
-
-                entries.Add(entry);
-                nameToEntry[originalName] = entry;
-            }
+            nameToEntry[record.Ingredient] = record;
         }
-
-        return (entries, nameToEntry);
     }
+
+    return (records, nameToEntry);
+}
+
     public class CsvFoodRecord
     {
         [Name("Ingredient")]

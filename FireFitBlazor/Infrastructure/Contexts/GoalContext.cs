@@ -1,5 +1,6 @@
 using FireFitBlazor.Domain.ContextInterfaces;
 using FireFitBlazor.Domain.Models;
+using FireFitBlazor.Domain.ValueObjects;
 using FireFitBlazor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -73,6 +74,17 @@ namespace FireFitBlazor.Infrastructure.Contexts
             goal.Reactivate();
             await _dbContext.SaveChangesAsync();
             return goal;
+        }
+
+        public async Task<NutritionalInfo> GetUserMacroGoalsAsync(string userId)
+        {
+            var activeGoal = await _dbContext.Goals
+                .FirstOrDefaultAsync(g => g.UserId == userId && g.IsActive);
+
+            if (activeGoal == null)
+                throw new InvalidOperationException("No active goal found for user");
+
+            return activeGoal.NutritionalGoal;
         }
     }
 } 

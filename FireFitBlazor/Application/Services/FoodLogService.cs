@@ -158,6 +158,13 @@ namespace FireFitBlazor.Application.Services
             return await _db.Ingredients
                 .Where(i => names.Contains(i.Name))
                 .ToListAsync();
+        } 
+        
+        public async Task<List<Ingredient>> GetIngredientDetailsById(List<Guid> ingredientIds)
+        {
+            return await _db.Ingredients
+                .Where(i => ingredientIds.Contains(i.IngredientId))
+                .ToListAsync();
         }
 
 
@@ -223,6 +230,56 @@ namespace FireFitBlazor.Application.Services
                 existing.Timestamp = updatedLog.Timestamp;
                 await _db.SaveChangesAsync();
             }
+        }
+
+        public async Task<List<FoodLog>> GetRecentByUserIdAsync(string userId, int days)
+        {
+            var cutoffDate = DateTime.UtcNow.AddDays(-days);
+            return await _db.FoodLogs
+                .Where(f => f.UserId == userId && f.Timestamp >= cutoffDate)
+                .OrderByDescending(f => f.Timestamp)
+                .ToListAsync();
+        }
+
+        public async Task<List<UserIngredientHistory>> GetUserIngredientHistoryAsync(string userId, int limit = 20)
+        {
+            return await _db.UserIngredientHistory
+                .Where(h => h.UserId == userId)
+                .OrderByDescending(h => h.LastUsed)
+                .Take(limit)
+                .ToListAsync();
+        }
+
+        public async Task<UserIngredientHistory> AddToUserHistoryAsync(string userId, Guid ingredientId, string ingredientName)
+        {
+            var existingHistory = await _db.UserIngredientHistory
+                .FirstOrDefaultAsync(h => h.UserId == userId && h.IngredientId == ingredientId);
+
+            if (existingHistory != null)
+            {
+                existingHistory = existingHistory.UpdateUsage();
+                //_db.UserIngredientHistory.Update(existingHistory);
+            }
+            else
+            {
+                existingHistory = UserIngredientHistory.Create(userId, ingredientId, ingredientName);
+                _db.UserIngredientHistory.Add(existingHistory);
+            }
+
+            await _db.SaveChangesAsync();
+            return existingHistory;
+        }
+
+        public async Task<UserIngredientHistory> UpdateIngredientUsageAsync(Guid historyId)
+        {
+            var history = await _db.UserIngredientHistory.FindAsync(historyId);
+            if (history == null)
+                throw new KeyNotFoundException($"No history found with ID {historyId}");
+
+            history = history.UpdateUsage();
+            //_db.UserIngredientHistory.Update(history);
+            await _db.SaveChangesAsync();
+            return history;
         }
     }
 
