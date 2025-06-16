@@ -1,20 +1,28 @@
+@page "/quick-add-dialog"
 @using FireFitBlazor.Domain.Models
 @using FireFitBlazor.Domain.Enums
 @using FireFitBlazor.Application.Services
 @using Radzen.Blazor
 @inject IFoodLogService FoodLogService
+@using Microsoft.AspNetCore.Components.Web
+@using Radzen
+@using Microsoft.JSInterop;
+@using Microsoft.AspNetCore.Components.Forms;
+@rendermode RenderMode.InteractiveServer
 @inject DialogService DialogService
 
 <RadzenTemplateForm TItem="QuickAddModel" Data="@model" Submit="@OnSubmit">
     <div class="quick-add-container">
         <div class="form-group">
             <label>Food Name:</label>
-            <RadzenTextBox @bind-Value="model.FoodName" Style="width: 100%;" />
+            <RadzenTextBox @bind-Value="model.FoodName" Name="FoodName" Style="width: 100%;" />
+            <RadzenRequiredValidator Component="FoodName" Text="Food name is required" />
         </div>
 
         <div class="form-group">
             <label>Calories (per 100g):</label>
-            <RadzenNumeric @bind-Value="model.Calories" Style="width: 100%;" />
+            <RadzenNumeric @bind-Value="model.Calories" Name="Calories" Style="width: 100%;" />
+            <RadzenRequiredValidator Component="Calories" Text="Calories are required" />
         </div>
 
         <div class="form-group">
@@ -34,7 +42,8 @@
 
         <div class="form-group">
             <label>Quantity (g):</label>
-            <RadzenNumeric @bind-Value="model.Quantity" Style="width: 100%;" />
+            <RadzenNumeric @bind-Value="model.Quantity" Name="Quantity" Style="width: 100%;" />
+            <RadzenRequiredValidator Component="Quantity" Text="Quantity is required" />
         </div>
 
         <div class="button-group">
@@ -54,34 +63,42 @@
     {
         public string FoodName { get; set; }
         public float Calories { get; set; }
-        public float Proteins { get; set; }
-        public float Carbs { get; set; }
-        public float Fats { get; set; }
+        public float? Proteins { get; set; }
+        public float? Carbs { get; set; }
+        public float? Fats { get; set; }
         public float Quantity { get; set; } = 100;
     }
 
     private async Task OnSubmit()
     {
-        var mealTypeEnum = MealType.ToLower() switch
+        try
         {
-            "breakfast" => FoodTrackingEnums.MealType.Breakfast,
-            "lunch" => FoodTrackingEnums.MealType.Lunch,
-            "dinner" => FoodTrackingEnums.MealType.Dinner,
-            _ => FoodTrackingEnums.MealType.Breakfast
-        };
+            var mealTypeEnum = MealType.ToLower() switch
+            {
+                "breakfast" => FoodTrackingEnums.MealType.Breakfast,
+                "lunch" => FoodTrackingEnums.MealType.Lunch,
+                "dinner" => FoodTrackingEnums.MealType.Dinner,
+                _ => FoodTrackingEnums.MealType.Breakfast
+            };
 
-        var log = FoodLog.Create(
-            userId: UserId,
-            foodName: model.FoodName,
-            calories: (int)(model.Calories * model.Quantity / 100),
-            proteins: model.Proteins * model.Quantity / 100,
-            carbs: model.Carbs * model.Quantity / 100,
-            fats: model.Fats * model.Quantity / 100,
-            mealType: mealTypeEnum
-        );
+            var log = FoodLog.Create(
+                userId: UserId,
+                foodName: model.FoodName,
+                calories: (int)(model.Calories * model.Quantity / 100),
+                proteins: model.Proteins * model.Quantity / 100 ?? 0,
+                carbs: model.Carbs * model.Quantity / 100 ?? 0,
+                fats: model.Fats * model.Quantity / 100 ?? 0,
+                mealType: mealTypeEnum
+            );
 
-        await FoodLogService.SaveFoodLogAsync(log);
-        DialogService.Close(true);
+            await FoodLogService.SaveFoodLogAsync(log);
+            DialogService.Close(true);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving food log: {ex.Message}");
+            DialogService.Close(false);
+        }
     }
 }
 

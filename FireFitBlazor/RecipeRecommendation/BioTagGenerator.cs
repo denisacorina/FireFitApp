@@ -154,7 +154,7 @@ using static Tensorflow.TensorSliceProto.Types;
 //                    TagPhrase(tokens, m.Groups[1].Value.Trim().Split(' '), tags);
 //            }
 
-//            // 3) fallback: if you still have a known‐ingredient list, n-gram scan it *only over O’s*
+//            // 3) fallback: if you still have a known‐ingredient list, n-gram scan it *only over O's*
 //            if (knownIngredients?.Count > 0)
 //            {
 //                var lowerKnown = new HashSet<string>(
@@ -489,64 +489,190 @@ public class BioTaggedSentence
             return text;
         }
 
-        public static BioTaggedSentence TokenizeAndTag(
-    string sentence,
-    string intent
-   )
-        {
-            sentence = CleanText(sentence);
+        //public static BioTaggedSentence TokenizeAndTag(
+        //    string sentence,
+        //    string intent
+        //)
+        //{
+        //    sentence = CleanText(sentence);
 
-            // Enhanced patterns with more variations
-            var patterns = new Dictionary<string, (string pattern, string[] groups)>
-    {
-        {
-            "substitute",
-            (
-                @"\b(?:use|swap|switch|trade|replace|exchange|substitute|change|prefer|can\s+(?:we|you)\s+swap)\s+" +
-                @"((?:[\w\s-]+?))\s+" +
-                @"(?:instead\s+of|for|with|to|over)\s+" +
-                @"((?:[\w\s-]+?))\b",
-                new[] { "new", "old" }
-            )
-        },
-        {
-            "add",
-            (
-                @"\b(?:add|include|insert|throw\s+in|put|let'?s\s+put|could\s+you\s+add|please\s+(?:add|include)|" +
-                @"i(?:'d| would)?\s+like\s+to\s+(?:add|include)|i\s+want\s+to\s+include|let'?s|add\s+to\s+the\s+list|" +
-                @"throw\s+in\s+some|include\s+please)\s+" +
-                @"((?:[\w\s-]+?))\b",
-                new[] { "new" }
-            )
-        },
-        {
-            "remove",
-            (
-                @"\b(?:remove|skip|delete|exclude|get\s+rid\s+of|take\s+out|omit|avoid|leave\s+out|don'?t\s+use|no|eliminate|" +
-                @"delete\s+from\s+the\s+list|can\s+you\s+remove)\s+" +
-                @"((?:[\w\s-]+?))\b|" +
-                @"no\s+((?:[\w\s-]+?))\s+in\s+this",
-                new[] { "old" }
-            )
-        }
-    };
+        //    // First, find all compound ingredients in the sentence
+        //    var compoundMatches = new List<(int Start, int End, string Ingredient)>();
+        //    foreach (var compound in CompoundIngredients)
+        //    {
+        //        var regex = new Regex($@"\b{Regex.Escape(compound)}\b", RegexOptions.IgnoreCase);
+        //        var matches = regex.Matches(sentence);
+        //        foreach (Match match in matches)
+        //        {
+        //            compoundMatches.Add((match.Index, match.Index + match.Length, match.Value));
+        //        }
+        //    }
 
-            // First, check for compound ingredients
+        //    // Sort matches by start position
+        //    compoundMatches = compoundMatches.OrderBy(m => m.Start).ToList();
+
+        //    // Tokenize while preserving compound ingredients
+        //    var tokens = new List<BioTaggedToken>();
+        //    var currentPos = 0;
+        //    int tokenIdx = 0;
+
+        //    foreach (var match in compoundMatches)
+        //    {
+        //        if (currentPos < match.Start)
+        //        {
+        //            var beforeText = sentence.Substring(currentPos, match.Start - currentPos);
+        //            var beforeTokens = TokenizeText(beforeText);
+        //            tokens.AddRange(beforeTokens);
+        //            tokenIdx += beforeTokens.Count;
+        //        }
+
+        //        // Add compound ingredient as a single token
+        //        tokens.Add(new BioTaggedToken { Token = match.Ingredient });
+        //        tokenIdx++;
+        //        currentPos = match.End;
+        //    }
+
+        //    if (currentPos < sentence.Length)
+        //    {
+        //        var remainingText = sentence.Substring(currentPos);
+        //        var afterTokens = TokenizeText(remainingText);
+        //        tokens.AddRange(afterTokens);
+        //    }
+
+        //    if (tokens.Count == 0)
+        //    {
+        //        tokens = TokenizeText(sentence);
+        //    }
+
+        //    var tags = Enumerable.Repeat("O", tokens.Count).ToArray();
+
+        //    // Declanșatori pentru fiecare tip de acțiune
+        //    var oldTriggers = new[] { "remove", "exclude", "without", "skip", "eliminate", "delete", "omit", "cut out", "leave out", "get rid of", "take out", "avoid", "no" };
+        //    var newTriggers = new[] { "add", "include", "insert", "put", "put in", "bring in", "throw in", "use", "let's add", "could you add", "please add", "i'd like to add", "i want to add" };
+        //    var replaceTriggers = new[] { "replace", "swap", "switch", "trade", "substitute", "exchange", "change", "prefer" };
+        //    var prev = "";
+        //    var next = "";
+        //    // Cuvinte de legătură și non-ingrediente care nu trebuie etichetate
+        //    var linkingWords = new HashSet<string> {
+        //        "with", "for", "instead", "of", "please", "the", "my", "in", "this", "to", "and", "from", "on", "no", "is", "a", "bit", "could", "you", "i",
+        //        "want", "we", "lets", "also", "okay", "try", "as", "rather", "than", "extra", "have", "make", "not", "using", "it", "some", "in", "the", "recipe"
+        //    };
+
+        //    string mode = "O"; // O, OLD, NEW
+        //    bool insideIngredient = false;
+
+        //    for (int i = 0; i < tokens.Count; i++)
+        //    {
+        //        var currentWindow = string.Join(" ", tokens.Skip(i).Take(3).Select(t => t.Token));
+        //        var matchedTrigger = oldTriggers.FirstOrDefault(t => currentWindow.StartsWith(t)) ??
+        //                            newTriggers.FirstOrDefault(t => currentWindow.StartsWith(t)) ??
+        //                            replaceTriggers.FirstOrDefault(t => currentWindow.StartsWith(t));
+
+        //        if (!string.IsNullOrEmpty(matchedTrigger))
+        //        {
+        //            var triggerWords = matchedTrigger.Split(' ');
+        //            for (int j = 0; j < triggerWords.Length && i + j < tokens.Count; j++)
+        //            {
+        //                prev = i + j == 0 ? "<START>" : tokens[i + j - 1].Token;
+        //                var curr = tokens[i + j].Token;
+        //                next = (i + j + 1 < tokens.Count) ? tokens[i + j + 1].Token : "<END>";
+        //                tags[i + j] = "O";
+        //            }
+
+        //            // Setăm modul pentru ingredientele care urmează
+        //            if (oldTriggers.Contains(matchedTrigger))
+        //                mode = "OLD";
+        //            else if (newTriggers.Contains(matchedTrigger))
+        //                mode = "NEW";
+        //            else if (replaceTriggers.Contains(matchedTrigger))
+        //                mode = "OLD"; // prima parte e OLD, apoi vom comuta la NEW după "with"/"for"/"instead of"
+
+        //            i += triggerWords.Length - 1;
+        //            insideIngredient = false;
+        //            continue;
+        //        }
+
+        //        var current = tokens[i].Token;
+        //        prev = i == 0 ? "<START>" : tokens[i - 1].Token;
+        //        next = i < tokens.Count - 1 ? tokens[i + 1].Token : "<END>";
+
+        //        if (current == "with" || current == "for")
+        //        {
+        //            if (mode == "OLD") mode = "NEW"; // e.g. "replace x with y"
+        //            tags[i] = "O";
+        //            insideIngredient = false;
+        //            continue;
+        //        }
+
+        //        if (current == "instead" && next == "of")
+        //        {
+        //            tags[i] = "O";
+        //            tags[i + 1] = "O";
+        //            i++;
+        //            mode = "OLD";
+        //            insideIngredient = false;
+        //            continue;
+        //        }
+
+        //        if (current == "no" && i + 1 < tokens.Count)
+        //        {
+        //            mode = "OLD";
+        //            tags[i] = "O";
+        //            insideIngredient = false;
+        //            continue;
+        //        }
+
+        //        if (linkingWords.Contains(current))
+        //        {
+        //            tags[i] = "O";
+        //            insideIngredient = false;
+        //            continue;
+        //        }
+
+        //        // Etichetare ingrediente
+        //        if (mode == "OLD" || mode == "NEW")
+        //        {
+        //            var prefix = insideIngredient ? "I" : "B";
+        //            tags[i] = $"{prefix}-{mode}";
+        //            insideIngredient = true;
+        //        }
+        //        else
+        //        {
+        //            tags[i] = "O";
+        //            insideIngredient = false;
+        //        }
+        //    }
+
+        //    // Apply tags to tokens
+        //    for (int i = 0; i < tokens.Count; i++)
+        //    {
+        //        tokens[i].Tag = tags[i];
+        //    }
+
+        //    ValidateTagging(tokens);
+
+        //    return new BioTaggedSentence { Tokens = tokens };
+        //}
+
+        public static BioTaggedSentence TokenizeAndTag(string sentence, string intent)
+        {
+            sentence = CleanText(sentence)
+                .Replace("don't", "do not")
+                .Replace("can't", "cannot"); // Normalize common contractions
+
             var compoundMatches = new List<(int Start, int End, string Ingredient)>();
-            //foreach (var compound in CompoundIngredients.Concat(knownIngredients))
-            //{
-            //    var regex = new Regex($@"\b{Regex.Escape(compound)}\b", RegexOptions.IgnoreCase);
-            //    var matches = regex.Matches(sentence);
-            //    foreach (Match match in matches)
-            //    {
-            //        compoundMatches.Add((match.Index, match.Index + match.Length, match.Value));
-            //    }
-            //}
+            foreach (var compound in CompoundIngredients)
+            {
+                var regex = new Regex($@"\b{Regex.Escape(compound)}s?\b", RegexOptions.IgnoreCase); // handle plurals
+                var matches = regex.Matches(sentence);
+                foreach (Match match in matches)
+                {
+                    compoundMatches.Add((match.Index, match.Index + match.Length, match.Value));
+                }
+            }
 
-            // Sort matches by start position
             compoundMatches = compoundMatches.OrderBy(m => m.Start).ToList();
 
-            // Tokenize while preserving compound ingredients
             var tokens = new List<BioTaggedToken>();
             var currentPos = 0;
 
@@ -558,75 +684,156 @@ public class BioTaggedSentence
                     tokens.AddRange(TokenizeText(beforeText));
                 }
 
-                tokens.Add(new BioTaggedToken { Token = match.Ingredient });
+                //tokens.Add(new BioTaggedToken { Token = match.Ingredient });
+                var split = match.Ingredient.Split(' ');
+                for (int k = 0; k < split.Length; k++)
+                    tokens.Add(new BioTaggedToken { Token = split[k] });
                 currentPos = match.End;
             }
 
             if (currentPos < sentence.Length)
-            {
-                var remainingText = sentence.Substring(currentPos);
-                tokens.AddRange(TokenizeText(remainingText));
-            }
+                tokens.AddRange(TokenizeText(sentence.Substring(currentPos)));
 
             if (tokens.Count == 0)
-            {
                 tokens = TokenizeText(sentence);
-            }
 
             var tags = Enumerable.Repeat("O", tokens.Count).ToArray();
 
-            // Apply intent-based tagging
-            if (patterns.TryGetValue(intent, out var intentPattern))
-            {
-                var regex = new Regex(intentPattern.pattern, RegexOptions.IgnoreCase);
-                var match = regex.Match(sentence);
+            var oldTriggers = new[] { "remove", "exclude", "without", "skip", "eliminate", "delete", "omit", "cut out", "leave out", "get rid of", "take out", "avoid", "do not use", "no" };
+            var newTriggers = new[] { "add", "include", "insert", "put", "put in", "bring in", "throw in", "use", "let's add", "could you add", "please add", "i'd like to add", "i want to add" };
+            var replaceTriggers = new[] { "replace", "swap", "switch", "trade", "substitute", "exchange", "change", "prefer" };
 
-                if (match.Success)
+            var linkingWords = new HashSet<string> {
+        "with", "for", "instead", "of", "please", "the", "my", "in", "this", "to", "and", "from", "on", "no", "is", "a", "bit",
+        "could", "you", "i", "want", "we", "lets", "also", "okay", "try", "as", "rather", "than", "extra", "have", "make",
+        "not", "using", "it", "some", "recipe", "list"
+    };
+
+            string mode = "O";
+            bool insideIngredient = false;
+
+            for (int i = 0; i < tokens.Count; i++)
+            {
+                string current = tokens[i].Token.ToLowerInvariant();
+                string next = (i < tokens.Count - 1) ? tokens[i + 1].Token.ToLowerInvariant() : "<END>";
+
+                // Detect compound triggers
+                var window = string.Join(" ", tokens.Skip(i).Take(4).Select(t => t.Token.ToLowerInvariant()));
+
+                string matchedTrigger = oldTriggers.FirstOrDefault(t => window.StartsWith(t)) ??
+                                        newTriggers.FirstOrDefault(t => window.StartsWith(t)) ??
+                                        replaceTriggers.FirstOrDefault(t => window.StartsWith(t));
+
+                if (!string.IsNullOrEmpty(matchedTrigger))
                 {
-                    for (int i = 0; i < intentPattern.groups.Length; i++)
-                    {
-                        var groupIndex = i + 1;
-                        if (match.Groups.Count > groupIndex && match.Groups[groupIndex].Success)
-                        {
-                            var ingredient = match.Groups[groupIndex].Value.Trim();
-                            TagPhrase(tokens, ingredient.Split(' '), tags, intent, intentPattern.groups[i]);
-                        }
-                    }
+                    int len = matchedTrigger.Split(' ').Length;
+                    for (int j = 0; j < len && i + j < tokens.Count; j++)
+                        tags[i + j] = "O";
+
+                    if (oldTriggers.Contains(matchedTrigger))
+                        mode = "OLD";
+                    else if (newTriggers.Contains(matchedTrigger))
+                        mode = "NEW";
+                    else if (replaceTriggers.Contains(matchedTrigger))
+                        mode = "OLD";
+
+                    insideIngredient = false;
+                    i += len - 1;
+                    continue;
+                }
+
+                //// Special mode transitions
+                //if (current == "with" || current == "for")
+                //{
+                //    if (mode == "OLD") mode = "NEW";
+                //    tags[i] = "O";
+                //    insideIngredient = false;
+                //    continue;
+                //}
+
+                if ((current == "with" || current == "for") && mode == "OLD")
+                {
+                    tags[i] = "O";
+                    mode = "NEW";
+                    insideIngredient = false;
+                    continue;
+                }
+
+                if (current == "instead" && next == "of")
+                {
+                    tags[i] = "O";
+                    tags[i + 1] = "O";
+                    i++;
+                    mode = "OLD";
+                    insideIngredient = false;
+                    continue;
+                }
+
+                if (current == "over")
+                {
+                    if (mode == "OLD") mode = "NEW";
+                    tags[i] = "O";
+                    insideIngredient = false;
+                    continue;
+                }
+
+                if (current == "and" || current == "then")
+                {
+                    //mode = "O";
+                    tags[i] = "O";
+                    insideIngredient = false;
+                    continue;
+                }
+
+                if (current == "no" && i + 1 < tokens.Count)
+                {
+                    mode = "OLD";
+                    tags[i] = "O";
+                    insideIngredient = false;
+                    continue;
+                }
+
+                if (linkingWords.Contains(current))
+                {
+                    tags[i] = "O";
+                    insideIngredient = false;
+                    continue;
+                }
+
+                // Ingredient tagging
+                if (mode == "OLD" || mode == "NEW")
+                {
+                    string prefix = insideIngredient ? "I" : "B";
+                    tags[i] = $"{prefix}-{mode}";
+                    insideIngredient = true;
+                }
+                else
+                {
+                    tags[i] = "O";
+                    insideIngredient = false;
                 }
             }
 
-            // Apply tags to tokens and validate
             for (int i = 0; i < tokens.Count; i++)
-            {
                 tokens[i].Tag = tags[i];
-            }
 
             ValidateTagging(tokens);
 
-            var hasIngredients = tokens.Any(t => t.Tag.EndsWith("-OLD") || t.Tag.EndsWith("-NEW"));
-            if (!hasIngredients)
-            {
-                // Try one more time with simple ingredient matching
-                for (int i = 0; i < tokens.Count; i++)
-                {
-                    var token = tokens[i].Token.ToLowerInvariant();
-                    if /*(knownIngredients.Contains(token, StringComparer.OrdinalIgnoreCase) ||*/
-                        (CompoundIngredients.Contains(token, StringComparer.OrdinalIgnoreCase))
-                    {
-                        string prefix = intent switch
-                        {
-                            "remove" => "OLD",
-                            "add" => "NEW",
-                            "substitute" => "NEW",
-                            _ => "NEW"
-                        };
-                        tokens[i].Tag = $"B-{prefix}";
-                    }
-                }
-            }
-
             return new BioTaggedSentence { Tokens = tokens };
         }
+
+
+        //private static void ValidateTagging(List<BioTaggedToken> tokens)
+        //{
+        //    for (int i = 0; i < tokens.Count; i++)
+        //    {
+        //        if ((tokens[i].Tag == "I-OLD" || tokens[i].Tag == "I-NEW") &&
+        //            (i == 0 || tokens[i - 1].Tag == "O"))
+        //        {
+        //            tokens[i].Tag = tokens[i].Tag.Replace("I", "B");
+        //        }
+        //    }
+        //}
 
         private static void ValidateTagging(List<BioTaggedToken> tokens)
         {
@@ -637,60 +844,31 @@ public class BioTaggedSentence
                 {
                     tokens[i].Tag = tokens[i].Tag.Replace("I", "B");
                 }
+
+                if (i > 0 && tokens[i].Tag.StartsWith("B-") &&
+                    tokens[i - 1].Tag.EndsWith(tokens[i].Tag.Substring(2)))
+                {
+                    tokens[i].Tag = tokens[i].Tag.Replace("B", "I");
+                }
             }
         }
 
+
+        //private static List<BioTaggedToken> TokenizeText(string text)
+        //{
+        //    return Regex.Matches(text, @"\b\w+\b|[^\w\s]")
+        //        .Select(m => new BioTaggedToken { Token = m.Value })
+        //        .ToList();
+        //}
+
+
         private static List<BioTaggedToken> TokenizeText(string text)
         {
-            return Regex.Matches(text, @"\b\w+\b|[^\w\s]")
+            return Regex.Matches(text, @"\w+(?:'\w+)?|[^\w\s]")
                 .Select(m => new BioTaggedToken { Token = m.Value })
                 .ToList();
         }
 
-        private static void TagPhrase(List<BioTaggedToken> tokens, string[] phraseTokens, string[] tagArray, string intent, string target)
-        {
-            for (int i = 0; i <= tokens.Count - phraseTokens.Length; i++)
-            {
-                bool match = true;
-                for (int j = 0; j < phraseTokens.Length; j++)
-                {
-                    // Check for compound ingredients first
-                    var phraseJoined = string.Join(" ", phraseTokens);
-                    if (CompoundIngredients.Contains(phraseJoined, StringComparer.OrdinalIgnoreCase))
-                    {
-                        // If it's a compound ingredient, match it as a whole
-                        if (!string.Equals(string.Join(" ", tokens.Skip(i).Take(phraseTokens.Length).Select(t => t.Token)),
-                            phraseJoined, StringComparison.OrdinalIgnoreCase))
-                        {
-                            match = false;
-                            break;
-                        }
-                    }
-                    else if (!string.Equals(tokens[i + j].Token, phraseTokens[j], StringComparison.OrdinalIgnoreCase))
-                    {
-                        match = false;
-                        break;
-                    }
-                }
-
-                if (match)
-                {
-                    string tagPrefix = intent switch
-                    {
-                        "substitute" => target == "new" ? "NEW" : "OLD",
-                        "add" => "NEW",
-                        "remove" => "OLD",
-                        _ => "O"
-                    };
-
-                    tagArray[i] = $"B-{tagPrefix}";
-                    for (int j = 1; j < phraseTokens.Length; j++)
-                        tagArray[i + j] = $"I-{tagPrefix}";
-
-                    return;
-                }
-            }
-        }
         public static void LoadCompoundIngredients(string filePath)
         {
             if (File.Exists(filePath))

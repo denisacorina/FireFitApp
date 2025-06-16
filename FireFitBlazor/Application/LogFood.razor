@@ -25,20 +25,20 @@
 
     <div class="dropdown-container">
         <RadzenDropDown @bind-Value="selectedMeal"
-        Data="@meals"
-        TextProperty="Name"
-        ValueProperty="Name"
-        Placeholder="Select meal type..."
-        Style="width: 200px; border: none; color: #ff6600; text-align: center; font-weight: 600;"
-        PopupStyle="text-align: center;"
-        Change="@OnMealChanged" />
+                        Data="@meals"
+                        TextProperty="Name"
+                        ValueProperty="Name"
+                        Placeholder="Select meal type..."
+                        Style="width: 200px; border: none; color: #ff6600; text-align: center; font-weight: 600;"
+                        PopupStyle="text-align: center;"
+                        Change="@OnMealChanged" />
     </div>
 </div>
 
 <RadzenTextBox Style="width: 93%; margin: 1rem 1rem 1rem 1rem;"
-Placeholder="Search for a food"
-Value="@searchTerm"
-@oninput="HandleInput" />
+               Placeholder="Search for a food"
+               Value="@searchTerm"
+               @oninput="HandleInput" />
 
 
 @if (string.IsNullOrWhiteSpace(searchTerm))
@@ -46,12 +46,12 @@ Value="@searchTerm"
     <div class=" action-buttons-scroll">
 
         <label class="scroll-btn orange-btn" style="position: relative;" @onclick="OpenBarcodeScanner">
-            <i class="bi bi-upc-scan large-icon"></i> 
+            <i class="bi bi-upc-scan large-icon"></i>
             <span class="small-text">Barcode <br />scan</span>
         </label>
 
         <label class="scroll-btn orange-btn" style="position: relative;">
-            <i class="bi bi-qr-code-scan large-icon"></i> 
+            <i class="bi bi-qr-code-scan large-icon"></i>
             <span class="small-text">Scan<br /> Meal</span>
             <InputFile OnChange="OnImageSelected" accept="image/*" capture="environment"
                        style="position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0;" />
@@ -69,7 +69,7 @@ Value="@searchTerm"
             <span class="small-text">Quick <br /> Add</span>
         </label>
     </div>
-    
+
 }
 
 @if (showBarcodeScanner)
@@ -86,44 +86,44 @@ Value="@searchTerm"
 }
 
 
-    @if (FilteredIngredients.Any())
-    {
-        <ul class="ingredient-list">
-            @foreach (var ingredient in FilteredIngredients)
-            {
-                <li class="ingredient-item">
-                    <div class="ingredient-info">
-                        <strong>@ingredient.Name</strong><br />
-                        <small><b>@ingredient.Nutrition.Calories kcal</b>, @ingredient.Description</small>
-                        
-                    </div>
-                    <RadzenIcon Icon="add_circle" Style="color: #1E88E5; font-size: 1.5rem; cursor: pointer;" @onclick="() => AddIngredient(ingredient.Name)" />
-                </li>
-            }
-        </ul>
-    }
-    else if (!string.IsNullOrWhiteSpace(searchTerm))
-    {
-        <div style="text-align: center; color: #6c757d; margin-top: 2rem;">
-            No results found for "<strong>@searchTerm</strong>"
-        </div>
-    }
-    else
-    {
+@if (FilteredIngredients.Any())
+{
+    <ul class="ingredient-list">
+        @foreach (var ingredient in FilteredIngredients)
+        {
+            <li class="ingredient-item">
+                <div class="ingredient-info">
+                    <strong>@ingredient.Name</strong><br />
+                    <small><b>@ingredient.Nutrition.Calories kcal</b>, @ingredient.Description</small>
+
+                </div>
+                <RadzenIcon Icon="add_circle" Style="color: #1E88E5; font-size: 1.5rem; cursor: pointer;" @onclick="() => AddIngredient(ingredient.Name)" />
+            </li>
+        }
+    </ul>
+}
+else if (!string.IsNullOrWhiteSpace(searchTerm))
+{
+    <div style="text-align: center; color: #6c757d; margin-top: 2rem;">
+        No results found for "<strong>@searchTerm</strong>"
+    </div>
+}
+else
+{
     <div class="empty-search-container">
         <img src="/images/fire-flame-logo-design-template-vector.png" class="logo-faded" />
         <div class="empty-search-text">Search for an ingredient</div>
     </div>
-    }
+}
 
-
+<RadzenDialog></RadzenDialog>
 <FireFitBlazor.Components.Layout.BottomNav />
 <RadzenNotification />
 
 @code {
     [Parameter] public string? mealType { get; set; }
     private MealType MealType { get; set; }
-  
+
     [Inject]
     public IHttpClientFactory HttpClientFactory { get; set; } = default!;
     private User? currentUser;
@@ -195,8 +195,24 @@ Value="@searchTerm"
         await LoadUserHistory();
     }
 
+    private void OpenBarcodeScanner()
+    {
+        if (string.IsNullOrWhiteSpace(mealType) && string.IsNullOrWhiteSpace(selectedMeal))
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Meal type required", "Please select a meal type before scanning a barcode.");
+            return;
+        }
+        showBarcodeScanner = true;
+    }
+
     private async Task OnImageSelected(InputFileChangeEventArgs e)
     {
+        if (string.IsNullOrWhiteSpace(mealType) && string.IsNullOrWhiteSpace(selectedMeal))
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Meal type required", "Please select a meal type before scanning a meal.");
+            return;
+        }
+
         var file = e.File;
         try
         {
@@ -209,7 +225,7 @@ Value="@searchTerm"
 
             ImageTransferService.CapturedImage = $"data:{file.ContentType};base64,{base64}";
             await Task.Delay(50);
-            Navigation.NavigateTo($"/meal-detect-demo?mealType={mealType}");
+            Navigation.NavigateTo($"/meal-detect-demo?mealType={mealType ?? selectedMeal?.ToLower()}");
         }
         catch
         {
@@ -220,19 +236,31 @@ Value="@searchTerm"
 
     private async Task ShowQuickAddDialog()
     {
-        var result = await DialogService.OpenAsync<QuickAddDialog>(
-            "Quick Add Food",
-            new Dictionary<string, object>
-            {
+        if (string.IsNullOrWhiteSpace(mealType) && string.IsNullOrWhiteSpace(selectedMeal))
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Meal type required", "Please select a meal type before adding a food.");
+            return;
+        }
+
+        try
+        {
+            var result = await DialogService.OpenAsync<QuickAddDialog>(
+                "Quick Add Food",
+                new Dictionary<string, object>
+                        {
                 { "UserId", currentUser.UserId },
                 { "MealType", mealType ?? selectedMeal?.ToLower() }
-            },
-            new DialogOptions { Width = "500px", Height = "600px", Resizable = true, Draggable = true }
-        );
+                        },
+                new DialogOptions { Width = "500px", Height = "auto", Resizable = true, Draggable = true }  );
 
-        if (result is bool shouldReload && shouldReload)
+            if (result is bool shouldReload && shouldReload)
+            {
+                await LoadUserHistory();
+            }
+        }
+        catch (Exception ex)
         {
-            await LoadUserHistory();
+            NotificationService.Notify(NotificationSeverity.Error, "Error", "Failed to open Quick Add dialog: " + ex.Message);
         }
     }
 
@@ -242,7 +270,7 @@ Value="@searchTerm"
         {
             var history = await FoodLogService.GetUserIngredientHistoryAsync(currentUser.UserId);
             var ingredientNames = history.Select(h => h.IngredientId).ToList();
-            
+
             historyIngredients = await FoodLogService.GetIngredientDetailsById(
                 ingredientNames.Select(id => id).ToList()
             );
@@ -253,7 +281,7 @@ Value="@searchTerm"
     {
         if (string.IsNullOrWhiteSpace(mealType) && string.IsNullOrWhiteSpace(selectedMeal))
         {
-            NotificationService.Notify(NotificationSeverity.Warning, "Meal type required", "Please select a meal type before adding an ingredient."); 
+            NotificationService.Notify(NotificationSeverity.Warning, "Meal type required", "Please select a meal type before adding an ingredient.");
             return;
         }
 
@@ -287,11 +315,6 @@ Value="@searchTerm"
         searchTerm = e.Value?.ToString() ?? "";
     }
 
-    private void OpenBarcodeScanner()
-    {
-        showBarcodeScanner = true;
-    }
-
     private void CloseBarcodeScanner()
     {
         showBarcodeScanner = false;
@@ -315,6 +338,7 @@ Value="@searchTerm"
         color: #6c757d;
         text-align: center;
     }
+
     .food-log-header {
         display: flex;
         align-items: center;
@@ -335,12 +359,6 @@ Value="@searchTerm"
         margin-right: 20px;
         margin-left: 20px;
     }
-
-  @*   .action-button {
-        flex: 1 1 30%;
-        min-width: 120px;
-        font-weight: bold;
-    } *@
 
     .ingredient-history {
         margin-top: 2rem;
@@ -434,7 +452,7 @@ Value="@searchTerm"
         scroll-snap-type: x mandatory;
     }
 
-  
+
 
     .rz-button.scroll-btn {
         display: flex;
@@ -459,7 +477,7 @@ Value="@searchTerm"
     }
 
 
-     .rz-button.scroll-btn {
+    .rz-button.scroll-btn {
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
@@ -472,19 +490,19 @@ Value="@searchTerm"
         border-radius: 10px;
     }
 
-    .rz-button.scroll-btn .rz-button-icon {
-        font-size: 1.4rem;
-    }
+        .rz-button.scroll-btn .rz-button-icon {
+            font-size: 1.4rem;
+        }
 
-    .rz-button.scroll-btn .rz-button-text {
-        display: block;
-        font-weight: 600;
-        margin-top: 0.2rem;
-        font-size: 0.9rem;
-    }
+        .rz-button.scroll-btn .rz-button-text {
+            display: block;
+            font-weight: 600;
+            margin-top: 0.2rem;
+            font-size: 0.9rem;
+        }
 
     .large-icon {
-        font-size: 2rem; 
+        font-size: 2rem;
     }
 
     .small-text {
@@ -563,7 +581,7 @@ Value="@searchTerm"
         margin-bottom: 1rem;
     }
 
-    .barcode-scanner-header h3 {
-        margin: 0;
-    }
+        .barcode-scanner-header h3 {
+            margin: 0;
+        }
 </style>

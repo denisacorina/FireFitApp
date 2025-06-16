@@ -42,7 +42,7 @@
         @if (ScannedProduct?.Nutriments != null)
         {
             <div class="nutrition-info">
-                <h4>Nutrition Facts (for @ConsumedQuantityInGrams g)</h4>
+                <h4>Nutritional Information (for @ConsumedQuantityInGrams g)</h4>
                 <p>Energy: @Math.Round(AdjustedKcal, 2) kcal</p>
                 <p>Proteins: @Math.Round(AdjustedProteins, 2) g</p>
                 <p>Carbs: @Math.Round(AdjustedCarbs, 2) g</p>
@@ -110,15 +110,7 @@
                 errorMessage = $"No product found for barcode: {barcode}";
             }
 
-            // var quantityMatch = System.Text.RegularExpressions.Regex.Match(ScannedProduct.Quantity ?? "", @"(\d+)");
-            // if (quantityMatch.Success)
-            // {
-            //     ConsumedQuantityInGrams = float.Parse(quantityMatch.Value);
-            // }
-            // else
-            // {
                 ConsumedQuantityInGrams = 100;
-            //}
 
             StateHasChanged();
         }

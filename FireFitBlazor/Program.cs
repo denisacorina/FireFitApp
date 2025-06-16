@@ -31,6 +31,7 @@ using IntentClassification;
 using RecipeRecommendation;
 using FireFitBlazor.Domain.Contexts.ProgressContexts;
 using BlazorBootstrap;
+using static BioTaggedSentence;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -116,8 +117,8 @@ builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 
 builder.Services.AddHttpClient("ServerAPI", client =>
 {
-   /* client.BaseAddress = new Uri("https://localhost:7128/");*/ 
-    client.BaseAddress = new Uri("http://192.168.100.87:5000/");
+    //client.BaseAddress = new Uri("https://localhost:7128/");
+    client.BaseAddress = new Uri("http://172.20.10.3:5000/");
 });
 
 builder.Services.AddHttpClient("MLAPI", client =>
@@ -185,10 +186,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.LoginPath = "/login";
     options.LogoutPath = "/logout";
     options.AccessDeniedPath = "/forbidden";
-    options.Cookie.SameSite = SameSiteMode.Lax; // ✅ required for mobile + cross-tab
-    options.Cookie.SecurePolicy = CookieSecurePolicy.None; // ✅ required when SameSite=None
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.None;
     options.Cookie.HttpOnly = true;
-    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+    options.ExpireTimeSpan = TimeSpan.FromDays(30);
 });
 
 
@@ -196,6 +197,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
+
+//if (!File.Exists("\\vocab.json") || !File.Exists("\\ner_model.index")) 
+//{
+//    Console.WriteLine("Modelul NER sau vocabularul nu există. Se va antrena modelul...");
+//    RecipeRecommendationGen.TrainModel();
+//}
 builder.Services.AddScoped<RecipeRecommendation.NERPredictor>(sp =>
     new RecipeRecommendation.NERPredictor("./ner_model", "./vocab.json")
 );
@@ -241,3 +248,6 @@ app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 
 app.Run();
+
+
+

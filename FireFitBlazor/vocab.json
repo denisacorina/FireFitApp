@@ -117,7 +117,8 @@
   "TagToIdx": {
     "O": 0,
     "B-NEW": 1,
-    "B-OLD": 2,
-    "I-NEW": 3
+    "I-NEW": 2,
+    "B-OLD": 3,
+    "I-OLD": 4
   }
 }
