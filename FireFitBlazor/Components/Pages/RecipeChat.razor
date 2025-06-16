@@ -8,7 +8,7 @@
 @using Radzen
 @using Radzen.Blazor
 @using Microsoft.AspNetCore.Components.Web
-@inject RecipeGeneratorService RecipeService
+@inject RecipeChatService ChatService
 @inject ICurrentUserService CurrentUserService
 @inject IUserPreferencesContext UserPreferencesContext
 @inject DialogService DialogService
@@ -60,11 +60,11 @@ Click="@(() => Navigation.NavigateTo("/dashboard", true))" />
     private List<ChatMessage> chatMessages = new();
     private RadzenStack chatContainer;
     private RecipeGeneratorService.UpdatedRecipeResultJson currentRecipe;
-    private bool isFirstInteraction = true;
-    private bool isSelectingPreference = false;
     private List<DietaryPreference> userDietaryPreferences = new();
     private User? currentUser;
     private RecipeJson originalRecipe;
+
+    private bool recipeIsSelected => originalRecipe != null;
 
     private class ChatMessage
     {
@@ -74,13 +74,11 @@ Click="@(() => Navigation.NavigateTo("/dashboard", true))" />
 
     protected override async Task OnInitializedAsync()
     {
-        RecipeService.RegenerateBioTags();
         // currentUser = await CurrentUserService.GetUserAsync();
         // if (currentUser != null)
         // {
         //     userDietaryPreferences = currentUser.DietaryPreferences;
         // }
-
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -89,7 +87,6 @@ Click="@(() => Navigation.NavigateTo("/dashboard", true))" />
         {
             if (userDietaryPreferences.Count > 1)
             {
-                isSelectingPreference = true;
                 AddBotMessage("👋 Hi! I see you have multiple dietary preferences set. Which one would you like to use for this recipe?\n\n" +
                             string.Join("\n", userDietaryPreferences.Select(p => $"- {p}")));
             }
@@ -108,89 +105,58 @@ Click="@(() => Navigation.NavigateTo("/dashboard", true))" />
     {
         if (string.IsNullOrWhiteSpace(userInput)) return;
 
-        // Add user message
         AddUserMessage(userInput);
+        var recipes = await LoadRecipes();
+        string response;
 
-        if (isSelectingPreference)
+        // Check if user wants a new recipe explicitly
+        if (userInput.Trim().ToLower().Contains("new recipe"))
         {
-            // Handle preference selection
-            if (Enum.TryParse<DietaryPreference>(userInput, true, out var selectedPreference) &&
-                userDietaryPreferences.Contains(selectedPreference))
-            {
-                isSelectingPreference = false;
-                AddBotMessage($"Great! I'll find a {selectedPreference} recipe for you. What kind of recipe would you like?");
-            }
-            else
-            {
-                AddBotMessage("Please select one of your dietary preferences from the list above.");
-            }
+            originalRecipe = null;
+            currentRecipe = null;
+            ChatService.ClearCurrentRecipe();
+            AddBotMessage("🔄 Sure! Let's start fresh. What kind of recipe are you looking for?");
+            userInput = "";
+            return;
         }
-        else if (isFirstInteraction)
+
+        // If a recipe is already selected, allow modification
+        if (recipeIsSelected && ChatService.CurrentRecipe != null)
         {
-            // Handle initial recipe request
-            var recipes = await LoadRecipes();
-            var recipe = RecipeService.HandleUserRequest(userInput, recipes);
+            response = await ChatService.ProcessRecipeModification(userInput);
 
-            if (recipe != null)
-            {
-                originalRecipe = recipe;
-                //currentRecipe = RecipeService.GenerateUpdatedRecipe(userInput, originalRecipe);
-
-                AddBotMessage($"Here's a recipe for {originalRecipe.Name}:\n\n" +
-                    $"Ingredients:\n" +
-                    string.Join("\n", originalRecipe.Ingredients.Select(i => $"- {i.Quantity} {i.Unit} {i.Ingredient}")) +
-                    $"\n\nNutrition per serving:\n" +
-                    $"Calories: {originalRecipe.TotalNutrition.Calories:F0} kcal\n" +
-                    $"Protein: {originalRecipe.TotalNutrition.Protein:F1}g\n" +
-                    $"Carbs: {originalRecipe.TotalNutrition.Carbs:F1}g\n" +
-                    $"Fat: {originalRecipe.TotalNutrition.Fat:F1}g\n\n" +
-                    $"Would you like to make any changes to this recipe?");
-
-                isFirstInteraction = false;
-            }
-            else
-            {
-                AddBotMessage("I couldn't find a suitable recipe. Could you please try again with different preferences?");
-            }
+            // Update the current version with modified one
+            currentRecipe = new RecipeGeneratorService.UpdatedRecipeResultJson
+                {
+                    Title = ChatService.CurrentRecipe.Name,
+                    Ingredients = ChatService.CurrentRecipe.Ingredients,
+                    Calories = (int)ChatService.CurrentRecipe.TotalNutrition.Calories,
+                    Protein = (decimal)ChatService.CurrentRecipe.TotalNutrition.Proteins,
+                    Carbs = (decimal)ChatService.CurrentRecipe.TotalNutrition.Carbs,
+                    Fat = (decimal)ChatService.CurrentRecipe.TotalNutrition.Fats,
+                };
         }
         else
         {
-            // Handle recipe modifications
-            if (originalRecipe != null)
+            response = await ChatService.ProcessMessage(userInput, recipes);
+
+            if (ChatService.CurrentRecipe != null)
             {
-                var updatedRecipe = RecipeService.GenerateUpdatedRecipe(userInput, originalRecipe);
-                if (updatedRecipe != null)
-                {
-                    currentRecipe = updatedRecipe;
-                    // currentRecipe.Calories = updatedRecipe.Calories;
-                    AddBotMessage($"Here's your updated recipe:\n\n" +
-                        $"Ingredients:\n" +
-                        string.Join("\n", currentRecipe.Ingredients.Select(i => $"- {i.Quantity} {i.Unit} {i.Ingredient}")) +
-                        $"\n\nUpdated nutrition per serving:\n" +
-                        $"Calories: {currentRecipe.Calories:F0} kcal\n" +
-                        $"Protein: {currentRecipe.Protein:F1}g\n" +
-                        $"Carbs: {currentRecipe.Carbs:F1}g\n" +
-                        $"Fat: {currentRecipe.Fat:F1}g\n\n" +
-                        $"Would you like to make any other changes?");
-                }
-                else
-                {
-                    AddBotMessage("I couldn't understand the changes you wanted to make. Could you please try again?");
-                }
+                originalRecipe = ChatService.CurrentRecipe;
+                currentRecipe = new RecipeGeneratorService.UpdatedRecipeResultJson
+                    {
+                        Title = ChatService.CurrentRecipe.Name,
+                        Ingredients = ChatService.CurrentRecipe.Ingredients,
+                        Calories = (int)ChatService.CurrentRecipe.TotalNutrition.Calories,
+                        Protein = (decimal)ChatService.CurrentRecipe.TotalNutrition.Proteins,
+                        Carbs = (decimal)ChatService.CurrentRecipe.TotalNutrition.Carbs,
+                        Fat = (decimal)ChatService.CurrentRecipe.TotalNutrition.Fats,
+                    };
             }
         }
 
+        AddBotMessage(response);
         userInput = "";
-        //await ScrollToBottom();
-    }
-
-
-    private void HandleKeyPress(KeyboardEventArgs e)
-    {
-        if (e.Key == "Enter")
-        {
-            SendMessage();
-        }
     }
 
     private void AddUserMessage(string message)
@@ -205,17 +171,20 @@ Click="@(() => Navigation.NavigateTo("/dashboard", true))" />
         StateHasChanged();
     }
 
-    // private async Task ScrollToBottom()
-    // {
-    //     await Task.Delay(100); // Wait for render
-    //     await JS.InvokeVoidAsync("recipeChat.scrollToBottom", chatContainer);
-    // }
-
     private async Task<List<RecipeJson>> LoadRecipes()
     {
-        // Load recipes from your JSON file
         var json = await File.ReadAllTextAsync("C:\\Users\\DENI\\Downloads\\updated_recipes_with_nutrition_v2.json");
         return JsonConvert.DeserializeObject<List<RecipeJson>>(json);
+    }
+
+
+
+    private void HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SendMessage();
+        }
     }
 }
 

@@ -22,128 +22,130 @@ using IntentClassification;
 using static TorchSharp.torch;
 using Tensorflow.Keras.Layers;
 using Tensorflow.Keras.ArgsDefinition;
+using FireFitBlazor.Domain.ValueObjects;
+using CsvHelper.Configuration.Attributes;
 
 
 namespace RecipeRecommendation
 {
     class RecipeRecommendationGen
     {
-        public static void Main(string[] args)
-        {
-            var ingredients = File.ReadAllLines("food.csv")
-             .Skip(1)
-             .Select(line =>
-             {
-                 var parts = line.Split(',');
+    //    public static void Main(string[] args)
+    //    {
+    //        var ingredients = File.ReadAllLines("food.csv")
+    //         .Skip(1)
+    //         .Select(line =>
+    //         {
+    //             var parts = line.Split(',');
 
-                 decimal TryParseDecimal(string input)
-                 {
-                     return decimal.TryParse(input.Trim('"'), out var value) ? value : 0;
-                 }
+    //             decimal TryParseDecimal(string input)
+    //             {
+    //                 return decimal.TryParse(input.Trim('"'), out var value) ? value : 0;
+    //             }
 
-                 return new IngredientNutrition
-                 {
-                     Name = parts[1].Trim('"').ToLower(),            // Clean name properly
-                     Calories = TryParseDecimal(parts[11]),          // Data.Kilocalories
-                     Carbs = TryParseDecimal(parts[7]),              // Data.Carbohydrate
-                     Protein = TryParseDecimal(parts[17]),           // Data.Protein
-                     Fat = TryParseDecimal(parts[27]),               // Data.Fat.Total Lipid
-                     Fiber = TryParseDecimal(parts[10])              // Data.Fiber
-                 };
-             }).ToList();
+    //             return new IngredientNutrition
+    //             {
+    //                 Name = parts[1].Trim('"').ToLower(),            // Clean name properly
+    //                 Calories = TryParseDecimal(parts[11]),          // Data.Kilocalories
+    //                 Carbs = TryParseDecimal(parts[7]),              // Data.Carbohydrate
+    //                 Protein = TryParseDecimal(parts[17]),           // Data.Protein
+    //                 Fat = TryParseDecimal(parts[27]),               // Data.Fat.Total Lipid
+    //                 Fiber = TryParseDecimal(parts[10])              // Data.Fiber
+    //             };
+    //         }).ToList();
 
-            var recipes = System.Text.Json.JsonSerializer.Deserialize<List<RecipeRec>>(File.ReadAllText("recipes_combined_all_with_diet.json"));
-          //  BioTagGenerator.GenerateBIO("nlp_recipe_intents_15000.json", "food.csv", "bio_annotated_dataset_old_new.json");
-           // TrainModelForTextClassification();
+    //        var recipes = System.Text.Json.JsonSerializer.Deserialize<List<RecipeRec>>(File.ReadAllText("recipes_combined_all_with_diet.json"));
+    //      //  BioTagGenerator.GenerateBIO("nlp_recipe_intents_15000.json", "food.csv", "bio_annotated_dataset_old_new.json");
+    //       // TrainModelForTextClassification();
 
-            //PredictUserIntent();
+    //        //PredictUserIntent();
 
-           // var dataset = LoadBIOAnnotatedDataset("bio_annotated_dataset.json");
-          //  var (X, y, word2idx, tag2idx) = PrepareData(dataset);
-            //
-           // var model = BuildNERModel(word2idx.Count, tag2idx.Count);
+    //       // var dataset = LoadBIOAnnotatedDataset("bio_annotated_dataset.json");
+    //      //  var (X, y, word2idx, tag2idx) = PrepareData(dataset);
+    //        //
+    //       // var model = BuildNERModel(word2idx.Count, tag2idx.Count);
 
-            TrainModel();
-            TestPrediction();
-
-
-            var ner = new NERPredictor("./ner_model", "./vocab.json");
-          var service = new RecipeGeneratorService(ner, new MLModel1());
-
-    //        var originalRecipe = new Recipe
-    //        {
-    //            Name = "Veggie Rice Bowl",
-    //            Ingredients = new List<IngredientEntry>
-    //{
-    //    new() { Name = "rice", Quantity = 150, Unit = "g" },
-    //    new() { Name = "broccoli", Quantity = 100, Unit = "g" },
-    //    new() { Name = "olive oil", Quantity = 10, Unit = "g" }
-    //}
-    //        };
-
-            string json = File.ReadAllText("C:\\Users\\z004umbe\\Downloads\\updated_recipes_with_nutrition_v2.json");
-
-            // Deserialize the JSON into a list of Recipe objects
-            var recipesJson = JsonConvert.DeserializeObject<List<RecipeJson>>(json);
-
-            List<RecipeJson> allRecipes = recipesJson; // Assuming this is a method that retrieves all recipes
-            Console.WriteLine("Enter your recipe request (e.g., 'vegan recipe under 400 kcal'):");
-            string userInput = Console.ReadLine();
-
-            // Handle the request
-            var receivedRecipe = service.HandleUserRequest(userInput, allRecipes);
-            //// User request: Find vegan recipes under 400 kcal
-            //string dietaryPreference = "Vegan";
-            //decimal maxCalories = 400;
-
-            // Step 1: Filter the recipes by calorie limit and dietary preference
-            //var filteredRecipes = service.FilterRecipes(allRecipes, maxCalories, dietaryPreference);
-
-            //// Step 2: Adjust the recipes if they exceed the calorie limit
-            //foreach (var recipe in filteredRecipes)
-            //{
-            //    if (recipe.TotalCalories > maxCalories)
-            //    {
-            //        recipe = service.AdjustRecipeToFitCalorieLimit(recipe, maxCalories);
-            //    }
-            //}
-
-            Console.Write("\nWould you like to change something to the recipe? ");
-            var userInputReplace = Console.ReadLine();
-
-            var updated = service.GenerateUpdatedRecipe(userInputReplace, receivedRecipe);
-
-            Console.WriteLine($"\n✅ Updated Recipe: {updated.Title}");
-            foreach (var ing in updated.Ingredients)
-                Console.WriteLine($"- {ing.Ingredient}: {ing.Quantity}{ing.Unit}");
-
-            Console.WriteLine($"\n🔥 Calories: {updated.Calories} kcal");
-            Console.WriteLine($"💪 Protein:  {updated.Protein} g");
-            Console.WriteLine($"🍞 Carbs:    {updated.Carbs} g");
-            Console.WriteLine($"🧈 Fat:      {updated.Fat} g");
-            Console.WriteLine($"🌿 Fiber:    {updated.Fiber} g");
+    //        TrainModel();
+    //        TestPrediction();
 
 
+    //        var ner = new NERPredictor("./ner_model", "./vocab.json");
+    //      var service = new RecipeGeneratorService(ner, new MLModel1());
+
+    ////        var originalRecipe = new Recipe
+    ////        {
+    ////            Name = "Veggie Rice Bowl",
+    ////            Ingredients = new List<IngredientEntry>
+    ////{
+    ////    new() { Name = "rice", Quantity = 150, Unit = "g" },
+    ////    new() { Name = "broccoli", Quantity = 100, Unit = "g" },
+    ////    new() { Name = "olive oil", Quantity = 10, Unit = "g" }
+    ////}
+    ////        };
+
+    //        string json = File.ReadAllText("C:\\Users\\z004umbe\\Downloads\\updated_recipes_with_nutrition_v2.json");
+
+    //        // Deserialize the JSON into a list of Recipe objects
+    //        var recipesJson = JsonConvert.DeserializeObject<List<RecipeJson>>(json);
+
+    //        List<RecipeJson> allRecipes = recipesJson; // Assuming this is a method that retrieves all recipes
+    //        Console.WriteLine("Enter your recipe request (e.g., 'vegan recipe under 400 kcal'):");
+    //        string userInput = Console.ReadLine();
+
+    //        // Handle the request
+    //        var receivedRecipe = service.HandleUserRequest(userInput, allRecipes);
+    //        //// User request: Find vegan recipes under 400 kcal
+    //        //string dietaryPreference = "Vegan";
+    //        //decimal maxCalories = 400;
+
+    //        // Step 1: Filter the recipes by calorie limit and dietary preference
+    //        //var filteredRecipes = service.FilterRecipes(allRecipes, maxCalories, dietaryPreference);
+
+    //        //// Step 2: Adjust the recipes if they exceed the calorie limit
+    //        //foreach (var recipe in filteredRecipes)
+    //        //{
+    //        //    if (recipe.TotalCalories > maxCalories)
+    //        //    {
+    //        //        recipe = service.AdjustRecipeToFitCalorieLimit(recipe, maxCalories);
+    //        //    }
+    //        //}
+
+    //        Console.Write("\nWould you like to change something to the recipe? ");
+    //        var userInputReplace = Console.ReadLine();
+
+    //        var updated = service.GenerateUpdatedRecipe(userInputReplace, receivedRecipe);
+
+    //        Console.WriteLine($"\n✅ Updated Recipe: {updated.Title}");
+    //        foreach (var ing in updated.Ingredients)
+    //            Console.WriteLine($"- {ing.Ingredient}: {ing.Quantity}{ing.Unit}");
+
+    //        Console.WriteLine($"\n🔥 Calories: {updated.Calories} kcal");
+    //        Console.WriteLine($"💪 Protein:  {updated.Protein} g");
+    //        Console.WriteLine($"🍞 Carbs:    {updated.Carbs} g");
+    //        Console.WriteLine($"🧈 Fat:      {updated.Fat} g");
+    //        Console.WriteLine($"🌿 Fiber:    {updated.Fiber} g");
 
 
-            //var cache = new NutritionCache();
 
-            //IngredientNutrition GetNutrition(string name) =>
-            //    cache.GetOrAdd(name, () =>
-            //        ingredients.FirstOrDefault(i => i.Name == name.ToLower()));
 
-            //Console.WriteLine($"Updated total calories: {totalCalories} kcal");
+    //        //var cache = new NutritionCache();
 
-            //decimal totalCalories = recipe.Ingredients.Sum(ingredient =>
-            //{
-            //    var normalizedGrams = UnitNormalizer.NormalizeToGrams(ingredient.Quantity, ingredient.Unit);
-            //    var nut = GetNutrition(ingredient.Name);
-            //    return normalizedGrams / 100 * nut?.Calories ?? 0;
-            //});
-            //var (sess, inputTensor, logitsTensor, word2idx, idx2tag) = LoadNERModel();
-            //var result = PredictNER("replace butter with avocado", word2idx, idx2tag, sess, inputTensor, logitsTensor);
-            //Console.WriteLine($"Old: {result.OldIngredient}, New: {result.NewIngredient}");
-        }
+    //        //IngredientNutrition GetNutrition(string name) =>
+    //        //    cache.GetOrAdd(name, () =>
+    //        //        ingredients.FirstOrDefault(i => i.Name == name.ToLower()));
+
+    //        //Console.WriteLine($"Updated total calories: {totalCalories} kcal");
+
+    //        //decimal totalCalories = recipe.Ingredients.Sum(ingredient =>
+    //        //{
+    //        //    var normalizedGrams = UnitNormalizer.NormalizeToGrams(ingredient.Quantity, ingredient.Unit);
+    //        //    var nut = GetNutrition(ingredient.Name);
+    //        //    return normalizedGrams / 100 * nut?.Calories ?? 0;
+    //        //});
+    //        //var (sess, inputTensor, logitsTensor, word2idx, idx2tag) = LoadNERModel();
+    //        //var result = PredictNER("replace butter with avocado", word2idx, idx2tag, sess, inputTensor, logitsTensor);
+    //        //Console.WriteLine($"Old: {result.OldIngredient}, New: {result.NewIngredient}");
+    //    }
 
 
         public class TokenInput
@@ -251,11 +253,9 @@ namespace RecipeRecommendation
             var mlContext = new MLContext();
             var modelPath = "bio_ner_model3.zip";
 
-            // Încarcă modelul
             ITransformer loadedModel = mlContext.Model.Load(modelPath, out _);
             var predictor = mlContext.Model.CreatePredictionEngine<TokenInput, NerPrediction>(loadedModel);
 
-            // Tokenizează propoziția
             var tokens = sentence.Split(' ');
             for (int i = 0; i < tokens.Length; i++)
             {
@@ -274,6 +274,49 @@ namespace RecipeRecommendation
                 Console.WriteLine($"{curr} => {prediction.PredictedLabel}");
             }
         }
+
+
+        public static (string? OldIngredient, string? NewIngredient) ExtractEntitiesFromNer(string sentence)
+        {
+            var mlContext = new MLContext();
+            var modelPath = "bio_ner_model3.zip";
+            ITransformer loadedModel = mlContext.Model.Load(modelPath, out _);
+            var predictor = mlContext.Model.CreatePredictionEngine<TokenInput, NerPrediction>(loadedModel);
+
+            var tokens = sentence.Split(' ');
+            string? oldIngredient = null, newIngredient = null;
+            List<string> oldTokens = new(), newTokens = new();
+
+            for (int i = 0; i < tokens.Length; i++)
+            {
+                var prev = i > 0 ? tokens[i - 1] : "<START>";
+                var curr = tokens[i];
+                var next = i < tokens.Length - 1 ? tokens[i + 1] : "<END>";
+
+                var input = new TokenInput { PrevToken = prev, Token = curr, NextToken = next };
+                var prediction = predictor.Predict(input);
+
+                switch (prediction.PredictedLabel)
+                {
+                    case "B-OLD":
+                    case "I-OLD":
+                        oldTokens.Add(curr);
+                        break;
+                    case "B-NEW":
+                    case "I-NEW":
+                        newTokens.Add(curr);
+                        break;
+                }
+            }
+
+            if (oldTokens.Count > 0)
+                oldIngredient = string.Join(" ", oldTokens);
+            if (newTokens.Count > 0)
+                newIngredient = string.Join(" ", newTokens);
+
+            return (oldIngredient?.ToLowerInvariant(), newIngredient?.ToLowerInvariant());
+        }
+
 
         public class NerPrediction
         {
@@ -1006,12 +1049,19 @@ namespace RecipeRecommendation
 }
 public class IngredientNutrition
 {
-    public string Name { get; set; }
+    [Name("Category")]
+    public string NameRaw { get; set; }
+
+    [Name("Data.Kilocalories")]
     public decimal Calories { get; set; }
+    [Name("Data.Protein")]
     public decimal Protein { get; set; }
+    [Name("Data.Carbohydrate")]
     public decimal Carbs { get; set; }
+    [Name("Data.Fat.Total Lipid")]
     public decimal Fat { get; set; }
-    public decimal Fiber { get; set; }
+    public string Name => NameRaw?.Replace("-", " ")?.Trim().ToLowerInvariant();
+
 }
 
 public class RecipeRec
@@ -1032,29 +1082,24 @@ public class IngredientEntryJson
 }
 
 // Recipe model
+
 public class RecipeJson
 {
-
+    [JsonProperty("name")]
     public string Name { get; set; }
-    public string Tag { get; set; }  // For tagging recipes: Vegan, Lactose-Free, etc.
+
+    [JsonProperty("tag")]
+    public string Tag { get; set; }
+
+    [JsonProperty("ingredients")]
     public List<IngredientEntryJson> Ingredients { get; set; }
+
+    [JsonProperty("total_nutrition")]
+    public RecipeNutritionalInfo TotalNutrition { get; set; }
+
+    [JsonIgnore] 
     public decimal TotalCalories => Ingredients.Sum(ing => NormalizeQuantity(ing.Quantity) / 100 * ing.Calories);
-    public (decimal Calories, decimal Protein, decimal Carbs, decimal Fat, decimal Fiber) TotalNutrition
-    {
-        get
-        {
-            decimal kcal = 0, protein = 0, carbs = 0, fat = 0;
-            foreach (var ing in Ingredients)
-            {
-                var factor = NormalizeQuantity(ing.Quantity) / 100m;
-                kcal += (ing.Calories * factor);
-                protein += (ing.Protein * factor);
-                carbs += (ing.Carbs * factor);
-                fat += (ing.Fat * factor);
-            }
-            return (kcal, protein, carbs, fat, 0); // Fiber is not calculated, placeholder set to 0
-        }
-    }
+
 
     private decimal NormalizeQuantity(string quantity)
     {
@@ -1079,6 +1124,21 @@ public class RecipeJson
 
         return grams;
     }
+}
+
+public class RecipeNutritionalInfo
+{
+    [JsonProperty("calories")]
+    public float Calories { get; set; }
+
+    [JsonProperty("protein")]
+    public float Proteins { get; set; }
+
+    [JsonProperty("carbs")]
+    public float Carbs { get; set; }
+
+    [JsonProperty("fat")]
+    public float Fats { get; set; }
 }
 
 public class IngredientEntry
@@ -1108,4 +1168,109 @@ public class IngredientEntities
 {
     public string? OldIngredient { get; set; }
     public string? NewIngredient { get; set; }
+}
+
+public class RecipePredictor
+{
+    private readonly MLContext _mlContext;
+    private readonly ITransformer _model;
+    private readonly PredictionEngine<RecipeInput, RecipePrediction> _predictionEngine;
+
+    public RecipePredictor(string modelPath)
+    {
+        _mlContext = new MLContext();
+        _model = _mlContext.Model.Load(modelPath, out var _);
+        _predictionEngine = _mlContext.Model.CreatePredictionEngine<RecipeInput, RecipePrediction>(_model);
+    }
+
+    public RecipeRecommendationResult Predict(string userInput, List<RecipeJson> availableRecipes)
+    {
+        try
+        {
+            // Prepare input
+            var input = new RecipeInput
+            {
+                Text = userInput,
+                AvailableRecipes = availableRecipes.Select(r => new RecipeFeatures
+                {
+                    Name = r.Name,
+                    Tag = r.Tag,
+                    Ingredients = string.Join(", ", r.Ingredients.Select(i => i.Ingredient)),
+                    TotalCalories = (int)r.TotalNutrition.Calories,
+                    TotalProtein = (decimal)r.TotalNutrition.Proteins,
+                    TotalCarbs = (decimal)r.TotalNutrition.Carbs,
+                    TotalFat = (decimal)r.TotalNutrition.Fats
+                }).ToList()
+            };
+
+            // Get prediction
+            var prediction = _predictionEngine.Predict(input);
+
+            // Process results
+            var recommendedRecipes = new List<RecipeJson>();
+            foreach (var recipeScore in prediction.RecipeScores)
+            {
+                var recipe = availableRecipes.FirstOrDefault(r => r.Name == recipeScore.Name);
+                if (recipe != null && recipeScore.Score > 0.5) // Threshold for recommendation
+                {
+                    recommendedRecipes.Add(recipe);
+                }
+            }
+
+            return new RecipeRecommendationResult
+            {
+                Intent = prediction.Intent,
+                RecommendedRecipes = recommendedRecipes.OrderByDescending(r => 
+                    prediction.RecipeScores.First(s => s.Name == r.Name).Score).ToList(),
+                Confidence = prediction.Confidence
+            };
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during prediction: {ex.Message}");
+            throw;
+        }
+    }
+}
+
+public class RecipeInput
+{
+    [LoadColumn(0)]
+    public string Text { get; set; }
+
+    public List<RecipeFeatures> AvailableRecipes { get; set; }
+}
+
+public class RecipeFeatures
+{
+    public string Name { get; set; }
+    public string Tag { get; set; }
+    public string Ingredients { get; set; }
+    public decimal TotalCalories { get; set; }
+    public decimal TotalProtein { get; set; }
+    public decimal TotalCarbs { get; set; }
+    public decimal TotalFat { get; set; }
+}
+
+public class RecipePrediction
+{
+    [ColumnName("PredictedLabel")]
+    public string Intent { get; set; }
+
+    public float Confidence { get; set; }
+
+    public List<RecipeScore> RecipeScores { get; set; }
+}
+
+public class RecipeScore
+{
+    public string Name { get; set; }
+    public float Score { get; set; }
+}
+
+public class RecipeRecommendationResult
+{
+    public string Intent { get; set; }
+    public List<RecipeJson> RecommendedRecipes { get; set; }
+    public double Confidence { get; set; }
 }

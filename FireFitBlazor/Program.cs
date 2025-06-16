@@ -207,7 +207,12 @@ builder.Services.AddScoped<RecipeRecommendation.NERPredictor>(sp =>
     new RecipeRecommendation.NERPredictor("./ner_model", "./vocab.json")
 );
 
+builder.Services.AddScoped<RecipePredictor>(provider =>
+    new RecipePredictor("bio_ner_model3.zip"));
+
 builder.Services.AddScoped<IntentClassification.MLModel1>();
+
+builder.Services.AddScoped<RecipeChatService>();
 builder.Services.AddScoped<RecipeGeneratorService>();
 builder.Services.AddScoped<IWorkoutService, WorkoutService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();

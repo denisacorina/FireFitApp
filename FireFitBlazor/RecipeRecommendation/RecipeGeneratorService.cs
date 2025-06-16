@@ -10,6 +10,9 @@ using static Tensorflow.TensorSliceProto.Types;
 using static TorchSharp.torch.nn;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FireFitBlazor.Domain.ValueObjects;
+using CsvHelper;
+using System.Globalization;
 
 namespace RecipeRecommendation
 {
@@ -19,12 +22,14 @@ namespace RecipeRecommendation
         private readonly MLModel1 _intentClassifier;
         private readonly NutritionCache _nutrition;
         private readonly List<IngredientNutrition> _allIngredients;
+        private readonly Dictionary<string, List<string>> _ingredientSubstitutions;
         private IngredientEntryJson _lastSubstitution;
+        private readonly RecipePredictor _predictor;
+        private readonly Dictionary<string, IngredientNutrition> _ingredients;
+        private List<RecipeJson> _recipes;
 
-        public RecipeGeneratorService(NERPredictor ner, MLModel1 intentClassifier)
+        public RecipeGeneratorService()
         {
-            _ner = ner;
-            _intentClassifier = intentClassifier;
             _nutrition = new NutritionCache();
             _allIngredients = File.ReadAllLines("food.csv")
           .Skip(1)
@@ -36,15 +41,29 @@ namespace RecipeRecommendation
 
               return new IngredientNutrition
               {
-                  Name = parts[1].Trim('"').ToLower(),             // name column
+                  NameRaw = parts[1].Trim('"').ToLower(),             // name column
                   Calories = TryParse(parts[11]),                  // Data.Kilocalories
                   Carbs = TryParse(parts[7]),                      // Data.Carbohydrate
                   Protein = TryParse(parts[17]),                   // Data.Protein
                   Fat = TryParse(parts[27]),                       // Data.Fat.Total Lipid
-                  Fiber = TryParse(parts[10])                      // Data.Fiber
               };
           })
           .ToList();
+            _ingredientSubstitutions = LoadIngredientSubstitutions();
+            _ingredients = new Dictionary<string, IngredientNutrition>();
+            LoadIngredients();
+        }
+
+        private Dictionary<string, List<string>> LoadIngredientSubstitutions()
+        {
+            return new Dictionary<string, List<string>>
+            {
+                { "milk", new List<string> { "almond milk", "soy milk", "oat milk", "coconut milk" } },
+                { "butter", new List<string> { "olive oil", "coconut oil", "margarine", "ghee" } },
+                { "eggs", new List<string> { "flax eggs", "chia eggs", "banana", "applesauce" } },
+                { "sugar", new List<string> { "honey", "maple syrup", "stevia", "agave nectar" } },
+                { "flour", new List<string> { "almond flour", "coconut flour", "oat flour", "rice flour" } }
+            };
         }
 
         private void ConvertTxtToJson(string txtPath, string jsonPath)
@@ -209,7 +228,6 @@ namespace RecipeRecommendation
         {
             var input = new IntentClassification.MLModel1.ModelInput { Text = userInput };
             var output = IntentClassification.MLModel1.Predict(input);
-            Console.WriteLine($"\n🧠 Intent: {output.PredictedLabel}");
             return output.PredictedLabel;
         }
         public class UpdatedRecipeResult
@@ -221,7 +239,6 @@ namespace RecipeRecommendation
             public decimal Protein { get; set; }
             public decimal Carbs { get; set; }
             public decimal Fat { get; set; }
-            public decimal Fiber { get; set; }
 
             public string Intent { get; set; }
             public string? OldIngredient { get; set; }
@@ -237,7 +254,6 @@ namespace RecipeRecommendation
             public decimal Protein { get; set; }
             public decimal Carbs { get; set; }
             public decimal Fat { get; set; }
-            public decimal Fiber { get; set; }
 
             public string Intent { get; set; }
             public string? OldIngredient { get; set; }
@@ -341,7 +357,7 @@ namespace RecipeRecommendation
             return isValid;
         }
 
-        private void ApplyIngredientChange(RecipeJson recipe, string intent, IngredientEntities entities)
+        public RecipeJson ApplyIngredientChange(RecipeJson recipe, string intent, IngredientEntities entities)
         {
             if (intent == "substitute" && entities.OldIngredient != null && entities.NewIngredient != null)
             {
@@ -386,7 +402,7 @@ namespace RecipeRecommendation
             }
             else if (intent == "remove" && entities.OldIngredient != null)
             {
-                // Use fuzzy matching for removal
+                // fuzzy matching
                 var ingredientsToRemove = recipe.Ingredients
                     .Where(i => i.Ingredient.Contains(entities.OldIngredient, StringComparison.OrdinalIgnoreCase) ||
                                entities.OldIngredient.Contains(i.Ingredient, StringComparison.OrdinalIgnoreCase))
@@ -428,7 +444,6 @@ namespace RecipeRecommendation
                             Fat = newIngredientMatch.Ingredient.Fat
                         };
 
-                        // Validate the nutrition values
                         if (ValidateNutritionValues(newIngredient))
                         {
                             recipe.Ingredients.Add(newIngredient);
@@ -436,6 +451,7 @@ namespace RecipeRecommendation
                         else
                         {
                             Console.WriteLine($"Warning: Nutrition values for {newIngredient.Ingredient} may be incorrect");
+                            recipe.Ingredients.Add(newIngredient);
                         }
                     }
                     else
@@ -448,6 +464,7 @@ namespace RecipeRecommendation
                     Console.WriteLine($"Warning: Ingredient {entities.NewIngredient} already exists in the recipe");
                 }
             }
+            return recipe;
         }
 
         private decimal CalculateTotalCalories(RecipeRec recipe)
@@ -495,10 +512,10 @@ namespace RecipeRecommendation
                 Fat: Math.Round(fat, 2)
             );
         }
-        private (decimal Calories, decimal Protein, decimal Carbs, decimal Fat, decimal Fiber)
+        private (decimal Calories, decimal Protein, decimal Carbs, decimal Fat)
     CalculateTotalNutrition(RecipeRec recipe)
         {
-            decimal kcal = 0, protein = 0, carbs = 0, fat = 0, fiber = 0;
+            decimal kcal = 0, protein = 0, carbs = 0, fat = 0;
 
             foreach (var ing in recipe.Ingredients)
             {
@@ -512,33 +529,22 @@ namespace RecipeRecommendation
                 protein += (nut.Protein * factor);
                 carbs += (nut.Carbs * factor);
                 fat += (nut.Fat * factor);
-                fiber += (nut.Fiber * factor);
             }
 
             return (
                 Calories: Math.Round(kcal, 2),
                 Protein: Math.Round(protein, 2),
                 Carbs: Math.Round(carbs, 2),
-                Fat: Math.Round(fat, 2),
-                Fiber: Math.Round(fiber, 2)
+                Fat: Math.Round(fat, 2)
             );
         }
 
         public List<RecipeJson> FilterRecipes(List<RecipeJson> allRecipes, decimal maxCalories, string dietaryPreference)
         {
-            // Filter recipes based on the max calories and dietary preferences (e.g., Vegan, Vegetarian, Lactose-Free)
-            var filteredRecipes = allRecipes.Where(r =>
-            {
-                // Check the total calories for the recipe
-                bool isWithinCalorieLimit = r.TotalCalories <= maxCalories;
-
-                // Check for dietary preferences
-                bool matchesDietaryPreference = string.IsNullOrEmpty(dietaryPreference) || r.Tag.Equals(dietaryPreference, StringComparison.OrdinalIgnoreCase);
-
-                return isWithinCalorieLimit && matchesDietaryPreference;
-            }).ToList();
-
-            return filteredRecipes;
+            return allRecipes
+                .Where(r => r.TotalCalories <= maxCalories)
+                .Where(r => string.IsNullOrEmpty(dietaryPreference) || r.Tag.Equals(dietaryPreference, StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
 
 
@@ -681,7 +687,248 @@ namespace RecipeRecommendation
                 return randomRecipe;  
             }
         }
+
+        public async Task<RecipeRecommendationResult> HandleUserRequest(string userInput)
+        {
+            try
+            {
+                // Get recipe recommendations from ML.NET model
+                var result = _predictor.Predict(userInput, _recipes);
+
+                // Process ingredient substitutions if requested
+                if (userInput.ToLower().Contains("substitute") || userInput.ToLower().Contains("replace"))
+                {
+                    foreach (var recipe in result.RecommendedRecipes)
+                    {
+                        ProcessIngredientSubstitutions(recipe, userInput);
+                    }
+                }
+
+                // Update nutrition information for all recommended recipes
+                foreach (var recipe in result.RecommendedRecipes)
+                {
+                    UpdateRecipeNutrition(recipe);
+                }
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error handling user request: {ex.Message}");
+                throw;
+            }
+        }
+
+        private void LoadIngredients()
+        {
+            try
+            {
+                using (var reader = new StreamReader("C:\\Users\\DENI\\source\\repos\\FireFitBlazor\\FoodDetection\\bin\\Debug\\net9.0\\food.csv"))
+                using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                {
+                    var records = csv.GetRecords<IngredientNutrition>().ToList();
+                    foreach (var ing in records)
+                    {
+                        _ingredients[ing.Name.ToLower()] = ing;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading ingredients: {ex.Message}");
+                throw;
+            }
+        }
+
+
+        private void ProcessIngredientSubstitutions(RecipeJson recipe, string userInput)
+        {
+            var substitutions = ExtractSubstitutions(userInput);
+            foreach (var sub in substitutions)
+            {
+                var originalIngredient = recipe.Ingredients.FirstOrDefault(i => 
+                    i.Ingredient.ToLower().Contains(sub.Key.ToLower()));
+                
+                if (originalIngredient != null)
+                {
+                    var substitution = FindSuitableSubstitution(sub.Key, sub.Value);
+                    if (substitution != null)
+                    {
+                        originalIngredient.Ingredient = substitution;
+                        originalIngredient.Quantity = sub.Value;
+                    }
+                }
+            }
+        }
+
+        private Dictionary<string, string> ExtractSubstitutions(string userInput)
+        {
+            var substitutions = new Dictionary<string, string>();
+            var pattern = @"(?:substitute|replace)\s+(\d+(?:\.\d+)?\s*(?:g|kg|ml|l|tbsp|tsp|cup|oz|lb)?)\s+(\w+)\s+with\s+(\w+)";
+            var matches = Regex.Matches(userInput.ToLower(), pattern);
+
+            foreach (Match match in matches)
+            {
+                if (match.Groups.Count >= 4)
+                {
+                    var quantity = match.Groups[1].Value;
+                    var ingredient = match.Groups[2].Value;
+                    substitutions[ingredient] = quantity;
+                }
+            }
+
+            return substitutions;
+        }
+
+        private string FindSuitableSubstitution(string ingredient, string quantity)
+        {
+            if (_ingredientSubstitutions.TryGetValue(ingredient.ToLower(), out var substitutions))
+            {
+                // For now, just return the first substitution
+                // In a real implementation, you might want to consider nutritional values
+                return substitutions.First();
+            }
+            return null;
+        }
+
+        private void UpdateRecipeNutrition(RecipeJson recipe)
+        {
+            decimal totalCalories = 0;
+            decimal totalProtein = 0;
+            decimal totalCarbs = 0;
+            decimal totalFat = 0;
+
+            foreach (var ingredient in recipe.Ingredients)
+            {
+                var nutrition = GetIngredientNutrition(ingredient.Ingredient);
+                if (nutrition != null)
+                {
+                    // Parse the quantity and convert to grams/ml
+                    var (quantity, unit) = ParseQuantityAndUnit(ingredient.Quantity);
+                    var normalizedQuantity = ConvertToStandardUnit(quantity, unit);
+
+                    // Calculate nutrition per 100g/ml
+                    var factor = normalizedQuantity / 100m;
+                    totalCalories += nutrition.Calories * factor;
+                    totalProtein += nutrition.Protein * factor;
+                    totalCarbs += nutrition.Carbs * factor;
+                    totalFat += nutrition.Fat * factor;
+                }
+            }
+
+            // Create new NutritionalInfo with calculated values
+            recipe.TotalNutrition = new RecipeNutritionalInfo
+            {
+                Calories = (int)totalCalories,
+                Proteins = (float)totalProtein,
+                Carbs = (float)totalCarbs,
+                Fats = (float)totalFat
+            };
+        }
+
+        private (decimal quantity, string unit) ParseQuantityAndUnit(string quantityStr)
+        {
+            if (string.IsNullOrEmpty(quantityStr)) return (1.0m, "g");
+
+            var match = Regex.Match(quantityStr, @"(\d+(?:\.\d+)?)\s*(g|kg|ml|l|tbsp|tsp|cup|oz|lb)?");
+            if (match.Success)
+            {
+                var value = decimal.Parse(match.Groups[1].Value);
+                var unit = match.Groups[2].Value.ToLower();
+                return (value, unit);
+            }
+
+            return (1.0m, "g");
+        }
+
+        private decimal ConvertToStandardUnit(decimal quantity, string unit)
+        {
+            switch (unit)
+            {
+                case "kg": return quantity * 1000; // kg to g
+                case "g": return quantity;
+                case "ml": return quantity;
+                case "l": return quantity * 1000; // l to ml
+                case "tbsp": return quantity * 15; // 1 tbsp = 15ml
+                case "tsp": return quantity * 5;   // 1 tsp = 5ml
+                case "cup": return quantity * 240; // 1 cup = 240ml
+                case "oz": return quantity * 28.35m; // 1 oz = 28.35g
+                case "lb": return quantity * 453.59m; // 1 lb = 453.59g
+                default: return quantity; // Assume grams if unit is unknown
+            }
+        }
+
+        private IngredientNutrition GetIngredientNutrition(string ingredient)
+        {
+            var normalizedName = NormalizeIngredientName(ingredient);
+            return _ingredients.TryGetValue(normalizedName, out var nutrition) ? nutrition : null;
+        }
+
+        private string NormalizeIngredientName(string ingredient)
+        {
+            // Remove common words and normalize
+            var normalized = ingredient.ToLower()
+                .Replace("fresh", "")
+                .Replace("dried", "")
+                .Replace("ground", "")
+                .Replace("powdered", "")
+                .Trim();
+            return normalized;
+        }
+
+        private decimal ParseQuantity(string quantity)
+        {
+            if (string.IsNullOrEmpty(quantity)) return 1.0m;
+
+            var match = Regex.Match(quantity, @"(\d+(?:\.\d+)?)\s*(g|kg|ml|l|tbsp|tsp|cup|oz|lb)?");
+            if (match.Success)
+            {
+                var value = decimal.Parse(match.Groups[1].Value);
+                var unit = match.Groups[2].Value.ToLower();
+
+                // Convert to standard units (grams for solids, ml for liquids)
+                switch (unit)
+                {
+                    case "kg": return value * 1000;
+                    case "g": return value;
+                    case "ml": return value;
+                    case "l": return value * 1000;
+                    case "tbsp": return value * 15; // 1 tbsp = 15ml
+                    case "tsp": return value * 5;   // 1 tsp = 5ml
+                    case "cup": return value * 240; // 1 cup = 240ml
+                    case "oz": return value * 28.35m; // 1 oz = 28.35g
+                    case "lb": return value * 453.59m; // 1 lb = 453.59g
+                    default: return value;
+                }
+            }
+
+            return 1.0m;
+        }
+
+        public Dictionary<string, List<string>> GetIngredientSubstitutions()
+        {
+            return _ingredientSubstitutions;
+        }
+
+        public (decimal? maxCalories, string dietaryPreference) ExtractPreferences(string userInput)
+        {
+            decimal? maxCalories = null;
+            string dietaryPreference = null;
+            var calMatch = Regex.Match(userInput, @"(\d+)\s*kcal", RegexOptions.IgnoreCase);
+            if (calMatch.Success)
+                maxCalories = decimal.Parse(calMatch.Groups[1].Value);
+            if (userInput.ToLower().Contains("vegan")) dietaryPreference = "Vegan";
+            else if (userInput.ToLower().Contains("vegetarian")) dietaryPreference = "Vegetarian";
+            else if (userInput.ToLower().Contains("lactose-free")) dietaryPreference = "Lactose-Free";
+            return (maxCalories, dietaryPreference);
+        }
+
+        public (string oldIngredient, string newIngredient) ExtractSubstitution(string userInput)
+        {
+            var match = Regex.Match(userInput, @"replace\s+(\w+)\s+with\s+(\w+)", RegexOptions.IgnoreCase);
+            if (match.Success)
+                return (match.Groups[1].Value, match.Groups[2].Value);
+            return (null, null);
+        }
     }
-
-
 }
