@@ -202,8 +202,8 @@ namespace RecipeRecommendation
             if (_currentRecipe == null)
                 return "Please first select a recipe before making modifications.";
 
-            var intent = _recipeService.ClassifyIntent(message); 
-
+            var intent = _recipeService.ClassifyIntent(message);
+            RecipeRecommendationGen.TrainNERModel();
             var (oldIng, newIng) = RecipeRecommendationGen.ExtractEntitiesFromNer(message);
 
             if (intent == "substitute")

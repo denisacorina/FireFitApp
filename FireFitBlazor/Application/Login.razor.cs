@@ -41,9 +41,6 @@ namespace FireFitBlazor.Application
         
         private async Task HandleValidSubmit()
         {
-            IsLoading = true;
-            IsError = false;
-
             LoginModel loginDto = new()
             {
                 Email = UserLogin.Email,

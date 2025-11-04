@@ -238,9 +238,20 @@ namespace FoodObjectDetection
         {
             // Data process configuration with pipeline data transformations
             var pipeline = mlContext.Transforms.Conversion.MapValueToKey(outputColumnName:@"Labels",inputColumnName:@"Labels",addKeyValueAnnotationsAsText:false)      
-                                    .Append(mlContext.Transforms.ResizeImages(outputColumnName:@"Image",inputColumnName:@"Image",imageHeight:TrainingImageHeight,imageWidth:TrainingImageWidth,cropAnchor:ImageResizingEstimator.Anchor.Center,resizing:ImageResizingEstimator.ResizingKind.IsoPad))      
-                                    .Append(mlContext.MulticlassClassification.Trainers.ObjectDetection(new ObjectDetectionTrainer.Options(){LabelColumnName=@"Labels",PredictedLabelColumnName=@"PredictedLabel",BoundingBoxColumnName=@"Box",ImageColumnName=@"Image",ScoreColumnName=@"score",MaxEpoch=5,InitLearningRate=1,WeightDecay=0,}))      
-                                    .Append(mlContext.Transforms.Conversion.MapKeyToValue(outputColumnName:@"PredictedLabel",inputColumnName:@"PredictedLabel"));
+                                    .Append(mlContext.Transforms
+                                    .ResizeImages(outputColumnName:@"Image",inputColumnName:@"Image",imageHeight:TrainingImageHeight,imageWidth:TrainingImageWidth,cropAnchor:ImageResizingEstimator.Anchor.Center,resizing:ImageResizingEstimator.ResizingKind.IsoPad))      
+                                    .Append(mlContext.MulticlassClassification.Trainers.ObjectDetection(new ObjectDetectionTrainer.Options()
+                                    {
+                                        LabelColumnName=@"Labels",
+                                        PredictedLabelColumnName=@"PredictedLabel",
+                                        BoundingBoxColumnName=@"Box",
+                                        ImageColumnName=@"Image",
+                                        ScoreColumnName=@"score",
+                                        MaxEpoch=5,
+                                        InitLearningRate=1,
+                                        WeightDecay=0,}))      
+                                    .Append(mlContext.Transforms.Conversion
+                                    .MapKeyToValue(outputColumnName:@"PredictedLabel",inputColumnName:@"PredictedLabel"));
 
             return pipeline;
         }

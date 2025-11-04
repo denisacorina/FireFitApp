@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
 using static FireFitBlazor.Domain.Enums.FoodTrackingEnums;
 using System;
+using FireFitBlazor.Domain.Services;
+using NETCore.MailKit.Core;
 
 namespace FireFitBlazor.Application.Controllers
 {
@@ -20,10 +22,12 @@ namespace FireFitBlazor.Application.Controllers
     public class CustomAuthController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public CustomAuthController(ApplicationDbContext context)
+        public CustomAuthController(ApplicationDbContext context, IEmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         [HttpPost("register")]
@@ -61,6 +65,34 @@ namespace FireFitBlazor.Application.Controllers
             _context.UserPreferences.Add(initialUserPreferences);
 
             await _context.SaveChangesAsync();
+
+            // Send welcome email
+            try
+            {
+                var welcomeEmailBody = $@"
+                <html>
+                <body>
+                    <h2>Welcome to FireFit, {dto.Name}!</h2>
+                    <p>Thank you for joining FireFit. Your fitness journey starts now!</p>
+                    <p>Here's what you can do next:</p>
+                    <ul>
+                        <li>Set up your fitness goals</li>
+                        <li>Track your daily nutrition</li>
+                        <li>Monitor your progress</li>
+                        <li>Get personalized recommendations</li>
+                    </ul>
+                    <p>Start your journey: <a href='https://yourdomain.com/login'>Login to FireFit</a></p>
+                    <p>Best regards,<br>The FireFit Team</p>
+                </body>
+                </html>";
+
+                await _emailService.SendAsync(dto.Email, "Welcome to FireFit!", welcomeEmailBody);
+            }
+            catch (Exception ex)
+            {
+                // Log email error but don't fail registration
+                Console.WriteLine($"Failed to send welcome email: {ex.Message}");
+            }
 
             return Ok("Registered successfully.");
         }
@@ -112,4 +144,4 @@ namespace FireFitBlazor.Application.Controllers
         public string Email { get; set; } = "";
         public string Password { get; set; } = "";
     }
-}
+}//var idx2tag = tag2idx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);

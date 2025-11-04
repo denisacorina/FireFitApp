@@ -688,8 +688,8 @@ public class WeightPredictionService
                 lastWeight = (decimal)weightLogs.First(w => w.MeasurementDate.Date == currentDate).Weight;
             }
 
-            if (hasCalories)
-            {
+            //if (hasCalories)
+            //{
                 calorieLogs.TryGetValue(currentDate, out var kcal);
                 activities.TryGetValue(currentDate, out var activity);
 
@@ -700,21 +700,21 @@ public class WeightPredictionService
                     CaloriesConsumed = (int)(kcal > 0 ? kcal : 1800),
                     ActivityLevel = activity != 0 ? activity : 1f
                 });
-            }
-            else
-            {
-                // If we find a gap, we need to start over from the previous day
-                // But only if we haven't collected enough days yet
-                if (continuousData.Count < 7)
-                {
-                    continuousData.Clear();
-                }
-                else
-                {
-                    // If we already have 7+ days, we can stop at the gap
-                    break;
-                }
-            }
+            //}
+            //else
+            //{
+            //    // If we find a gap, we need to start over from the previous day
+            //    // But only if we haven't collected enough days yet
+            //    if (continuousData.Count < 7)
+            //    {
+            //        continuousData.Clear();
+            //    }
+            //    else
+            //    {
+            //        // If we already have 7+ days, we can stop at the gap
+            //        break;
+            //    }
+            //}
 
             currentDate = currentDate.AddDays(-1);
         }

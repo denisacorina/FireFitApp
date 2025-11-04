@@ -11,7 +11,8 @@
     <img src="/images/fire-flame-logo-design-template-vector.png"
          style="width: 200px; height: 200px; display: block; margin-left: auto; margin-right: auto;  margin-top: auto;  margin-bottom: -30px;" />
     <h2 style="color: #db5e16; text-align: center;">FireFit</h2>
-</div>
+@*     <br /><br> <h2 style="color: #db5e16; text-align: center;">Welcome!</h2>
+    <h1 style="color: #db5e16; text-align: center;">Create an account</h1> *@
 <div class="step-indicator-container">
     @for (int i = 1; i <= 6; i++)
     {
@@ -21,27 +22,33 @@
     }
 </div>
 
-<RadzenTemplateForm TItem="UserRegistrationModel" Data="@FormModel" Submit="@CreateUser" Style="width: 100%">
+<RadzenTemplateForm TItem="UserRegistrationModel" Data="@FormModel" Submit="@CreateUser" Style="width: 100%" >
     @if (CurrentStep == 1)
     {
-  
-        <div class="form-group">
-            <RadzenTextBox @bind-Value="FormModel.Name" Name="Name" Placeholder="Name" Style="width: 100%" />
-            <RadzenRequiredValidator Component="Name" Text="Name is required" />
-        </div>
-
-        <div class="form-step">
+        <div class="form-step register-card">
             <div class="form-group">
-                <RadzenTextBox @bind-Value="FormModel.Email" Name="Email" Placeholder="Email" Style="width: 100%" />
-                <RadzenRequiredValidator Component="Email" Text="Email is required" />
+                <RadzenLabel Text="Name" Component="Name" />
+                <RadzenTextBox @bind-Value="FormModel.Name" Name="Name" Placeholder="Your full name" Style="width: 100%" />
+                <RadzenRequiredValidator Component="Name" Text="Name is required" />
             </div>
 
             <div class="form-group">
-                <RadzenPassword @bind-Value="FormModel.Password" Name="Password" Placeholder="Password" Style="width: 100%" />
+                <RadzenLabel Text="Email" Component="Email" />
+                <RadzenTextBox @bind-Value="FormModel.Email" Name="Email" Placeholder="you@example.com" Style="width: 100%" />
+             
+            </div>
+
+            <div class="form-group">
+                <RadzenLabel Text="Password" Component="Password" />
+                <RadzenPassword @bind-Value="FormModel.Password" Name="Password" Placeholder="At least 6 characters" Style="width: 100%" />
                 <RadzenRequiredValidator Component="Password" Text="Password is required" />
+                <RadzenRegexValidator Component="Password" Pattern="^.{6,}$" Text="Password must be at least 6 characters" />
             </div>
 
+          
+
             <div class="form-group">
+                <RadzenLabel Text="Gender" Component="Gender" />
                 <RadzenDropDown id="gender"
                                 Data="@Genders"
                                 TextProperty="Key"
@@ -53,8 +60,8 @@
                 <RadzenRequiredValidator Component="Gender" Text="Gender is required" />
             </div>
 
-            <div class="form-group">
-                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 100%" Click="NextStep" />
+            <div class="nav-actions">
+                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" class="btn-primary" Click="NextStep" />
             </div>
         </div>
     }
@@ -62,34 +69,38 @@
     @if (CurrentStep == 2)
     {
    
-        <div class="form-step">
+        <div class="form-step register-card">
             <h3>Physical Stats</h3>
             <div class="form-group">
                 <RadzenLabel Text="Age" Component="Age" Style="font-weight: bold;" />
-                <RadzenNumeric @bind-Value="FormModel.Age" Name="Age" Placeholder="Enter your age" Style="width: 100%" />
+                <RadzenNumeric @bind-Value="FormModel.Age" Name="Age" Placeholder="Enter your age" Min="18" Max="100" Style="width: 100%" />
                 <RadzenRequiredValidator Component="Age" Text="Age is required" />
+                <RadzenNumericRangeValidator Component="Age" Min="18" Max="100" Text="Age must be between 18 and 100" />
             </div>
 
             <div class="form-group">
                 <RadzenLabel Text="Current Weight (kg)" Component="CurrentWeight" Style="font-weight: bold;" />
-                <RadzenNumeric @bind-Value="FormModel.CurrentWeight" Name="CurrentWeight" Placeholder="e.g. 100" Style="width: 100%" />
+                <RadzenNumeric @bind-Value="FormModel.CurrentWeight" Name="CurrentWeight" Placeholder="e.g. 100" Min="30" Max="300" Style="width: 100%" />
                 <RadzenRequiredValidator Component="CurrentWeight" Text="Current weight is required" />
+                <RadzenNumericRangeValidator Component="CurrentWeight" Min="30" Max="300" Text="Weight must be 30-300 kg" />
             </div>
 
             <div class="form-group">
                 <RadzenLabel Text="Target Weight (kg)" Component="TargetWeight" Style="font-weight: bold;" />
-                <RadzenNumeric @bind-Value="FormModel.TargetWeight" Name="TargetWeight" Placeholder="e.g. 75" Style="width: 100%" />
+                <RadzenNumeric @bind-Value="FormModel.TargetWeight" Name="TargetWeight" Placeholder="e.g. 75" Min="30" Max="300" Style="width: 100%" />
                 <RadzenRequiredValidator Component="TargetWeight" Text="Target weight is required" />
+                <RadzenNumericRangeValidator Component="TargetWeight" Min="30" Max="300" Text="Weight must be 30-300 kg" />
             </div>
 
             <div class="form-group">
                 <RadzenLabel Text="Height (cm)" Component="Height" Style="font-weight: bold;" />
-                <RadzenNumeric @bind-Value="FormModel.Height" Name="Height" Placeholder="e.g. 178" Style="width: 100%" />
+                <RadzenNumeric @bind-Value="FormModel.Height" Name="Height" Placeholder="e.g. 178" Min="100" Max="250" Style="width: 100%" />
                 <RadzenRequiredValidator Component="Height" Text="Height is required" />
+                <RadzenNumericRangeValidator Component="Height" Min="100" Max="250" Text="Height must be 100-250 cm" />
             </div>
             <div class="form-group mt-3">
-                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
-                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
+                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Secondary" class="btn-secondary" Style="width: 45%" Click="PreviousStep" />
+                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" class="btn-primary" Style="width: 45%" Click="NextStep" />
             </div>
         </div>
     }
@@ -97,7 +108,7 @@
     @if (CurrentStep == 3)
     {
    
-        <div class="form-step">
+        <div class="form-step register-card">
             <h3>Lifestyle & Goal</h3>
             <div class="form-group">
                 <RadzenDropDown id="activityLevel"
@@ -123,14 +134,14 @@
             </div>
     
             <div class="form-group mt-3">
-                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
-                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
+                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Secondary" class="btn-secondary" Style="width: 45%" Click="PreviousStep" />
+                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" class="btn-primary" Style="width: 45%" Click="NextStep" />
             </div>
         </div>
     }
     @if (CurrentStep == 4)
     {
-        <div class="form-step">
+        <div class="form-step register-card">
         <h3>Plan Summary</h3>
 
         <div class="form-group mb-3">
@@ -175,14 +186,14 @@
         </RadzenCard>
 
         <div class="form-group mt-3">
-            <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
-            <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
+            <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Secondary" class="btn-secondary" Style="width: 45%" Click="PreviousStep" />
+            <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" class="btn-primary" Style="width: 45%" Click="NextStep" />
         </div>
     </div>
     }
     @if (CurrentStep == 5)
     {
-        <div class="form-step">
+        <div class="form-step register-card">
             <h3>Dietary Preferences</h3>
             <div class="form-group">
                 @foreach (var pref in Enum.GetValues<DietaryPreference>().Cast<DietaryPreference>())
@@ -198,14 +209,14 @@
             </div>
 
             <div class="form-group mt-3">
-                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
-                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" Click="NextStep" />
+                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Secondary" class="btn-secondary" Style="width: 45%" Click="PreviousStep" />
+                <RadzenButton Text="Next" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Primary" class="btn-primary" Style="width: 45%" Click="NextStep" />
             </div>
         </div>
     }
     @if (CurrentStep == 6)
     {
-        <div class="form-step">
+        <div class="form-step register-card">
             <h3>Workout Preferences</h3>
             <div class="form-group">
                 @foreach (var type in Enum.GetValues<WorkoutType>().Cast<WorkoutType>())
@@ -221,33 +232,57 @@
             </div>
 
             <div class="form-group mt-3">
-                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Info" Style="width: 45%" Click="PreviousStep" />
-                <RadzenButton Text="Register" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Style="width: 45%" />
+                <RadzenButton Text="Previous" ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Secondary" class="btn-secondary" Style="width: 45%" Click="PreviousStep" />
+                <RadzenButton Text="Register" ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" class="btn-primary" Style="width: 45%" />
             </div>
         </div>
     }
 
 
-</RadzenTemplateForm>
+    </RadzenTemplateForm>
+</div>
 <style>
+    :root {
+        --bg: #0f0f10;
+        --card: #16171a;
+        --muted: #8a8f98;
+        --text: #f8f9fb;
+        --orange: #db5e16;
+        --orange-strong: #ff7a00;
+        --border: #26282d;
+    }
+
+    .register-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .register-header .logo {
+        width: 120px; height: 120px; display: block; margin-left: auto; margin-right: auto; margin-bottom: .25rem;
+    }
+    .register-header .brand { color: var(--orange); margin: 0; }
+    .register-header .subtitle { color: var(--muted); margin-top: .25rem; }
+
+    .register-card {
+        background-color: var(--card);
+        padding: 1.25rem;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        box-shadow: 0 6px 18px rgba(0,0,0,.3);
+    }
 
     .summary-card {
-        background-color: #f9f9f9;
+        background-color: #1b1d22;
         padding: 1.25rem;
         border-radius: 10px;
-        border: 1px solid #ddd;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.25);
         max-width: 600px;
         margin: 0 auto 1rem;
     }
+    .summary-card p { margin: 0.25rem 0; }
 
-        .summary-card p {
-            margin: 0.25rem 0;
-        }
+    .macro-list { padding-left: 1.5rem; }
 
-    .macro-list {
-        padding-left: 1.5rem;
-    }
     .step-indicator-container {
         display: flex;
         justify-content: space-between;
@@ -256,94 +291,32 @@
         margin-inline: auto;
     }
 
-    .step {
-        flex: 1;
-        text-align: center;
-        position: relative;
-    }
-
-        .step::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            right: -50%;
-            width: 100%;
-            height: 4px;
-            background-color: #ccc;
-            z-index: -1;
-        }
-
-        .step:last-child::after {
-            display: none;
-        }
-
-        .step.active .circle {
-            background-color: #007bff;
-            color: white;
-            font-weight: bold;
-        }
+    .step { flex: 1; text-align: center; position: relative; }
+    .step::after { content: ""; position: absolute; top: 50%; right: -50%; width: 100%; height: 4px; background-color: var(--border); z-index: -1; }
+    .step:last-child::after { display: none; }
+    .step.active .circle { background-color: var(--orange); color: black; font-weight: bold; }
 
     .circle {
-        width: 32px;
-        height: 32px;
-        margin: auto;
-        border-radius: 50%;
-        background-color: #e0e0e0;
-        line-height: 32px;
-    }
-    /* General Styles for the Form */
-    .form-step {
-        margin-bottom: 20px;
+        width: 32px; height: 32px; margin: auto; border-radius: 50%; background-color: #2a2d33; line-height: 32px; color: var(--muted);
     }
 
-    .form-group {
-        margin-bottom: 15px;
-    }
-
-    .step-container {
-        animation: fadeIn 0.4s ease-in-out;
-    }
+    .form-step { margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .step-container { animation: fadeIn 0.4s ease-in-out; }
+    .btn-primary { background: linear-gradient(135deg, var(--orange), var(--orange-strong)) !important; border: none !important; color: #000 !important; font-weight: 700; }
+    .btn-secondary { background: #2a2d33 !important; border: 1px solid var(--border) !important; color: #fff !important; }
 
     @@keyframes fadeIn {
-        from
-
-    {
-        opacity: 0;
-        transform: translateY(8px);
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    }
-    /* Ensure the inputs take full width on mobile devices */
     @@media only screen and (max-width: 768px) {
-        .form-group {
-            width: 100%;
-        }
-
-        .radzen-button {
-            width: 100% !important;
-            margin-bottom: 10px;
-        }
-
-        .radzen-input, .radzen-numeric, .radzen-textbox {
-            width: 100% !important;
-        }
-
-        .form-step {
-            padding: 10px;
-        }
-        /* Ensure buttons stack vertically on mobile */
-        .form-group .radzen-button {
-            width: 100% !important;
-            margin-bottom: 15px;
-        }
-        /* Adjust spacing between form groups */
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { width: 100%; }
+        .radzen-button { width: 100% !important; margin-bottom: 10px; }
+        .radzen-input, .radzen-numeric, .radzen-textbox { width: 100% !important; }
+        .form-step { padding: 10px; }
+        .form-group .radzen-button { width: 100% !important; margin-bottom: 15px; }
+        .form-group { margin-bottom: 20px; }
     }
 </style>

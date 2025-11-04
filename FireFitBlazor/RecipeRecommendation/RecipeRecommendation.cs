@@ -24,128 +24,130 @@ using Tensorflow.Keras.Layers;
 using Tensorflow.Keras.ArgsDefinition;
 using FireFitBlazor.Domain.ValueObjects;
 using CsvHelper.Configuration.Attributes;
+using System.Diagnostics;
+using Tensorflow.Keras.Engine;
+using Tensorflow.Operations.Initializers;
+
 
 
 namespace RecipeRecommendation
 {
     class RecipeRecommendationGen
     {
-    //    public static void Main(string[] args)
-    //    {
-    //        var ingredients = File.ReadAllLines("food.csv")
-    //         .Skip(1)
-    //         .Select(line =>
-    //         {
-    //             var parts = line.Split(',');
+        public static void TrainNERModel1()
+        {
+            //var ingredients = File.ReadAllLines("food.csv")
+            // .Skip(1)
+            // .Select(line =>
+            // {
+            //     var parts = line.Split(',');
 
-    //             decimal TryParseDecimal(string input)
-    //             {
-    //                 return decimal.TryParse(input.Trim('"'), out var value) ? value : 0;
-    //             }
+            //     decimal TryParseDecimal(string input)
+            //     {
+            //         return decimal.TryParse(input.Trim('"'), out var value) ? value : 0;
+            //     }
 
-    //             return new IngredientNutrition
-    //             {
-    //                 Name = parts[1].Trim('"').ToLower(),            // Clean name properly
-    //                 Calories = TryParseDecimal(parts[11]),          // Data.Kilocalories
-    //                 Carbs = TryParseDecimal(parts[7]),              // Data.Carbohydrate
-    //                 Protein = TryParseDecimal(parts[17]),           // Data.Protein
-    //                 Fat = TryParseDecimal(parts[27]),               // Data.Fat.Total Lipid
-    //                 Fiber = TryParseDecimal(parts[10])              // Data.Fiber
-    //             };
-    //         }).ToList();
+            //     return new IngredientNutrition
+            //     {
+            //         NameRaw = parts[1].Trim('"').ToLower(),            // Clean name properly
+            //         Calories = TryParseDecimal(parts[11]),          // Data.Kilocalories
+            //         Carbs = TryParseDecimal(parts[7]),              // Data.Carbohydrate
+            //         Protein = TryParseDecimal(parts[17]),           // Data.Protein
+            //         Fat = TryParseDecimal(parts[27]),               // Data.Fat.Total Lipid         // Data.Fiber
+            //     };
+            // }).ToList();
 
-    //        var recipes = System.Text.Json.JsonSerializer.Deserialize<List<RecipeRec>>(File.ReadAllText("recipes_combined_all_with_diet.json"));
-    //      //  BioTagGenerator.GenerateBIO("nlp_recipe_intents_15000.json", "food.csv", "bio_annotated_dataset_old_new.json");
-    //       // TrainModelForTextClassification();
+            //var recipes = System.Text.Json.JsonSerializer.Deserialize<List<RecipeRec>>(File.ReadAllText("recipes_combined_all_with_diet.json"));
+            //  BioTagGenerator.GenerateBIO("nlp_recipe_intents_15000.json", "food.csv", "bio_annotated_dataset_old_new.json");
+            // TrainModelForTextClassification();
 
-    //        //PredictUserIntent();
+            //PredictUserIntent();
 
-    //       // var dataset = LoadBIOAnnotatedDataset("bio_annotated_dataset.json");
-    //      //  var (X, y, word2idx, tag2idx) = PrepareData(dataset);
-    //        //
-    //       // var model = BuildNERModel(word2idx.Count, tag2idx.Count);
+            // var dataset = LoadBIOAnnotatedDataset("bio_annotated_dataset.json");
+            //  var (X, y, word2idx, tag2idx) = PrepareData(dataset);
+            //
+            // var model = BuildNERModel(word2idx.Count, tag2idx.Count);
 
-    //        TrainModel();
-    //        TestPrediction();
+            TrainModel();
+            TestPrediction();
 
 
-    //        var ner = new NERPredictor("./ner_model", "./vocab.json");
-    //      var service = new RecipeGeneratorService(ner, new MLModel1());
+            //var ner = new NERPredictor("./ner_model", "./vocab.json");
+            //var service = new RecipeGeneratorService();
 
-    ////        var originalRecipe = new Recipe
-    ////        {
-    ////            Name = "Veggie Rice Bowl",
-    ////            Ingredients = new List<IngredientEntry>
-    ////{
-    ////    new() { Name = "rice", Quantity = 150, Unit = "g" },
-    ////    new() { Name = "broccoli", Quantity = 100, Unit = "g" },
-    ////    new() { Name = "olive oil", Quantity = 10, Unit = "g" }
-    ////}
-    ////        };
+            ////        var originalRecipe = new Recipe
+            ////        {
+            ////            Name = "Veggie Rice Bowl",
+            ////            Ingredients = new List<IngredientEntry>
+            ////{
+            ////    new() { Name = "rice", Quantity = 150, Unit = "g" },
+            ////    new() { Name = "broccoli", Quantity = 100, Unit = "g" },
+            ////    new() { Name = "olive oil", Quantity = 10, Unit = "g" }
+            ////}
+            ////        };
 
-    //        string json = File.ReadAllText("C:\\Users\\z004umbe\\Downloads\\updated_recipes_with_nutrition_v2.json");
+            //string json = File.ReadAllText("C:\\Users\\z004umbe\\Downloads\\updated_recipes_with_nutrition_v2.json");
 
-    //        // Deserialize the JSON into a list of Recipe objects
-    //        var recipesJson = JsonConvert.DeserializeObject<List<RecipeJson>>(json);
+            //// Deserialize the JSON into a list of Recipe objects
+            //var recipesJson = JsonConvert.DeserializeObject<List<RecipeJson>>(json);
 
-    //        List<RecipeJson> allRecipes = recipesJson; // Assuming this is a method that retrieves all recipes
-    //        Console.WriteLine("Enter your recipe request (e.g., 'vegan recipe under 400 kcal'):");
-    //        string userInput = Console.ReadLine();
+            //List<RecipeJson> allRecipes = recipesJson; // Assuming this is a method that retrieves all recipes
+            //Console.WriteLine("Enter your recipe request (e.g., 'vegan recipe under 400 kcal'):");
+            //string userInput = Console.ReadLine();
 
-    //        // Handle the request
-    //        var receivedRecipe = service.HandleUserRequest(userInput, allRecipes);
-    //        //// User request: Find vegan recipes under 400 kcal
-    //        //string dietaryPreference = "Vegan";
-    //        //decimal maxCalories = 400;
+            //// Handle the request
+            //var receivedRecipe = service.HandleUserRequest(userInput, allRecipes);
+            ////// User request: Find vegan recipes under 400 kcal
+            ////string dietaryPreference = "Vegan";
+            ////decimal maxCalories = 400;
 
-    //        // Step 1: Filter the recipes by calorie limit and dietary preference
-    //        //var filteredRecipes = service.FilterRecipes(allRecipes, maxCalories, dietaryPreference);
+            //// Step 1: Filter the recipes by calorie limit and dietary preference
+            ////var filteredRecipes = service.FilterRecipes(allRecipes, maxCalories, dietaryPreference);
 
-    //        //// Step 2: Adjust the recipes if they exceed the calorie limit
-    //        //foreach (var recipe in filteredRecipes)
-    //        //{
-    //        //    if (recipe.TotalCalories > maxCalories)
-    //        //    {
-    //        //        recipe = service.AdjustRecipeToFitCalorieLimit(recipe, maxCalories);
-    //        //    }
-    //        //}
+            ////// Step 2: Adjust the recipes if they exceed the calorie limit
+            ////foreach (var recipe in filteredRecipes)
+            ////{
+            ////    if (recipe.TotalCalories > maxCalories)
+            ////    {
+            ////        recipe = service.AdjustRecipeToFitCalorieLimit(recipe, maxCalories);
+            ////    }
+            ////}
 
-    //        Console.Write("\nWould you like to change something to the recipe? ");
-    //        var userInputReplace = Console.ReadLine();
+            //Console.Write("\nWould you like to change something to the recipe? ");
+            //var userInputReplace = Console.ReadLine();
 
-    //        var updated = service.GenerateUpdatedRecipe(userInputReplace, receivedRecipe);
+            //var updated = service.GenerateUpdatedRecipe(userInputReplace, receivedRecipe);
 
-    //        Console.WriteLine($"\n✅ Updated Recipe: {updated.Title}");
-    //        foreach (var ing in updated.Ingredients)
-    //            Console.WriteLine($"- {ing.Ingredient}: {ing.Quantity}{ing.Unit}");
+            //Console.WriteLine($"\n✅ Updated Recipe: {updated.Title}");
+            //foreach (var ing in updated.Ingredients)
+            //    Console.WriteLine($"- {ing.Ingredient}: {ing.Quantity}{ing.Unit}");
 
-    //        Console.WriteLine($"\n🔥 Calories: {updated.Calories} kcal");
-    //        Console.WriteLine($"💪 Protein:  {updated.Protein} g");
-    //        Console.WriteLine($"🍞 Carbs:    {updated.Carbs} g");
-    //        Console.WriteLine($"🧈 Fat:      {updated.Fat} g");
-    //        Console.WriteLine($"🌿 Fiber:    {updated.Fiber} g");
+            //Console.WriteLine($"\n🔥 Calories: {updated.Calories} kcal");
+            //Console.WriteLine($"💪 Protein:  {updated.Protein} g");
+            //Console.WriteLine($"🍞 Carbs:    {updated.Carbs} g");
+            //Console.WriteLine($"🧈 Fat:      {updated.Fat} g");
 
 
 
 
-    //        //var cache = new NutritionCache();
+            ////var cache = new NutritionCache();
 
-    //        //IngredientNutrition GetNutrition(string name) =>
-    //        //    cache.GetOrAdd(name, () =>
-    //        //        ingredients.FirstOrDefault(i => i.Name == name.ToLower()));
+            ////IngredientNutrition GetNutrition(string name) =>
+            ////    cache.GetOrAdd(name, () =>
+            ////        ingredients.FirstOrDefault(i => i.Name == name.ToLower()));
 
-    //        //Console.WriteLine($"Updated total calories: {totalCalories} kcal");
+            ////Console.WriteLine($"Updated total calories: {totalCalories} kcal");
 
-    //        //decimal totalCalories = recipe.Ingredients.Sum(ingredient =>
-    //        //{
-    //        //    var normalizedGrams = UnitNormalizer.NormalizeToGrams(ingredient.Quantity, ingredient.Unit);
-    //        //    var nut = GetNutrition(ingredient.Name);
-    //        //    return normalizedGrams / 100 * nut?.Calories ?? 0;
-    //        //});
-    //        //var (sess, inputTensor, logitsTensor, word2idx, idx2tag) = LoadNERModel();
-    //        //var result = PredictNER("replace butter with avocado", word2idx, idx2tag, sess, inputTensor, logitsTensor);
-    //        //Console.WriteLine($"Old: {result.OldIngredient}, New: {result.NewIngredient}");
-    //    }
+            ////decimal totalCalories = recipe.Ingredients.Sum(ingredient =>
+            ////{
+            ////    var normalizedGrams = UnitNormalizer.NormalizeToGrams(ingredient.Quantity, ingredient.Unit);
+            ////    var nut = GetNutrition(ingredient.Name);
+            ////    return normalizedGrams / 100 * nut?.Calories ?? 0;
+            ////});
+            //var (sess, inputTensor, logitsTensor, word2idx, idx2tag) = LoadNERModel();
+            //var result = PredictNER("replace butter with avocado", word2idx, idx2tag, sess, inputTensor, logitsTensor);
+            //Console.WriteLine($"Old: {result.OldIngredient}, New: {result.NewIngredient}");
+        }
 
 
         public class TokenInput
@@ -203,45 +205,162 @@ namespace RecipeRecommendation
                 .Append(mlContext.Transforms.Conversion.MapValueToKey("Label"))
                 .Append(mlContext.MulticlassClassification.Trainers.LightGbm("Label", "Features"))
                 .Append(mlContext.Transforms.Conversion.MapKeyToValue("PredictedLabel"));
-
+            var sw = Stopwatch.StartNew();
             var model = pipeline.Fit(data);
+
+            sw.Stop();
+            Console.WriteLine($"⏱ ML.NET LightGBM Training Time: {sw.Elapsed.TotalSeconds:0.###} sec");
             var predictions = model.Transform(data);
-            var metrics = mlContext.MulticlassClassification.Evaluate(predictions, labelColumnName: "Label", predictedLabelColumnName: "PredictedLabel");
+            //var metrics = mlContext.MulticlassClassification.Evaluate(predictions, labelColumnName: "Label", predictedLabelColumnName: "PredictedLabel");
+
+            //var confusion = metrics.ConfusionMatrix;
+            //Console.WriteLine("\n📊 Evaluation Metrics:");
+            //Console.WriteLine($"  MicroAccuracy:    {metrics.MicroAccuracy:0.###}");
+            //Console.WriteLine($"  MacroAccuracy:    {metrics.MacroAccuracy:0.###}");
+            //Console.WriteLine($"  LogLoss:          {metrics.LogLoss:0.###}");
+            //Console.WriteLine($"  LogLossReduction: {metrics.LogLossReduction:0.###}");
+
+            //Console.WriteLine("\n📉 Per-Class Metrics (Confusion Matrix):");
 
 
-            Console.WriteLine("Evaluation Metrics:");
-            Console.WriteLine($"  MicroAccuracy:    {metrics.MicroAccuracy:0.###}");
-            Console.WriteLine($"  MacroAccuracy:    {metrics.MacroAccuracy:0.###}");
-            Console.WriteLine($"  LogLoss:          {metrics.LogLoss:0.###}");
-            Console.WriteLine($"  LogLossReduction: {metrics.LogLossReduction:0.###}");
+            //for (int i = 0; i < confusion.NumberOfClasses; i++)
+            //{
+            //    Console.WriteLine($"Class {i}:");
+            //    Console.WriteLine($"  Precision: {confusion.PerClassPrecision[i]:0.###}");
+            //    Console.WriteLine($"  Recall:    {confusion.PerClassRecall[i]:0.###}");
+            //}
 
-            var sentence = "replace butter with cheese";
+            //var sentence = "replace butter with cheese";
 
-            var testSentence = "replace sugar with stevia";
-            var tokens = testSentence.Split(' ');
+            //var testSentence = "replace sugar with stevia";
+            //var tokens = testSentence.Split(' ');
 
-            var testInputs = new List<TokenInput>();
-            for (int i = 0; i < tokens.Length; i++)
-            {
-                var prev = i > 0 ? tokens[i - 1] : "<START>";
-                var curr = tokens[i];
-                var next = i < tokens.Length - 1 ? tokens[i + 1] : "<END>";
+            //var testInputs = new List<TokenInput>();
+            //for (int i = 0; i < tokens.Length; i++)
+            //{
+            //    var prev = i > 0 ? tokens[i - 1] : "<START>";
+            //    var curr = tokens[i];
+            //    var next = i < tokens.Length - 1 ? tokens[i + 1] : "<END>";
 
-                testInputs.Add(new TokenInput
-                {
-                    PrevToken = prev,
-                    Token = curr,
-                    NextToken = next
-                });
-            }
+            //    testInputs.Add(new TokenInput
+            //    {
+            //        PrevToken = prev,
+            //        Token = curr,
+            //        NextToken = next
+            //    });
+            //}
 
             var predEngine = mlContext.Model.CreatePredictionEngine<TokenInput, NerPrediction>(model);
 
-            Console.WriteLine("Predicted tags:");
-            foreach (var input in testInputs)
+            //Console.WriteLine("Predicted tags:");
+            //foreach (var input in testInputs)
+            //{
+            //    var prediction = predEngine.Predict(input);
+            //    Console.WriteLine($"{input.Token,-10} => {prediction.PredictedLabel}");
+            //}
+
+            Console.WriteLine("\n📊 Evaluating ML.NET on test examples...");
+
+            Dictionary<string, (int TP, int FP, int FN)> mlMetrics = new();
+
+            var testExamples = new List<NerTestSample>
+
+{
+                  new() {
+        Tokens = new[] { "replace", "sugar", "with", "stevia" },
+        Labels = new[] { "O", "B-OLD", "O", "B-NEW" }
+    },
+    new() {
+        Tokens = new[] { "substitute", "butter", "with", "margarine" },
+        Labels = new[] { "O", "B-OLD", "O", "B-NEW" }
+    },
+    new() {
+        Tokens = new[] { "swap", "milk", "for", "almond", "milk" },
+        Labels = new[] { "O", "B-OLD", "O", "B-NEW", "I-NEW" }
+    },
+       new() {
+        Tokens = new[] { "I", "want", "to", "get", "rid", "of", "milk" },
+        Labels = new[] { "O", "O", "O", "O", "O", "O", "B-OLD" }
+    },
+           new() {
+        Tokens = new[] { "include", "honey" },
+        Labels = new[] { "O", "B-NEW" }
+    },
+    new() {
+        Tokens = new[] { "replace", "cream", "cheese", "with", "quark" },
+        Labels = new[] { "O", "B-OLD", "I-OLD", "O", "B-NEW" }
+    },
+    new() {
+        Tokens = new[] { "can", "I", "use", "tempeh", "instead", "of", "bacon" },
+        Labels = new[] { "O", "O", "O", "B-NEW", "O", "O", "B-OLD" }
+    },
+    new() {
+        Tokens = new[] { "try", "ghee", "instead", "of", "olive", "oil" },
+        Labels = new[] { "O", "B-NEW", "O", "O", "B-OLD", "I-OLD" }
+    },
+    new() {
+        Tokens = new[] { "get", "rid", "of", "white", "sugar" },
+        Labels = new[] { "O", "O", "O", "B-OLD", "I-OLD" }
+    },
+    new() {
+        Tokens = new[] { "add", "chia", "seeds" },
+        Labels = new[] { "O", "B-NEW", "I-NEW" }
+    },
+    new() {
+        Tokens = new[] { "use", "coconut", "nectar", "as", "a", "sweetener" },
+        Labels = new[] { "O", "B-NEW", "I-NEW", "O", "O", "O" }
+    },
+    new() {
+        Tokens = new[] { "remove", "whey", "protein" },
+        Labels = new[] { "O", "B-OLD", "I-OLD" }
+    },
+    new() {
+        Tokens = new[] { "swap", "paneer", "for", "tofu" },
+        Labels = new[] { "O", "B-OLD", "O", "B-NEW" }
+    },
+    new() {
+        Tokens = new[] { "I", "want", "to", "avoid", "mayonnaise" },
+        Labels = new[] { "O", "O", "O", "O", "B-OLD" }
+    },
+    new() {
+        Tokens = new[] { "can", "you", "replace", "cashew", "milk", "with", "soy", "milk" },
+        Labels = new[] { "O", "O", "O", "B-OLD", "I-OLD", "O", "B-NEW", "I-NEW" }
+    }
+};
+
+
+            foreach (var sample in testExamples)
             {
-                var prediction = predEngine.Predict(input);
-                Console.WriteLine($"{input.Token,-10} => {prediction.PredictedLabel}");
+                for (int i = 0; i < sample.Tokens.Length; i++)
+                {
+                    var prev = i > 0 ? sample.Tokens[i - 1] : "<START>";
+                    var curr = sample.Tokens[i];
+                    var next = i < sample.Tokens.Length - 1 ? sample.Tokens[i + 1] : "<END>";
+
+                    var input = new TokenInput { PrevToken = prev, Token = curr, NextToken = next };
+                    var prediction = predEngine.Predict(input).PredictedLabel;
+                    var trueLabel = sample.Labels[i];
+
+                    if (!mlMetrics.ContainsKey(trueLabel)) mlMetrics[trueLabel] = (0, 0, 0);
+                    if (!mlMetrics.ContainsKey(prediction)) mlMetrics[prediction] = (0, 0, 0);
+
+                    if (trueLabel == prediction)
+                        mlMetrics[trueLabel] = (mlMetrics[trueLabel].TP + 1, mlMetrics[trueLabel].FP, mlMetrics[trueLabel].FN);
+                    else
+                    {
+                        mlMetrics[prediction] = (mlMetrics[prediction].TP, mlMetrics[prediction].FP + 1, mlMetrics[prediction].FN);
+                        mlMetrics[trueLabel] = (mlMetrics[trueLabel].TP, mlMetrics[trueLabel].FP, mlMetrics[trueLabel].FN + 1);
+                    }
+                }
+            }
+
+            foreach (var tag in mlMetrics.Keys)
+            {
+                var (tp, fp, fn) = mlMetrics[tag];
+                double precision = tp / (double)(tp + fp + 1e-6);
+                double recall = tp / (double)(tp + fn + 1e-6);
+                double f1 = 2 * precision * recall / (precision + recall + 1e-6);
+                Console.WriteLine($"{tag,-6} => P: {precision:0.###}, R: {recall:0.###}, F1: {f1:0.###}");
             }
 
             mlContext.Model.Save(model, data.Schema, modelPath);
@@ -275,10 +394,48 @@ namespace RecipeRecommendation
             }
         }
 
+        public static void TrainNERModel()
+        {
+            //var ingredients = File.ReadAllLines("food.csv")
+            // .Skip(1)
+            // .Select(line =>
+            // {
+            //     var parts = line.Split(',');
 
+            //     decimal TryParseDecimal(string input)
+            //     {
+            //         return decimal.TryParse(input.Trim('"'), out var value) ? value : 0;
+            //     }
+
+            //     return new IngredientNutrition
+            //     {
+            //         NameRaw = parts[1].Trim('"').ToLower(),            // Clean name properly
+            //         Calories = TryParseDecimal(parts[11]),          // Data.Kilocalories
+            //         Carbs = TryParseDecimal(parts[7]),              // Data.Carbohydrate
+            //         Protein = TryParseDecimal(parts[17]),           // Data.Protein
+            //         Fat = TryParseDecimal(parts[27]),               // Data.Fat.Total Lipid         // Data.Fiber
+            //     };
+            // }).ToList();
+
+            //var recipes = System.Text.Json.JsonSerializer.Deserialize<List<RecipeRec>>(File.ReadAllText("recipes_combined_all_with_diet.json"));
+            //  BioTagGenerator.GenerateBIO("nlp_recipe_intents_15000.json", "food.csv", "bio_annotated_dataset_old_new.json");
+            // TrainModelForTextClassification();
+
+            //PredictUserIntent();
+
+            // var dataset = LoadBIOAnnotatedDataset("bio_annotated_dataset.json");
+            //  var (X, y, word2idx, tag2idx) = PrepareData(dataset);
+            //
+            // var model = BuildNERModel(word2idx.Count, tag2idx.Count);
+
+            //TrainModel();
+            TrainBiLSTMModel();
+            TestPrediction();
+        }
         public static (string? OldIngredient, string? NewIngredient) ExtractEntitiesFromNer(string sentence)
         {
             var mlContext = new MLContext();
+            TrainML();
             var modelPath = "bio_ner_model3.zip";
             ITransformer loadedModel = mlContext.Model.Load(modelPath, out _);
             var predictor = mlContext.Model.CreatePredictionEngine<TokenInput, NerPrediction>(loadedModel);
@@ -314,6 +471,7 @@ namespace RecipeRecommendation
             if (newTokens.Count > 0)
                 newIngredient = string.Join(" ", newTokens);
 
+
             return (oldIngredient?.ToLowerInvariant(), newIngredient?.ToLowerInvariant());
         }
 
@@ -325,6 +483,75 @@ namespace RecipeRecommendation
         }
 
 
+            public static (Tensorflow.Tensor input, Tensorflow.Tensor labels, Tensorflow.Tensor loss, Tensorflow.Tensor trainOp, Tensorflow.Tensor prediction) BuildBiLstmSoftmaxModel(
+    int vocabSize, int tagCount, int maxSeqLen, int embeddingDim = 128)
+            {
+                tf.compat.v1.disable_eager_execution();
+
+                var input = tf.placeholder(tf.int32, shape: (-1, maxSeqLen), name: "input");
+                var labels = tf.placeholder(tf.int32, shape: (-1, maxSeqLen), name: "labels");
+
+                // Embedding layer
+                var embeddingMatrix = tf.Variable(tf.random.uniform((vocabSize, embeddingDim), -1.0f, 1.0f));
+                var embedded = tf.nn.embedding_lookup((IVariableV1)embeddingMatrix, input);
+
+            // BiLSTM layer
+            var lstmFw = tf.keras.layers.LSTM(64, return_sequences: true,
+        kernel_initializer: tf.random_uniform_initializer);
+
+            var lstmBw = tf.keras.layers.LSTM(64, return_sequences: true, go_backwards: true,
+                kernel_initializer: tf.random_uniform_initializer);
+            var lstmFwOut = lstmFw.Apply(embedded);
+                var lstmBwOut = lstmBw.Apply(embedded);
+
+                var concat = tf.concat(new List<Tensorflow.Tensor> { lstmFwOut, lstmBwOut }, axis: -1); // shape: [batch, seq_len, 128]
+
+                // Dense layer
+                var logits = tf.keras.layers.Dense(units: tagCount).Apply(concat); // shape: [batch, seq_len, tagCount]
+                var prediction = tf.math.argmax(logits, axis: -1); // shape: [batch, seq_len]
+
+                // Loss
+                var flatLogits = tf.reshape(logits, (-1, tagCount));
+                var flatLabels = tf.reshape(labels, (-1));
+                var loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels: flatLabels, logits: flatLogits));
+
+                var trainOp = tf.train.AdamOptimizer(learning_rate: 0.001f).minimize(loss);
+
+                return (input, labels, loss, trainOp, prediction);
+            }
+
+            public static void TrainAndPredictBilstmModel(NDArray X, NDArray y, NDArray inputMatrix,
+                                                  int vocabSize, int tagCount, int maxSeqLen)
+            {
+                // Build the model
+                var (input, labels, loss, trainOp, prediction) = BuildBiLstmSoftmaxModel(vocabSize, tagCount, maxSeqLen);
+
+                // Start session
+                using var sess = tf.Session();
+                sess.run(tf.global_variables_initializer());
+
+                // Train
+                for (int epoch = 0; epoch < 50; epoch++)
+                {
+                    var (_, currLoss) = sess.run((trainOp, loss),
+                        new FeedItem(input, X.astype(np.int32)),
+                        new FeedItem(labels, y.astype(np.int32)));
+
+                    Console.WriteLine($"Epoch {epoch + 1}: Loss = {currLoss:0.####}");
+                }
+
+                Console.WriteLine("\n✅ Training complete.\n");
+
+                // Predict
+                var testInput = inputMatrix; // shape [1, maxSeqLen]
+                var predOutput = sess.run(prediction, new FeedItem(input, testInput));
+                var tagIds = ((NDArray)predOutput)[0].ToArray<int>();
+
+                Console.WriteLine("🔍 Predicted tag IDs:");
+                Console.WriteLine(string.Join(" ", tagIds));
+            }
+
+        
 
         public static List<NerTokenRow> FlattenBioJson(string jsonFilePath)
         {
@@ -387,92 +614,477 @@ namespace RecipeRecommendation
             public string Token { get; set; }
             public string Tag { get; set; }
         }
+
+        public static List<BioTaggedSentence> LoadFlatTSVAsTaggedSentences(string filePath)
+        {
+            var result = new List<BioTaggedSentence>();
+            var currentTokens = new List<BioTaggedToken>(); // Change type to match BioTaggedToken  
+
+            foreach (var line in File.ReadLines(filePath).Skip(1)) // skip header  
+            {
+                if (string.IsNullOrWhiteSpace(line))
+                {
+                    if (currentTokens.Count > 0)
+                    {
+                        result.Add(new BioTaggedSentence { Tokens = new List<BioTaggedToken>(currentTokens) }); // Fix type mismatch  
+                        currentTokens.Clear();
+                    }
+                    continue;
+                }
+
+                var parts = line.Split('\t');
+                if (parts.Length != 4) continue;
+
+                var token = parts[1]; // Current token  
+                var tag = parts[3];   // BIO tag  
+
+                currentTokens.Add(new BioTaggedToken { Token = token, Tag = tag }); // Fix type mismatch  
+            }
+
+            // Add any leftover sentence  
+            if (currentTokens.Count > 0)
+            {
+                result.Add(new BioTaggedSentence { Tokens = currentTokens });
+            }
+
+            return result;
+        }
+
+
+        public static (NDArray X, NDArray y, Dictionary<string, int> word2idx, Dictionary<string, int> tag2idx)
+    EncodeTaggedSentences(List<BioTaggedSentence> sentences, int maxSeqLen)
+        {
+            var X = np.zeros((sentences.Count, maxSeqLen), dtype: np.int32);
+            var y = np.zeros((sentences.Count, maxSeqLen), dtype: np.int32);
+
+            var word2idx = new Dictionary<string, int> { ["<PAD>"] = 0, ["<UNK>"] = 1 };
+            var tag2idx = new Dictionary<string, int> { ["O"] = 0 };
+
+            foreach (var sentence in sentences)
+            {
+                foreach (var token in sentence.Tokens)
+                {
+                    if (!word2idx.ContainsKey(token.Token.ToLower()))
+                        word2idx[token.Token.ToLower()] = word2idx.Count;
+                    if (!tag2idx.ContainsKey(token.Tag))
+                        tag2idx[token.Tag] = tag2idx.Count;
+                }
+            }
+
+            for (int i = 0; i < sentences.Count; i++)
+            {
+                var s = sentences[i];
+                for (int j = 0; j < Math.Min(maxSeqLen, s.Tokens.Count); j++)
+                {
+                    var token = s.Tokens[j].Token.ToLower();
+                    var tag = s.Tokens[j].Tag;
+
+                    X[i, j] = word2idx.TryGetValue(token, out var id) ? id : word2idx["<UNK>"];
+                    y[i, j] = tag2idx[tag];
+                }
+            }
+
+            return (X, y, word2idx, tag2idx);
+        }
+
+        public static (int TP, int FP, int FN) ComputeNERMetrics(string[] trueTags, string[] predictedTags, string tag)
+        {
+            int tp = 0, fp = 0, fn = 0;
+
+            for (int i = 0; i < trueTags.Length; i++)
+            {
+                if (predictedTags[i] == tag && trueTags[i] == tag) tp++;
+                else if (predictedTags[i] == tag && trueTags[i] != tag) fp++;
+                else if (predictedTags[i] != tag && trueTags[i] == tag) fn++;
+            }
+            return (tp, fp, fn);
+        }
         public static void TrainModel()
+        {
+            tf.compat.v1.disable_eager_execution();
+
+            int embeddingDim = 128;
+            int maxSeqLen = 100;
+
+            // Load and prepare data
+            //var dataset = LoadBIOAnnotatedDataset("bio_annotated_dataset_old_new3.json");
+
+            var dataset = LoadFlatTSVAsTaggedSentences("bio_dataset_flat3.tsv");
+
+
+            Console.WriteLine($"Loaded sentences: {dataset.Count}");
+            var (X, y, word2idx, tag2idx) = PrepareData(dataset, maxSeqLen);
+
+            Console.WriteLine($"Original y shape: {y.shape}");
+            var reshapedY = y.reshape(-1);
+            Console.WriteLine($"Flattened y shape: {reshapedY.shape}");
+            int vocabSize = word2idx.Count;
+            int tagCount = tag2idx.Count;
+
+            // Placeholders
+            var input = tf.placeholder(tf.int32, shape: (-1, maxSeqLen), name: "input");
+            var labels = tf.placeholder(tf.int32, shape: (-1, maxSeqLen), name: "labels");
+
+            // Embedding Layer
+            var embeddingMatrix = tf.Variable(tf.random.uniform((vocabSize, embeddingDim), -1.0f, 1.0f), name: "embedding_matrix");
+            var embedded = tf.nn.embedding_lookup((Tensorflow.Tensor)embeddingMatrix, input);
+
+            // Flatten and Dense
+            //var flatten = tf.reshape(embedded, (-1, maxSeqLen * embeddingDim));
+            //var weights = tf.Variable(tf.random.truncated_normal((maxSeqLen * embeddingDim, tagCount), stddev: 0.1f));
+
+            var W = tf.Variable(tf.random.truncated_normal((embeddingDim, tagCount), stddev: 0.1f));
+            var b = tf.Variable(tf.zeros(tagCount));
+
+            // embedded: [batch, seq_len, embeddingDim]
+            // reshape to 2D for matmul
+            var embedded2D = tf.reshape(embedded, (-1, embeddingDim));          // [batch * seq_len, embDim]
+            var logits2D = tf.matmul(embedded2D, W) + b;                         // [batch * seq_len, tagCount]
+            var logits3D = tf.reshape(logits2D, (-1, maxSeqLen, tagCount));
+            //var biases = tf.Variable(tf.zeros(tagCount));
+            //var logits = tf.matmul(flatten, weights) + biases;
+           // logits = tf.reshape(logits, (-1, maxSeqLen, tagCount)); // [batch, seq_len, tagCount]
+
+            // Reshape to [batch * seq_len, tagCount] and [batch * seq_len]
+            var flatLogits = tf.reshape(logits3D, (-1, tagCount));
+            var flatLabels = tf.reshape(labels, (-1));
+
+            // Loss & optimizer
+            var loss = tf.reduce_mean(tf.nn.sparse_softmax_cross_entropy_with_logits(labels: flatLabels, logits: flatLogits));
+            var train_op = tf.train.AdamOptimizer(0.001f).minimize(loss);
+
+            // Session
+            using var sess = tf.Session();
+            sess.run(tf.global_variables_initializer());
+
+            // Use X and y as-is
+            var feedX = X.astype(np.int32);
+            var feedY = y.astype(np.int32);
+            var flatY = y.reshape(-1);
+            var sw = Stopwatch.StartNew();
+            int patience = 5; // how many times to allow stagnation
+            double minDelta = 1e-4; // minimum change considered an improvement
+            double bestLoss = double.MaxValue;
+            int wait = 0;
+
+            for (int epoch = 0; epoch < 150; epoch++)
+            {
+                var (_, curr_loss) = sess.run((train_op, loss),
+                    new FeedItem(input, feedX),
+                    new FeedItem(labels, flatY));
+
+                Console.WriteLine($"Epoch {epoch + 1}: Loss = {curr_loss:0.####}");
+
+              
+            }
+            sw.Stop();
+            Console.WriteLine($"⏱ Training time: {sw.Elapsed.TotalSeconds:0.###} seconds");
+
+            Console.WriteLine("✅ Model training complete.");
+
+            // Save model
+            var saver = tf.train.Saver();
+            saver.save(sess, "./ner_model.ckpt");
+
+            var idx2tag = tag2idx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+
+
+
+            var testExamples = new List<NerTestSample>
+{
+    new() {
+        Tokens = new[] { "replace", "cream", "cheese", "with", "quark" },
+        Labels = new[] { "O", "B-OLD", "I-OLD", "O", "B-NEW" }
+    },
+    new() {
+        Tokens = new[] { "can", "I", "use", "tempeh", "instead", "of", "bacon" },
+        Labels = new[] { "O", "O", "O", "B-NEW", "O", "O", "B-OLD" }
+    },
+    new() {
+        Tokens = new[] { "try", "ghee", "instead", "of", "olive", "oil" },
+        Labels = new[] { "O", "B-NEW", "O", "O", "B-OLD", "I-OLD" }
+    },
+    new() {
+        Tokens = new[] { "get", "rid", "of", "white", "sugar" },
+        Labels = new[] { "O", "O", "O", "B-OLD", "I-OLD" }
+    },
+    new() {
+        Tokens = new[] { "add", "chia", "seeds" },
+        Labels = new[] { "O", "B-NEW", "I-NEW" }
+    },
+    new() {
+        Tokens = new[] { "use", "coconut", "nectar", "as", "a", "sweetener" },
+        Labels = new[] { "O", "B-NEW", "I-NEW", "O", "O", "O" }
+    },
+    new() {
+        Tokens = new[] { "remove", "whey", "protein" },
+        Labels = new[] { "O", "B-OLD", "I-OLD" }
+    },
+    new() {
+        Tokens = new[] { "swap", "paneer", "for", "tofu" },
+        Labels = new[] { "O", "B-OLD", "O", "B-NEW" }
+    },
+    new() {
+        Tokens = new[] { "I", "want", "to", "avoid", "mayonnaise" },
+        Labels = new[] { "O", "O", "O", "O", "B-OLD" }
+    },
+    new() {
+        Tokens = new[] { "can", "you", "replace", "cashew", "milk", "with", "soy", "milk" },
+        Labels = new[] { "O", "O", "O", "B-OLD", "I-OLD", "O", "B-NEW", "I-NEW" }
+    }
+};
+
+            Console.WriteLine("\n📊 Evaluating TensorFlow.NET on test examples...");
+
+            Dictionary<string, (int TP, int FP, int FN)> tfMetrics = new();
+
+            foreach (var sample in testExamples)
+            {
+                var predicted = PredictTagsTF(sample.Tokens, word2idx, sess, input, logits3D, idx2tag);
+
+                for (int i = 0; i < sample.Tokens.Length; i++)
+                {
+                    var trueLabel = sample.Labels[i];
+                    var pred = predicted[i];
+
+                    if (!tfMetrics.ContainsKey(trueLabel)) tfMetrics[trueLabel] = (0, 0, 0);
+                    if (!tfMetrics.ContainsKey(pred)) tfMetrics[pred] = (0, 0, 0);
+
+                    if (trueLabel == pred)
+                        tfMetrics[trueLabel] = (tfMetrics[trueLabel].TP + 1, tfMetrics[trueLabel].FP, tfMetrics[trueLabel].FN);
+                    else
+                    {
+                        tfMetrics[pred] = (tfMetrics[pred].TP, tfMetrics[pred].FP + 1, tfMetrics[pred].FN);
+                        tfMetrics[trueLabel] = (tfMetrics[trueLabel].TP, tfMetrics[trueLabel].FP, tfMetrics[trueLabel].FN + 1);
+                    }
+                }
+            }
+
+            foreach (var tag in tfMetrics.Keys)
+            {
+                var (tp, fp, fn) = tfMetrics[tag];
+                double precision = tp / (double)(tp + fp + 1e-6);
+                double recall = tp / (double)(tp + fn + 1e-6);
+                double f1 = 2 * precision * recall / (precision + recall + 1e-6);
+                Console.WriteLine($"{tag,-6} => P: {precision:0.###}, R: {recall:0.###}, F1: {f1:0.###}");
+            }
+
+            var sentences = LoadFlatTSVAsTaggedSentences("bio_dataset_flat3.tsv");
+             maxSeqLen = 100;
+
+             (X, y, word2idx, tag2idx) = EncodeTaggedSentences(sentences, maxSeqLen);
+            var inputMatrix = X[$"{0}:" + "1"]; // shape [1, maxSeqLen] — first sentence
+
+             vocabSize = word2idx.Count;
+             tagCount = tag2idx.Count;
+
+            TrainAndPredictBilstmModel(X, y, inputMatrix, vocabSize, tagCount, maxSeqLen);
+
+            //var idx2tag = tag2idx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+
+            //// 🔮 Predict on a sample sentence
+            //string testSentence = "replace sugar with stevia";
+            //var prediction = PredictNER(testSentence, word2idx, idx2tag, sess, input, logits3D);
+
+            //Console.WriteLine($"\n🔎 Prediction for: \"{testSentence}\"");
+            //Console.WriteLine($"Old Ingredient: {prediction.OldIngredient}");
+            //Console.WriteLine($"New Ingredient: {prediction.NewIngredient}");
+        }
+
+        public static string[] PredictTagsTF(string[] tokens, Dictionary<string, int> word2idx, Session session, Tensorflow.Tensor input, Tensorflow.Tensor logits, Dictionary<int, string> idx2tag)
+        {
+            var inputIds = tokens.Select(t => word2idx.TryGetValue(t.ToLower(), out var id) ? id : word2idx["<UNK>"]).ToList();
+            while (inputIds.Count < 100) inputIds.Add(word2idx["<PAD>"]);
+            inputIds = inputIds.Take(100).ToList();
+
+            var input2D = new int[1, 100];
+            for (int i = 0; i < 100; i++) input2D[0, i] = inputIds[i];
+            var inputArr = np.array(input2D);
+
+            var output = session.run(logits, new FeedItem(input, inputArr));
+            var predIds = ((NDArray)np.argmax(output, axis: -1)).astype(np.int32)[0].ToArray<int>();
+            return tokens.Select((t, i) => i < predIds.Length && idx2tag.ContainsKey(predIds[i]) ? idx2tag[predIds[i]] : "O").ToArray();
+        }
+
+        public static void TrainBiLSTMModel()
         {
             int embeddingDim = 128;
             int maxSeqLen = 100;
             int batchSize = 32;
-            int numEpochs = 30;
+            int numEpochs = 300;
             float learningRate = 0.001f;
 
             // Load and prepare data
-            var dataset = LoadBIOAnnotatedDataset("bio_annotated_dataset_old_new.json");
+            var dataset = LoadFlatTSVAsTaggedSentences("bio_dataset_flat3.tsv");
             Console.WriteLine($"Loaded sentences: {dataset.Count}");
-            var (X, y, word2idx, tag2idx) = PrepareData(dataset, maxSeqLen);
+
+            var (X, yRaw, word2idx, tag2idx) = PrepareData(dataset, maxSeqLen);
             int vocabSize = word2idx.Count;
             int tagCount = tag2idx.Count;
 
-            // Define the Keras model
-            var tf_keras = tf.keras;
-            var inputs = tf_keras.Input(shape: new Shape(maxSeqLen), dtype: tf.@int32);
-            var embedding = new Embedding(new EmbeddingArgs
-            {
-                InputDim = vocabSize,
-                OutputDim = embeddingDim,
-                InputLength = maxSeqLen,
-                DType = tf.@float32
-            });
-            var x = embedding.Apply(inputs);
+            // One-hot encode y [samples, seqLen] → [samples, seqLen, tagCount]
+            var yOneHotTensor = tf.one_hot(yRaw, depth: tagCount);
+            var yOneHot = yOneHotTensor.numpy(); // cast to NDArray for fit()
 
-            var lstm = new LSTM(new LSTMArgs
-            {
-                Units = 64,
-                ReturnSequences = true
-            });
+            // Define model
+            //var keras = tf.keras;
+            //var inputs = keras.Input(shape: new Shape(maxSeqLen), dtype: tf.@int32);
+            //var x = keras.layers.Embedding(input_dim: vocabSize, output_dim: embeddingDim, mask_zero: true).Apply(inputs);
 
-            // Define Bidirectional wrapper
-            var biLstmArgs = new BidirectionalArgs
-            {
-                Layer = lstm,
-                MergeMode = "concat", // or "sum", "ave", "mul", null
-                Name = "bi_lstm"
-            };
 
-            var biLstm = new Bidirectional(biLstmArgs);
+            //x = keras.layers.Bidirectional(keras.layers.LSTM(64, return_sequences: true)).Apply(x);
+            //x = keras.layers.Dropout(rate: 0.3f).Apply(x); // Add dropout for regularization
+            //x = keras.layers.Dense(tagCount, activation: "softmax").Apply(x);
 
-            // Apply it to input
-            x = biLstm.Apply(x);
-            int seqLen = maxSeqLen;
-            int lstmUnits = 128; // or 64, based on previous LSTM output
 
-            // Flatten [batch, seqLen, lstmUnits] → [batch * seqLen, lstmUnits]
-            var shape = tf.shape(x);
-            batchSize = (int)shape[0];
-            var reshaped = tf.reshape(x, (-1, lstmUnits));
+            var keras = tf.keras;
+            var inputs = keras.Input(shape: new Shape(maxSeqLen), dtype: tf.int32);
+            var x = keras.layers.Embedding(vocabSize, embeddingDim).Apply(inputs);
+            x = keras.layers.Dense(64, activation: "relu").Apply(x);
+            x = keras.layers.Dropout(0.3f).Apply(x);
+            x = keras.layers.Dense(tagCount, activation: "softmax").Apply(x);
 
-            // Apply Dense layer to each time step (same weights reused)
-            var dense = tf_keras.layers.Dense(64, activation: "relu").Apply(reshaped);
-            var logits = tf_keras.layers.Dense(tagCount, activation: "softmax").Apply(dense);
+            var model = keras.Model(inputs, x);
 
-            // Reshape back to [batch, seqLen, tagCount]
-            var outputs = tf.reshape(logits, (batchSize, seqLen, tagCount));
-            var model = tf_keras.Model(inputs, outputs);
-            model.compile(optimizer: tf_keras.optimizers.Adam(learningRate),
-                          loss: tf.keras.losses.SparseCategoricalCrossentropy(),
+            model.compile(optimizer: keras.optimizers.Adam(learningRate),
+                          loss: keras.losses.CategoricalCrossentropy(from_logits: false),
                           metrics: new[] { "accuracy" });
 
-            // Train the model
-            model.fit(X, y, batch_size: batchSize, epochs: numEpochs, validation_split: 0.1f);
+            // Cast input
+            X = X.astype(np.int32);
 
-            // Save the model and vocabularies
-            model.save("./ner_keras_model");
-            SaveVocabulary(word2idx, tag2idx, "./vocab.json");
-
-            // Example prediction
-            var idx2tag = tag2idx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
-            string testSentence = "replace sugar with stevia";
-            var testX = PrepareTestInput(testSentence, word2idx, maxSeqLen);
-            var prediction = model.predict(testX);
-            var predictionNp = prediction.numpy(); // Convert to NDArray
-            var predictedIndices = np.argmax(predictionNp, axis: -1).ToArray<int>();
-        
-            var tokens = Tokenize(testSentence);
-            Console.WriteLine("Predicted tags:");
-            for (int i = 0; i < tokens.Count && i < predictedIndices.Length; i++)
+            // Train
+            try
             {
-                Console.WriteLine($"{tokens[i]}: {idx2tag[predictedIndices[i]]}");
+                model.fit(X, yOneHot, batch_size: batchSize, epochs: numEpochs, validation_split: 0.1f);
+                Console.WriteLine("✅ Training finished.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("❌ Training crashed: " + ex.Message);
+                return;
+            }
+
+            //// Prediction
+            var idx2tag = tag2idx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);
+            //string testSentence = "trade quinoa for rice";
+
+            //var testX = PrepareTestInput2(testSentence, word2idx, maxSeqLen);
+            //testX = testX.astype(np.int32);
+
+
+
+            //try
+            //{
+            //    var prediction = model.Apply(testX);
+            //    var predictionNp = prediction.numpy();
+            //    var predictedIndices = np.argmax(predictionNp, axis: -1).astype(np.int32).ToArray<int>();
+
+            //    var tokens = Tokenize(testSentence);
+            //    Console.WriteLine("Predicted tags:");
+            //    for (int i = 0; i < tokens.Count && i < predictedIndices.Length; i++)
+            //    {
+            //        Console.WriteLine($"{tokens[i]}: {idx2tag[predictedIndices[i]]}");
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine("❌ Prediction failed: " + ex.Message);
+            //}
+
+
+            // Evaluation on custom test samples
+            Console.WriteLine("\n📊 Evaluating TensorFlow.NET on test examples...");
+
+            var testExamples = new List<(string Sentence, string[] TrueLabels)>
+    {
+        ("replace sugar with stevia", new[] { "O", "B-OLD", "O", "B-NEW" }),
+        ("substitute butter with margarine", new[] { "O", "B-OLD", "O", "B-NEW" }),
+        ("swap milk for almond milk", new[] { "O", "B-OLD", "O", "B-NEW", "I-NEW" }),
+        ("I want to get rid of milk", new[] { "O", "O", "O", "O", "O", "O", "B-OLD" }),
+        ("include honey", new[] { "O", "B-NEW" }),
+       (
+    "replace cream cheese with quark",
+    new[] { "O", "B-OLD", "I-OLD", "O", "B-NEW" }
+),
+(
+    "can I use tempeh instead of bacon",
+    new[] { "O", "O", "O", "B-NEW", "O", "O", "B-OLD" }
+),
+(
+    "try ghee instead of olive oil",
+    new[] { "O", "B-NEW", "O", "O", "B-OLD", "I-OLD" }
+),
+(
+    "get rid of white sugar",
+    new[] { "O", "O", "O", "B-OLD", "I-OLD" }
+),
+(
+    "add chia seeds",
+    new[] { "O", "B-NEW", "I-NEW" }
+),
+(
+    "use coconut nectar as a sweetener",
+    new[] { "O", "B-NEW", "I-NEW", "O", "O", "O" }
+),
+(
+    "remove whey protein",
+    new[] { "O", "B-OLD", "I-OLD" }
+),
+(
+    "swap paneer for tofu",
+    new[] { "O", "B-OLD", "O", "B-NEW" }
+),
+(
+    "I want to avoid mayonnaise",
+    new[] { "O", "O", "O", "O", "B-OLD" }
+),
+(
+    "can you replace cashew milk with soy milk",
+    new[] { "O", "O", "O", "B-OLD", "I-OLD", "O", "B-NEW", "I-NEW" }
+)
+
+    };
+
+
+
+            var metrics = new Dictionary<string, (int TP, int FP, int FN)>();
+
+            foreach (var (sentence, trueLabels) in testExamples)
+            {
+                var testX = PrepareTestInput2(sentence, word2idx, maxSeqLen).astype(np.int32);
+                var prediction = model.Apply(testX).numpy();
+                var predictedIndices = np.argmax(prediction, axis: -1).astype(np.int32).ToArray<int>();
+
+                var tokens = Tokenize(sentence);
+                for (int i = 0; i < tokens.Count && i < trueLabels.Length; i++)
+                {
+                    string predictedTag = idx2tag[predictedIndices[i]];
+                    string trueTag = trueLabels[i];
+
+                    if (!metrics.ContainsKey(trueTag)) metrics[trueTag] = (0, 0, 0);
+                    if (!metrics.ContainsKey(predictedTag)) metrics[predictedTag] = (0, 0, 0);
+
+                    if (predictedTag == trueTag)
+                        metrics[trueTag] = (metrics[trueTag].TP + 1, metrics[trueTag].FP, metrics[trueTag].FN);
+                    else
+                    {
+                        metrics[predictedTag] = (metrics[predictedTag].TP, metrics[predictedTag].FP + 1, metrics[predictedTag].FN);
+                        metrics[trueTag] = (metrics[trueTag].TP, metrics[trueTag].FP, metrics[trueTag].FN + 1);
+                    }
+                }
+            }
+
+            foreach (var tag in metrics.Keys)
+            {
+                var (tp, fp, fn) = metrics[tag];
+                double precision = tp / (double)(tp + fp + 1e-6);
+                double recall = tp / (double)(tp + fn + 1e-6);
+                double f1 = 2 * precision * recall / (precision + recall + 1e-6);
+                Console.WriteLine($"{tag,-6} => P: {precision:0.###}, R: {recall:0.###}, F1: {f1:0.###}");
             }
         }
+
 
 
         public static NDArray PrepareTestInput(string sentence, Dictionary<string, int> word2idx, int maxSeqLen)
@@ -497,6 +1109,28 @@ namespace RecipeRecommendation
             var inputArray = np.array(indices.ToArray()).reshape(new Shape(1, maxSeqLen));
 
             return inputArray;
+        }
+
+        public static NDArray PrepareTestInput2(string sentence, Dictionary<string, int> word2idx, int maxSeqLen)
+        {
+            var tokens = Regex.Matches(sentence, @"\w+|[^\w\s]")
+                       .Select(m => m.Value.ToLowerInvariant())
+                       .ToList();
+
+            var ids = tokens.Select(token => word2idx.TryGetValue(token, out var id) ? id : word2idx["<UNK>"]).ToList();
+
+            // Pad or truncate to maxSeqLen
+            while (ids.Count < maxSeqLen)
+                ids.Add(word2idx["<PAD>"]);
+            ids = ids.Take(maxSeqLen).ToList();
+
+            // Build a 2D array for batch size 1
+            var input2D = new int[1, maxSeqLen];
+            for (int i = 0; i < maxSeqLen; i++)
+                input2D[0, i] = ids[i];
+
+            var ndarray = np.array(input2D);
+            return ndarray.astype(np.int32);
         }
 
         public static List<string> Tokenize(string sentence)
@@ -605,8 +1239,26 @@ namespace RecipeRecommendation
             //}
 
             // Fallback to tag-based extraction for other cases
+
+            var trueTags = new[] { "O", "B-OLD", "O", "B-NEW" }; // Manually labeled or loaded
+            var predictedTags = tags; // From PredictNER
+
+            var (tp, fp, fn) = ComputeNERMetrics(trueTags, predictedTags, "B-OLD");
+            double precision = tp / (double)(tp + fp + 1e-5);
+            double recall = tp / (double)(tp + fn + 1e-5);
+            double f1 = 2 * precision * recall / (precision + recall + 1e-5);
+
+            Console.WriteLine($"B-OLD → Precision: {precision:0.###}, Recall: {recall:0.###}, F1: {f1:0.###}");
             return ProcessPredictions(tokens, tags);
         }
+
+        public class NerTestSample
+        {
+            public string[] Tokens { get; set; }
+            public string[] Labels { get; set; }
+        }
+
+
 
         private static IngredientEntities ProcessPredictions(string[] tokens, string[] tags)
         {
@@ -712,13 +1364,12 @@ namespace RecipeRecommendation
             }
 
             // Convert to NDArray
-            var XArr = np.array(To2DArray(X));
-            var YArr = np.array(To2DArray(Y));
+            var XArr = np.array(To2DArray(X)).astype(np.int32);
+            var YArr = np.array(To2DArray(Y)).astype(np.int32); // ✅ NO expand_dims
 
-            // For sparse categorical crossentropy we need y to be shaped as [samples, seqLen, 1]
-            var YFinal = np.expand_dims(YArr, -1);  // [samples, maxSeqLen, 1]
+            return (XArr, YArr, word2idx, tag2idx);
 
-            return (XArr, YFinal, word2idx, tag2idx);
+        
         }
         public static int[,] To2DArray(List<List<int>> list)
         {

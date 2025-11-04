@@ -32,6 +32,12 @@ using RecipeRecommendation;
 using FireFitBlazor.Domain.Contexts.ProgressContexts;
 using BlazorBootstrap;
 using static BioTaggedSentence;
+using NETCore.MailKit.Core;
+using FireFitBlazor.Domain.ContextInterfaces.UserContexts;
+using NETCore.MailKit;
+using NETCore.MailKit.Extensions;
+using Radzen.Blazor.Markdown;
+using NETCore.MailKit.Infrastructure.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -105,6 +111,25 @@ builder.Services.AddScoped<IGoalContext, GoalContext>();
 //builder.Services.AddScoped<IUpdateGoalContext, UpdateGoalContext>();
 builder.Services.AddScoped<WeightPredictionService>();
 
+//// Add email service configuration
+
+
+//builder.Services.AddMailKit(optionBuilder =>
+//{
+//    optionBuilder.UseMailKit(new MailKitOptions()
+//    {
+//        //get options from sercets.json
+//        Server = builder.Configuration["EmailSettings:SmtpServer"],
+//        Port = Convert.ToInt32(builder.Configuration["EmailSettings:SmtpPort"]),
+//        SenderName = builder.Configuration["EmailSettings:FromName"],
+//        SenderEmail = builder.Configuration["EmailSettings:FromEmail"],
+//        Account = builder.Configuration["EmailSettings:FromEmail"],
+//        Password = builder.Configuration["EmailSettings:SmtpPassword"],
+//        Security = true
+//    });
+//});
+
+
 //builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 //builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpContextAccessor();
@@ -117,8 +142,8 @@ builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 
 builder.Services.AddHttpClient("ServerAPI", client =>
 {
-    //client.BaseAddress = new Uri("https://localhost:7128/");
-    client.BaseAddress = new Uri("http://172.20.10.3:5000/");
+    client.BaseAddress = new Uri("https://localhost:7128/");
+    //client.BaseAddress = new Uri("http://192.168.100.87:5000/");
 });
 
 builder.Services.AddHttpClient("MLAPI", client =>
@@ -197,6 +222,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
+
+
 
 //if (!File.Exists("\\vocab.json") || !File.Exists("\\ner_model.index")) 
 //{

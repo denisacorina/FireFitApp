@@ -180,14 +180,12 @@ else
             capturedImage = ImageTransferService.CapturedImage;
             if (string.IsNullOrEmpty(capturedImage))
             {
-                Navigation.NavigateTo("/add-food");
+                Navigation.NavigateTo("/log-food");
                 return;
             }
 
-            // Start food detection
             detectedIngredients = await LoadDetectedIngredients(capturedImage);
 
-            // Hide loading page after detection is complete
             isLoading = false;
             StateHasChanged();
             await RecalculateMacros();

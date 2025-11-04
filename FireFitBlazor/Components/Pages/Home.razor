@@ -1,0 +1,37 @@
+@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using Radzen.Blazor;
+@inject NavigationManager NavigationManager
+
+<AuthorizeView>
+    <Authorized>
+        <div class="text-center">
+            <h1>Welcome to FireFit!</h1>
+            <p>Your fitness journey starts here.</p>
+            <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="text-center">
+            <h1>Welcome to FireFit!</h1>
+            <p>Please log in to continue.</p>
+            <a href="/login" class="btn btn-primary">Login</a>
+            <a href="/register" class="btn btn-secondary">Register</a>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        if (!authState.User.Identity.IsAuthenticated)
+        {
+            await Task.Yield(); // Ensures the circuit is established
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+
+} 
