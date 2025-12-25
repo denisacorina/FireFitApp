@@ -1,0 +1,244 @@
+@using System.Linq
+@using FireFit.Shared.Contracts
+@using FireFit.Shared.DTOs
+@using FireFit.Shared.Enums
+@using Radzen
+@using Radzen.Blazor
+
+@inject IGoalService GoalService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenTemplateForm TItem="GoalDto" Data="@goal" Submit="@OnSubmit">
+    <div class="row">
+        <div class="col-md-6">
+            <RadzenLabel Text="Goal Type" Component="GoalType" />
+            <RadzenDropDown @bind-Value="@goal.Type"
+                            Data="@GoalTypes"
+                            TValue="GoalType"
+                            Class="w-100" />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        @if (goal.Type == GoalType.WeightLoss || goal.Type == GoalType.WeightGain || goal.Type == GoalType.Maintenance)
+        {
+            <div class="col-md-6">
+                <RadzenLabel Text="Target Weight (kg)" Component="TargetWeight" />
+                <RadzenNumeric @bind-Value="@goal.TargetWeight"
+                               TValue="decimal?"
+                               Min="30"
+                               Max="300"
+                               Step="0.1"
+                               Class="w-100" />
+            </div>
+        }
+        @if (goal.Type == GoalType.BodyFatReduction)
+        {
+            <div class="col-md-6">
+                <RadzenLabel Text="Target Body Fat %" Component="TargetBodyFatPercentage" />
+                <RadzenNumeric @bind-Value="@goal.TargetBodyFatPercentage"
+                               TValue="decimal?"
+                               Min="3"
+                               Max="50"
+                               Step="0.1"
+                               Class="w-100" />
+            </div>
+        }
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <RadzenLabel Text="Calorie Goal" Component="CalorieGoal" />
+            <RadzenNumeric @bind-Value="@goal.CalorieGoal"
+                           TValue="int"
+                           Min="1000"
+                           Max="5000"
+                           Step="50"
+                           Class="w-100" />
+        </div>
+        <div class="col-md-6">
+            <RadzenLabel Text="Protein Goal (g)" Component="ProteinGoal" />
+            <RadzenNumeric @bind-Value="@goal.ProteinGoal"
+                           TValue="int"
+                           Min="0"
+                           Max="300"
+                           Step="1"
+                           Class="w-100" />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <RadzenLabel Text="Carb Goal (g)" Component="CarbGoal" />
+            <RadzenNumeric @bind-Value="@goal.CarbGoal"
+                           TValue="int"
+                           Min="0"
+                           Max="500"
+                           Step="1"
+                           Class="w-100" />
+        </div>
+        <div class="col-md-6">
+            <RadzenLabel Text="Fat Goal (g)" Component="FatGoal" />
+            <RadzenNumeric @bind-Value="@goal.FatGoal"
+                           TValue="int"
+                           Min="0"
+                           Max="200"
+                           Step="1"
+                           Class="w-100" />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <RadzenLabel Text="Intermittent Fasting" Component="IntermittentFasting" />
+            <RadzenSwitch @bind-Value="@goal.IntermittentFasting" />
+        </div>
+        @if (goal.IntermittentFasting)
+        {
+            <div class="col-md-6">
+                <RadzenLabel Text="Fasting Window (hours)" Component="FastingWindowHours" />
+                <RadzenNumeric @bind-Value="@goal.FastingWindowHours"
+                               TValue="int"
+                               Min="12"
+                               Max="24"
+                               Step="1"
+                               Class="w-100" />
+            </div>
+        }
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <RadzenLabel Text="Target Date" Component="TargetDateUtc" />
+            <RadzenDatePicker @bind-Value="@goal.TargetDateUtc"
+                              DateFormat="dd/MM/yyyy"
+                              Style="width: 100%;" />
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-12">
+            <RadzenButton Text="Save" ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Class="mr-2" />
+            <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" />
+        </div>
+    </div>
+</RadzenTemplateForm>
+
+<style>
+    .row {
+        margin-bottom: 1rem;
+    }
+
+    .mt-3 {
+        margin-top: 1rem;
+    }
+
+    .mr-2 {
+        margin-right: 0.5rem;
+    }
+</style>
+
+@code {
+    [Parameter] public string UserId { get; set; } = string.Empty;
+    [Parameter] public GoalDto? ExistingGoal { get; set; }
+    [Parameter] public EventCallback<bool> Saved { get; set; }
+
+    private GoalDto goal = new()
+    {
+        UserId = string.Empty,
+        Type = GoalType.WeightLoss,
+        CalorieGoal = 2000,
+        ProteinGoal = 120,
+        CarbGoal = 220,
+        FatGoal = 70,
+        IntermittentFasting = false,
+        FastingWindowHours = 16,
+        TargetDateUtc = DateTime.UtcNow.AddMonths(1),
+        IsActive = true,
+        CreatedAtUtc = DateTime.UtcNow
+    };
+
+    private static IReadOnlyList<GoalType> GoalTypes { get; } = Enum.GetValues(typeof(GoalType))
+        .Cast<GoalType>()
+        .ToList();
+
+    protected override void OnInitialized()
+    {
+        if (ExistingGoal is not null)
+        {
+            goal = CloneGoal(ExistingGoal);
+        }
+        else
+        {
+            goal.UserId = UserId;
+        }
+    }
+
+    private static GoalDto CloneGoal(GoalDto source) => new()
+    {
+        Id = source.Id,
+        UserId = source.UserId,
+        Type = source.Type,
+        CalorieGoal = source.CalorieGoal,
+        ProteinGoal = source.ProteinGoal,
+        CarbGoal = source.CarbGoal,
+        FatGoal = source.FatGoal,
+        IntermittentFasting = source.IntermittentFasting,
+        FastingWindowHours = source.FastingWindowHours,
+        TargetWeight = source.TargetWeight,
+        TargetBodyFatPercentage = source.TargetBodyFatPercentage,
+        TargetDateUtc = source.TargetDateUtc,
+        IsActive = source.IsActive,
+        CreatedAtUtc = source.CreatedAtUtc,
+        CompletedAtUtc = source.CompletedAtUtc
+    };
+
+    private bool IsEdit => !string.IsNullOrEmpty(goal.Id);
+
+    private async Task OnSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(goal.UserId))
+        {
+            goal.UserId = UserId;
+        }
+
+        if (string.IsNullOrWhiteSpace(goal.UserId))
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "User missing", "Unable to determine user for this goal.");
+            return;
+        }
+
+        try
+        {
+            if (IsEdit)
+            {
+                await GoalService.UpdateGoalAsync(goal);
+                NotificationService.Notify(NotificationSeverity.Success, "Goal updated successfully");
+            }
+            else
+            {
+                goal.Id = null;
+                goal.CreatedAtUtc = DateTime.UtcNow;
+                await GoalService.CreateGoalAsync(goal);
+                NotificationService.Notify(NotificationSeverity.Success, "Goal created successfully");
+            }
+
+            if (Saved.HasDelegate)
+            {
+                await Saved.InvokeAsync(true);
+            }
+
+            DialogService.Close(true);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", ex.Message);
+        }
+    }
+
+    private void Cancel()
+    {
+        DialogService.Close(false);
+    }
+}

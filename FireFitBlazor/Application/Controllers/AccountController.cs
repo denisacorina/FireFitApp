@@ -1,18 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using System.Security.Claims;
-using static FireFitBlazor.Application.Login;
-using FireFitBlazor.Domain.Models;
-using FireFitBlazor.Infrastructure.Data;
-using Microsoft.EntityFrameworkCore;
-using BCrypt.Net;
-using static FireFitBlazor.Domain.Enums.FoodTrackingEnums;
 using System;
-using FireFitBlazor.Domain.Services;
+using Microsoft.AspNetCore.Mvc;
 using NETCore.MailKit.Core;
+using FireFit.Shared.Contracts;
+using FireFit.Shared.DTOs;
 
 namespace FireFitBlazor.Application.Controllers
 {
@@ -21,52 +11,60 @@ namespace FireFitBlazor.Application.Controllers
     [Route("api/[controller]")]
     public class CustomAuthController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IAuthService _authService;
         private readonly IEmailService _emailService;
 
-        public CustomAuthController(ApplicationDbContext context, IEmailService emailService)
+        public CustomAuthController(IAuthService authService, IEmailService emailService)
         {
-            _context = context;
+            _authService = authService;
             _emailService = emailService;
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+        public async Task<ActionResult<UserDto>> Register([FromBody] RegisterDto dto)
         {
-            if (_context.Users.Any(u => u.Email == dto.Email))
-                return BadRequest("Email already exists.");
-            var isMale = dto.Gender == Gender.Male ? true : false;
-            var initialUser = Domain.Models.User.Create(
-                 Guid.NewGuid().ToString(),
-                 dto.Email,
-                 BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                 dto.Name,
-                 dto.Age,
-                 isMale,
-                 dto.Height,
-                 dto.StartingWeight,
-                 dto.TargetWeight,
-                 dto.WeightGoal,
-                 dto.ActivityLevel,
-                 dto.DietaryPreferences,
-                 dto.WorkoutTypes,
-                 null,
-                 dto.FitnessExperience
-            );
+            try
+            {
+                var user = await _authService.RegisterAsync(dto);
+                if (user is null) return BadRequest("Registration failed.");
+                await TrySendWelcomeEmailAsync(dto);
+                return Ok(user);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            _context.Users.Add(initialUser);
-          
-            var initialUserProgress = UserProgress.Create(initialUser.UserId, dto.CurrentWeight, dto.CurrentWeight);
+        [HttpPost("login")]
+        public async Task<ActionResult<UserDto>> Login([FromBody] LoginDto dto)
+        {
+            var user = await _authService.LoginAsync(dto);
+            if (user is null)
+                return Unauthorized("Invalid email or password.");
 
-            _context.UserProgress.Add(initialUserProgress);
+            return Ok(user);
+        }
 
-            var initialUserPreferences = UserPreferences.Create(initialUser.UserId, dto.DietaryPreferences);
+        [HttpGet("me")]
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
+        {
+            var user = await _authService.GetCurrentUserAsync();
+            if (user is null)
+                return Unauthorized();
 
-            _context.UserPreferences.Add(initialUserPreferences);
+            return Ok(user);
+        }
 
-            await _context.SaveChangesAsync();
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _authService.LogoutAsync();
+            return Ok("Logged out.");
+        }
 
-            // Send welcome email
+        private async Task TrySendWelcomeEmailAsync(RegisterDto dto)
+        {
             try
             {
                 var welcomeEmailBody = $@"
@@ -86,62 +84,13 @@ namespace FireFitBlazor.Application.Controllers
                 </body>
                 </html>";
 
-                await _emailService.SendAsync(dto.Email, "Welcome to FireFit!", welcomeEmailBody);
+                await _emailService.SendAsync(dto.Email, "Welcome to FireFit!", welcomeEmailBody, true);
             }
             catch (Exception ex)
             {
-                // Log email error but don't fail registration
                 Console.WriteLine($"Failed to send welcome email: {ex.Message}");
             }
-
-            return Ok("Registered successfully.");
-        }
-
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return Unauthorized("Invalid email or password.");
-
-            // Create simple session cookie
-            HttpContext.Response.Cookies.Append("userId", user.UserId, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = false,
-                SameSite = SameSiteMode.Lax,
-                Expires = DateTimeOffset.UtcNow.AddDays(7)
-            });
-
-            return Ok("Login successful.");
-        }
-
-        [HttpGet("me")]
-        public IActionResult GetCurrentUser()
-        {
-            var userId = HttpContext.Request.Cookies["userId"];
-            if (userId == null)
-                return Unauthorized();
-
-            var user = _context.Users.Include(i => i.CalorieLogs)
-            .FirstOrDefault(u => u.UserId == userId);
-            if (user == null)
-                return NotFound();
-
-            return Ok(user);
-        }
-
-        [HttpPost("logout")]
-        public IActionResult Logout()
-        {
-            HttpContext.Response.Cookies.Delete("userId");
-            return Ok("Logged out.");
         }
     }
+}
 
-    public class LoginDto
-    {
-        public string Email { get; set; } = "";
-        public string Password { get; set; } = "";
-    }
-}//var idx2tag = tag2idx.ToDictionary(kvp => kvp.Value, kvp => kvp.Key);

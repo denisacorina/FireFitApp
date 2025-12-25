@@ -18,5 +18,6 @@ namespace FireFitBlazor.Domain.ContextInterfaces
         Task<bool> UpdateDietaryPreferencesAsync(string userId, IEnumerable<DietaryPreference> preferences);
         Task<bool> UpdateWorkoutPreferencesAsync(string userId, List<WorkoutPreference> selectedTypes);
         Task<bool> UpdateUserPreferencesAsync(string userId, List<DietaryPreference> dietaryPreferences);
+        Task<IReadOnlyList<WorkoutPreference>> GetWorkoutPreferencesAsync(string userId);
     }
 }

@@ -17,12 +17,3 @@
     </div>
 </div>
 
-@code {
-    [Parameter] public decimal? Weight { get; set; }
-
-    private void Save()
-    {
-        if (Weight.HasValue && Weight.Value > 0)
-            DialogService.Close(Weight.Value);
-    }
-} 

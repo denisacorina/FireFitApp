@@ -1,0 +1,363 @@
+@page "/my-profile"
+@page "/profile"
+@using Radzen
+@using Radzen.Blazor
+@using Microsoft.AspNetCore.Components.Forms
+@using FireFit.Shared.Contracts
+@using FireFit.Shared.DTOs
+@using FireFit.Shared.Enums
+@using FireFit.UI.Shared.Components.Profile
+@using FireFit.UI.Shared.Components.Progress
+@inject IAuthService AuthService
+@inject IProfileService ProfileService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+
+@if (!_loaded)
+{
+    <div class="text-center my-5">
+        <RadzenProgressBar Mode="ProgressBarMode.Indeterminate" Style="width: 240px;" />
+    </div>
+}
+else if (_user is null || _form is null)
+{
+    <RadzenCard>
+        <div class="card-body">
+            <p class="text-muted">Please sign in to view your profile.</p>
+            <RadzenButton Text="Go to Login" ButtonStyle="ButtonStyle.Primary" Click="@(() => NavigationManager.NavigateTo("/login"))" />
+        </div>
+    </RadzenCard>
+}
+else
+{
+    <div class="profile-page">
+        <RadzenCard>
+            <div class="card-header d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="@ProfileImageUrl" alt="Profile" class="profile-photo" />
+                    <div>
+                        <h3 class="mb-1">Welcome back, @_user.Name</h3>
+                        <p class="text-muted mb-0">Keep tracking your nutrition and goals.</p>
+                        <InputFile OnChange="UploadPhoto" accept="image/*" />
+                        <small class="text-muted d-block">PNG or JPG up to 5MB.</small>
+                    </div>
+                </div>
+                <div class="ms-md-auto d-flex flex-wrap gap-2">
+                    <RadzenButton Text="Manage Goals" ButtonStyle="ButtonStyle.Primary" Link="/my-goals" />
+                    <RadzenButton Text="Track Progress" ButtonStyle="ButtonStyle.Secondary" Link="/progress" />
+                    <RadzenButton Text="Meal Detection" ButtonStyle="ButtonStyle.Light" Link="/meal-detection" />
+                    <RadzenButton Text="Add Measurement" ButtonStyle="ButtonStyle.Info" Click="OpenMeasurementDialog" />
+                </div>
+            </div>
+            <div class="card-body">
+                <ProfileSummaryCard User="_user" />
+            </div>
+        </RadzenCard>
+
+        <RadzenCard>
+            <div class="card-header">
+                <h4 class="mb-0">Edit Profile</h4>
+            </div>
+            <div class="card-body">
+                <RadzenTemplateForm TItem="ProfileUpdateDto" Data="@_form" Submit="SaveProfile">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <RadzenLabel Text="Name" />
+                            <RadzenTextBox @bind-Value="_form.Name" Style="width: 100%;" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="Age" />
+                            <RadzenNumeric @bind-Value="_form.Age" TValue="int" Style="width: 100%;" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="Height (cm)" />
+                            <RadzenNumeric @bind-Value="_form.Height" TValue="int" Style="width: 100%;" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="Starting Weight (kg)" />
+                            <RadzenNumeric @bind-Value="_form.StartingWeight" TValue="decimal" Style="width: 100%;" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="Target Weight (kg)" />
+                            <RadzenNumeric @bind-Value="_form.TargetWeight" TValue="decimal" Style="width: 100%;" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="Activity Level" />
+                            <RadzenDropDown @bind-Value="_form.ActivityLevel"
+                                            Data="Enum.GetValues<ActivityLevel>()"
+                                            Style="width: 100%;" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="Weight Goal" />
+                            <RadzenDropDown @bind-Value="_form.WeightGoal"
+                                            Data="Enum.GetValues<WeightChangeType>()"
+                                            Style="width: 100%;" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="Experience Level" />
+                            <RadzenDropDown @bind-Value="_form.FitnessExperience"
+                                            Data="Enum.GetValues<ExperienceLevel>()"
+                                            Style="width: 100%;" />
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenLabel Text="Dietary Preferences" />
+                            <RadzenListBox @bind-Value="_form.DietaryPreferences"
+                                           Data="Enum.GetValues<DietaryPreference>()"
+                                           Multiple="true"
+                                           Style="width: 100%; height: 180px;" />
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenLabel Text="Workout Types" />
+                            <RadzenListBox @bind-Value="SelectedWorkoutTypes"
+                                           Data="Enum.GetValues<WorkoutType>()"
+                                           Multiple="true"
+                                           Style="width: 100%; height: 180px;" />
+                        </div>
+                        <div class="col-12">
+                            <h5 class="mt-3">Workout Schedule</h5>
+                            @if (_preferenceEditors.Count == 0)
+                            {
+                                <p class="text-muted">Select workout types to configure your weekly schedule.</p>
+                            }
+                            else
+                            {
+                                @foreach (var pref in _preferenceEditors)
+                                {
+                                    <div class="workout-pref border rounded p-3 mb-2">
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-bold">@pref.Type</label>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <RadzenLabel Text="Day" />
+                                                <RadzenDropDown @bind-Value="pref.PreferredDay"
+                                                                Data="Enum.GetValues<DayOfWeek>()"
+                                                                Style="width: 100%;" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <RadzenLabel Text="Time" />
+                                                <RadzenDropDown TValue="TimeSpan"
+                                                                @bind-Value="pref.PreferredTime"
+                                                                Data="@TimeOptions"
+                                                                TextProperty="Label"
+                                                                ValueProperty="Value"
+                                                                Style="width: 100%;" />
+                                            </div>
+                                            <div class="col-md-1">
+                                                <RadzenLabel Text="Duration" />
+                                                <RadzenNumeric @bind-Value="pref.DurationMinutes" TValue="int" Style="width: 100%;" />
+                                            </div>
+                                            <div class="col-md-2">
+                                                <RadzenLabel Text="Intensity" />
+                                                <RadzenNumeric @bind-Value="pref.IntensityLevel" TValue="int" Min="1" Max="10" Style="width: 100%;" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-end gap-2 mt-3">
+                        <RadzenButton Text="Save Profile" ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Disabled="@_saving" />
+                    </div>
+                </RadzenTemplateForm>
+            </div>
+        </RadzenCard>
+    </div>
+}
+
+@code {
+    private UserDto? _user;
+    private ProfileUpdateDto? _form;
+    private bool _loaded;
+    private bool _saving;
+    private IList<WorkoutType> _selectedWorkoutTypes = new List<WorkoutType>();
+    private List<WorkoutPreferenceEditor> _preferenceEditors = new();
+    private IReadOnlyList<TimeOption> TimeOptions { get; } = Enumerable.Range(5, 16)
+        .Select(h => new TimeOption($"{h:00}:00", TimeSpan.FromHours(h)))
+        .ToList();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserAsync();
+    }
+
+    private async Task LoadUserAsync()
+    {
+        _loaded = false;
+        try
+        {
+            var current = await AuthService.GetCurrentUserAsync();
+            if (current is null)
+            {
+                _user = null;
+                return;
+            }
+
+            var profile = await ProfileService.GetAsync();
+            _user = profile ?? current;
+
+            _form = new ProfileUpdateDto
+            {
+                UserId = _user.UserId,
+                Name = _user.Name,
+                Age = _user.Age,
+                Height = _user.Height,
+                StartingWeight = _user.StartingWeight,
+                TargetWeight = _user.TargetWeight,
+                WeightGoal = _user.WeightGoal,
+                ActivityLevel = _user.ActivityLevel,
+                FitnessExperience = _user.FitnessExperience,
+                DietaryPreferences = _user.DietaryPreferences.ToList(),
+                WorkoutTypes = _user.WorkoutTypes.ToList(),
+                WorkoutPreferences = _user.WorkoutPreferences?.ToList() ?? new List<WorkoutPreferenceDto>(),
+                ProfilePicturePath = _user.ProfilePicturePath
+            };
+
+            _selectedWorkoutTypes = _form.WorkoutTypes.ToList();
+            SyncWorkoutPreferences();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Failed to load profile", ex.Message);
+            _user = null;
+        }
+        finally
+        {
+            _loaded = true;
+        }
+    }
+
+    private async Task SaveProfile()
+    {
+        if (_form is null) return;
+
+        _form.WorkoutPreferences = _preferenceEditors.Select(p => new WorkoutPreferenceDto
+        {
+            Type = p.Type,
+            PreferredDay = p.PreferredDay,
+            PreferredTime = p.PreferredTime,
+            DurationMinutes = p.DurationMinutes,
+            IntensityLevel = p.IntensityLevel,
+            IsEnabled = true
+        }).ToList();
+
+        _saving = true;
+        try
+        {
+            await ProfileService.UpdateAsync(_form);
+            NotificationService.Notify(NotificationSeverity.Success, "Profile updated");
+            await LoadUserAsync();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Failed to update profile", ex.Message);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task UploadPhoto(InputFileChangeEventArgs args)
+    {
+        if (_form is null) return;
+        var file = args.File;
+        if (file is null) return;
+        await using var stream = file.OpenReadStream(5 * 1024 * 1024);
+        var path = await ProfileService.UploadPhotoAsync(stream, file.Name);
+        if (!string.IsNullOrEmpty(path))
+        {
+            _form.ProfilePicturePath = path;
+            if (_user is not null)
+            {
+                _user = _user with { ProfilePicturePath = path };
+            }
+        }
+    }
+
+    private async Task OpenMeasurementDialog()
+    {
+        if (_user is null) return;
+        await DialogService.OpenAsync<AddMeasurementDialog>("Add Measurement",
+            new Dictionary<string, object> { ["UserId"] = _user.UserId },
+            new DialogOptions { Width = "420px", Height = "600px" });
+    }
+
+    private void SyncWorkoutPreferences()
+    {
+        if (_form is null) return;
+        var map = _form.WorkoutPreferences?.ToDictionary(x => x.Type) ?? new Dictionary<WorkoutType, WorkoutPreferenceDto>();
+        _preferenceEditors = _selectedWorkoutTypes
+            .Select(type => map.TryGetValue(type, out var pref) ? new WorkoutPreferenceEditor(pref) : new WorkoutPreferenceEditor(type))
+            .ToList();
+        if (_form.WorkoutPreferences == null)
+        {
+            _form.WorkoutPreferences = new List<WorkoutPreferenceDto>();
+        }
+    }
+
+    private IList<WorkoutType> SelectedWorkoutTypes
+    {
+        get => _selectedWorkoutTypes;
+        set
+        {
+            _selectedWorkoutTypes = value ?? new List<WorkoutType>();
+            if (_form != null)
+            {
+                _form.WorkoutTypes = _selectedWorkoutTypes.ToList();
+                SyncWorkoutPreferences();
+            }
+        }
+    }
+
+    private string ProfileImageUrl => string.IsNullOrWhiteSpace(_form?.ProfilePicturePath)
+        ? "https://placehold.co/120x120?text=Profile"
+        : _form.ProfilePicturePath!;
+
+    private record TimeOption(string Label, TimeSpan Value);
+
+    private class WorkoutPreferenceEditor
+    {
+        public WorkoutPreferenceEditor(WorkoutType type)
+        {
+            Type = type;
+        }
+
+        public WorkoutPreferenceEditor(WorkoutPreferenceDto dto)
+        {
+            Type = dto.Type;
+            PreferredDay = dto.PreferredDay;
+            PreferredTime = dto.PreferredTime;
+            DurationMinutes = dto.DurationMinutes;
+            IntensityLevel = dto.IntensityLevel;
+        }
+
+        public WorkoutType Type { get; }
+        public DayOfWeek PreferredDay { get; set; } = DayOfWeek.Monday;
+        public TimeSpan PreferredTime { get; set; } = TimeSpan.FromHours(9);
+        public int DurationMinutes { get; set; } = 60;
+        public int IntensityLevel { get; set; } = 5;
+    }
+}
+
+<style>
+    .profile-page {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .profile-photo {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e9ecef;
+    }
+
+    .workout-pref {
+        background-color: #f8f9fa;
+    }
+</style>

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>$(SharedTargetFrameworks)</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FireFit.Shared\FireFit.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>    <PackageReference Include="System.Net.Http.Json" Version="9.0.0" />  </ItemGroup></Project>
+
+
+

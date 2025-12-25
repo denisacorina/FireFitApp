@@ -13,7 +13,7 @@ public class UpdateFoodLogGateway : BaseGateway<FoodLog>, IUpdateFoodLogGateway
     {
     }
 
-    public async Task<bool> UpdateAsync(FoodLog foodLog)
+    public override async Task<bool> UpdateAsync(FoodLog foodLog)
     {
         try
         {

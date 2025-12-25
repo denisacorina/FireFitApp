@@ -1,0 +1,342 @@
+@page "/dashboard"
+@using System.Linq
+@inject IAuthService AuthService
+@inject IFoodLogService FoodLogService
+@inject IBodyMeasurementService BodyMeasurementService
+@inject IWorkoutSessionService WorkoutSessionService
+@inject NavigationManager NavigationManager
+
+@if (isLoading)
+{
+    <div class="state-message">Loading your dashboard...</div>
+}
+else if (hasError)
+{
+    <div class="state-message error">
+        <p>@errorMessage</p>
+        <RadzenButton Text="Retry" ButtonStyle="ButtonStyle.Secondary" Click="@(() => LoadDataAsync())" />
+    </div>
+}
+else if (currentUser is null)
+{
+    <div class="state-message error">
+        <p>We couldn't determine who you are. Please sign in again.</p>
+        <RadzenButton Text="Go to Login" ButtonStyle="ButtonStyle.Primary" Click="@(() => NavigationManager.NavigateTo("/login", true))" />
+    </div>
+}
+else
+{
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <p class="header-label">Today</p>
+                <h1>@DateTime.Now.ToString("dddd, MMM dd")</h1>
+            </div>
+            <RadzenButton Text="Log food" ButtonStyle="ButtonStyle.Primary" Size="ButtonSize.Small" Link="/log-food" />
+        </div>
+
+        <div class="dashboard-card calories-card">
+            <div class="calories-circle">
+                <svg viewBox="0 0 36 36" class="circular-chart">
+                    <path class="circle-bg"
+                          d="M18 2.0845
+                             a 15.9155 15.9155 0 0 1 0 31.831
+                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="circle"
+                          stroke-dasharray="@CalculateProgress, 100"
+                          d="M18 2.0845
+                             a 15.9155 15.9155 0 0 1 0 31.831
+                             a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="circle-text">
+                    <h2>@RemainingCalories</h2>
+                    <p>calories left</p>
+                </div>
+            </div>
+
+            <div class="calorie-details">
+                <div>
+                    <span class="label">Goal</span>
+                    <strong>@totalCaloriesGoal</strong>
+                </div>
+                <div>
+                    <span class="label">Food</span>
+                    <strong>-@caloriesConsumed</strong>
+                </div>
+                <div>
+                    <span class="label">Exercise</span>
+                    <strong>+@exerciseCalories</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-card macros-card">
+            <h3>Macros</h3>
+            <div class="macros-grid">
+                @foreach (var macro in MacroSummaries)
+                {
+                    <div class="macro-item">
+                        <div class="macro-header">
+                            <span>@macro.Label</span>
+                            <strong>@macro.Display</strong>
+                        </div>
+                        <RadzenProgressBar Value="@macro.Percent" Class="macro-progress" Mode="ProgressBarMode.Determinate" ShowValue="false" />
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="dashboard-card insights-card">
+            <div class="insights-header">
+                <div>
+                    <h3>Weight trend</h3>
+                    <p>@WeightChangeDisplay</p>
+                </div>
+                <span class="current-weight">@LatestWeightDisplay</span>
+            </div>
+
+            @if (weightTrendPoints.Count > 1)
+            {
+                <RadzenSparkline Data="@weightTrendPoints" ValueProperty="Value" CategoryProperty="Label" Height="80px" Stroke="#FF6600" Fill="rgba(255,102,0,0.15)" StrokeWidth="3" />
+            }
+            else
+            {
+                <p class="empty-state">Add a few measurements to see your graph.</p>
+            }
+
+            <RadzenButton Text="Add measurement" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Link="/progress" />
+        </div>
+
+        <div class="dashboard-card food-card">
+            <div class="section-header">
+                <h3>Today's meals</h3>
+                <span>@todaysLogs.Count entry@(todaysLogs.Count == 1 ? "" : "ies")</span>
+            </div>
+
+            @if (todaysLogs.Count == 0)
+            {
+                <p class="empty-state">No meals logged yet. Start with breakfast!</p>
+            }
+            else
+            {
+                <ul class="food-list">
+                    @foreach (var log in todaysLogs.Take(4))
+                    {
+                        <li>
+                            <div>
+                                <strong>@log.FoodName</strong>
+                                <small>@log.MealType - @log.TimestampUtc.ToLocalTime().ToString("hh\\:mm tt")</small>
+                            </div>
+                            <span>@log.Calories kcal</span>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div class="dashboard-card workout-card">
+            <div class="section-header">
+                <h3>Workout plan</h3>
+                <RadzenButton Text="Edit" ButtonStyle="ButtonStyle.Secondary" Size="ButtonSize.Small" Link="/profile" />
+            </div>
+
+            <p class="next-workout">@NextWorkoutSummary</p>
+
+            @if (!WorkoutSchedule.Any())
+            {
+                <p class="empty-state">Enable workouts from your profile to build a schedule.</p>
+            }
+            else
+            {
+                <ul class="workout-list">
+                    @foreach (var pref in WorkoutSchedule)
+                    {
+                        <li>
+                            <div>
+                                <strong>@pref.Type</strong>
+                                <small>@pref.PreferredDay.ToString("g")</small>
+                            </div>
+                            <div class="workout-meta">
+                                <span>@pref.PreferredTime:hh\\:mm</span>
+                                <small>@pref.DurationMinutes min • Intensity @pref.IntensityLevel</small>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private UserDto? currentUser;
+    private List<FoodLogDto> todaysLogs = new();
+    private IReadOnlyList<TrendPoint> weightTrendPoints = Array.Empty<TrendPoint>();
+    private bool isLoading = true;
+    private bool hasError;
+    private string errorMessage = "Unable to load dashboard.";
+
+    private int totalCaloriesGoal;
+    private int caloriesConsumed;
+    private int exerciseCalories;
+    private float proteinConsumed;
+    private float carbsConsumed;
+    private float fatsConsumed;
+
+    private int RemainingCalories => Math.Max(totalCaloriesGoal - caloriesConsumed + exerciseCalories, 0);
+    private int CalculateProgress
+    {
+        get
+        {
+            if (totalCaloriesGoal <= 0) return 0;
+            var consumed = totalCaloriesGoal - RemainingCalories;
+            var percent = (int)Math.Round(consumed / (double)totalCaloriesGoal * 100);
+            return (int)Math.Clamp(percent, 0, 100);
+        }
+    }
+
+    private string LatestWeightDisplay => weightTrendPoints.Count == 0
+        ? "No data"
+        : $"{weightTrendPoints[^1].Value:F1} kg";
+
+    private string WeightChangeDisplay
+        => weightTrendPoints.Count < 2
+            ? "Track at least 2 entries"
+            : FormatDelta(weightTrendPoints[^1].Value - weightTrendPoints[0].Value);
+
+    private IEnumerable<WorkoutPreferenceDto> WorkoutSchedule =>
+        currentUser?.WorkoutPreferences?
+            .Where(p => p.IsEnabled)
+            .OrderBy(GetNextWorkoutOccurrence)
+            .ToList()
+        ?? Enumerable.Empty<WorkoutPreferenceDto>();
+
+    private string NextWorkoutSummary
+    {
+        get
+        {
+            var next = WorkoutSchedule.FirstOrDefault();
+            if (next is null)
+            {
+                return "No workouts scheduled yet.";
+            }
+
+            var upcoming = GetNextWorkoutOccurrence(next);
+            return $"{next.Type} on {upcoming:ddd, MMM d} at {next.PreferredTime:hh\\:mm}";
+        }
+    }
+
+    private IEnumerable<MacroSummary> MacroSummaries => new[]
+    {
+        new MacroSummary("Protein", proteinConsumed, currentUser?.ProteinGoal ?? 0),
+        new MacroSummary("Carbs", carbsConsumed, currentUser?.CarbsGoal ?? 0),
+        new MacroSummary("Fats", fatsConsumed, currentUser?.FatsGoal ?? 0)
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        try
+        {
+            isLoading = true;
+            hasError = false;
+
+            currentUser = await AuthService.GetCurrentUserAsync();
+            if (currentUser is null)
+            {
+                NavigationManager.NavigateTo("/login", true);
+                return;
+            }
+
+            totalCaloriesGoal = Math.Max(0, currentUser.DailyCalorieGoal);
+
+            await Task.WhenAll(
+                LoadFoodLogsAsync(),
+                LoadMeasurementsAsync(),
+                LoadWorkoutSessionsAsync());
+        }
+        catch
+        {
+            hasError = true;
+            errorMessage = "We hit a snag while loading your dashboard.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadFoodLogsAsync()
+    {
+        if (currentUser is null) return;
+
+        var startUtc = DateTime.UtcNow.Date;
+        var endUtc = startUtc.AddDays(1);
+
+        var logs = await FoodLogService.GetUserFoodLogsAsync(currentUser.UserId, startUtc, endUtc);
+        todaysLogs = logs?
+            .Where(l => l.TimestampUtc >= startUtc && l.TimestampUtc < endUtc)
+            .OrderByDescending(l => l.TimestampUtc)
+            .ToList() ?? new();
+
+        caloriesConsumed = todaysLogs.Sum(l => l.Calories);
+        proteinConsumed = todaysLogs.Sum(l => l.Proteins);
+        carbsConsumed = todaysLogs.Sum(l => l.Carbs);
+        fatsConsumed = todaysLogs.Sum(l => l.Fats);
+    }
+
+    private async Task LoadMeasurementsAsync()
+    {
+        if (currentUser is null) return;
+
+        var entries = await BodyMeasurementService.GetListAsync(currentUser.UserId);
+        var ordered = entries?
+            .Where(e => e.Weight.HasValue)
+            .OrderBy(e => e.TimestampUtc)
+            .ToList() ?? new List<BodyMeasurementDto>();
+
+        weightTrendPoints = ordered
+            .TakeLast(7)
+            .Select(e => new TrendPoint((double)e.Weight!.Value, e.TimestampUtc.ToLocalTime().ToString("MMM dd")))
+            .ToList();
+    }
+
+    private async Task LoadWorkoutSessionsAsync()
+    {
+        if (currentUser is null) return;
+
+        var sessions = await WorkoutSessionService.GetUserSessionsAsync(currentUser.UserId);
+        var today = DateTime.Now.Date;
+        exerciseCalories = sessions?
+            .Where(s => s.StartTime.Date == today)
+            .Sum(s => s.CaloriesBurned) ?? 0;
+    }
+
+    private static DateTime GetNextWorkoutOccurrence(WorkoutPreferenceDto preference)
+    {
+        var today = DateTime.Today;
+        var daysAhead = ((int)preference.PreferredDay - (int)today.DayOfWeek + 7) % 7;
+        var date = today.AddDays(daysAhead);
+        return date.Date + preference.PreferredTime;
+    }
+
+    private static string FormatDelta(double delta)
+    {
+        if (Math.Abs(delta) < 0.1) return "No change";
+        var sign = delta > 0 ? "+" : string.Empty;
+        return $"{sign}{delta:F1} kg";
+    }
+
+    private record TrendPoint(double Value, string Label);
+
+    private record MacroSummary(string Label, double Consumed, double Goal)
+    {
+        public double Percent => Goal <= 0 ? 0 : Math.Clamp((Consumed / Goal) * 100, 0, 100);
+        public string Display => Goal <= 0 ? $"{Consumed:F0} g" : $"{Consumed:F0} / {Goal:F0} g";
+    }
+}

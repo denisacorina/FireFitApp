@@ -1,0 +1,192 @@
+@page "/my-goals-mobile"
+@using FireFit.Shared.Contracts
+@using FireFit.Shared.DTOs
+@using Radzen
+@using Radzen.Blazor
+@using FireFit.UI.Shared.Components.Goals
+
+@inject IGoalService GoalService
+@inject IAuthService AuthService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+
+@if (!_authChecked)
+{
+    <div class="d-flex justify-content-center my-4">
+        <RadzenProgressBar Mode="ProgressBarMode.Indeterminate" Style="width: 200px;" />
+    </div>
+}
+else if (_userId is null)
+{
+    <RadzenCard>
+        <h3>My Goals</h3>
+        <p>Please sign in to view and manage your goals.</p>
+    </RadzenCard>
+}
+else
+{
+    <RadzenCard>
+        <h3>My Goals</h3>
+        <RadzenButton Text="Create New Goal" Click="@CreateGoal" Disabled="@(_userId is null)" ButtonStyle="ButtonStyle.Primary" />
+        @if (_isLoading)
+        {
+            <RadzenProgressBar Mode="ProgressBarMode.Indeterminate" Style="width: 100%; margin: 12px 0;" />
+        }
+
+        <RadzenDataGrid @ref="grid" Data="@goals" TItem="GoalDto" AllowPaging="true" PageSize="5" AllowSorting="true">
+            <Columns>
+                <RadzenDataGridColumn TItem="GoalDto" Property="Type" Title="Goal Type" />
+                <RadzenDataGridColumn TItem="GoalDto" Property="TargetWeight" Title="Target Weight" FormatString="{0:N1} kg" />
+                <RadzenDataGridColumn TItem="GoalDto" Property="TargetBodyFatPercentage" Title="Target Body Fat %" FormatString="{0:N1}%" />
+                <RadzenDataGridColumn TItem="GoalDto" Property="TargetDateUtc" Title="Target Date" FormatString="{0:d}" />
+                <RadzenDataGridColumn TItem="GoalDto" Property="IsActive" Title="Status">
+                    <Template Context="data">
+                        @if (data.IsActive)
+                        {
+                            <RadzenBadge Text="Active" BadgeStyle="BadgeStyle.Success" />
+                        }
+                        else
+                        {
+                            <RadzenBadge Text="Completed" BadgeStyle="BadgeStyle.Info" />
+                        }
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn TItem="GoalDto" Context="data">
+                    <Template>
+                        <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Click="@(args => EditGoal(data))" />
+                        @if (data.IsActive)
+                        {
+                            <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Success" Click="@(args => CompleteGoal(data))" />
+                        }
+                        else
+                        {
+                            <RadzenButton Icon="refresh" ButtonStyle="ButtonStyle.Info" Click="@(args => ReactivateGoal(data))" />
+                        }
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Click="@(args => DeleteGoal(data))" />
+                    </Template>
+                </RadzenDataGridColumn>
+            </Columns>
+        </RadzenDataGrid>
+    </RadzenCard>
+}
+
+@code {
+    private RadzenDataGrid<GoalDto> grid;
+    private IEnumerable<GoalDto> goals = new List<GoalDto>();
+    private bool _authChecked;
+    private bool _isLoading;
+    private string? _userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await EnsureUserAsync();
+        if (_userId is not null)
+        {
+            await LoadGoals();
+        }
+    }
+
+    private async Task LoadGoals()
+    {
+        if (_userId is null) return;
+        _isLoading = true;
+        try
+        {
+            goals = await GoalService.GetUserGoalsAsync(_userId);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Failed to load goals", ex.Message);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task CreateGoal()
+    {
+        if (_userId is null) return;
+        var result = await DialogService.OpenAsync<GoalEditorDialog>("Create Goal",
+            new Dictionary<string, object>
+            {
+                ["UserId"] = _userId
+            },
+            new DialogOptions { Width = "420px", Height = "600px" });
+
+        if (result == true)
+        {
+            await LoadGoals();
+        }
+    }
+
+    private async Task EditGoal(GoalDto goal)
+    {
+        if (string.IsNullOrEmpty(goal.Id)) return;
+        var result = await DialogService.OpenAsync<GoalEditorDialog>("Edit Goal",
+            new Dictionary<string, object>
+            {
+                ["UserId"] = goal.UserId,
+                ["ExistingGoal"] = goal
+            },
+            new DialogOptions { Width = "420px", Height = "600px" });
+
+        if (result == true)
+        {
+            await LoadGoals();
+        }
+    }
+
+    private async Task CompleteGoal(GoalDto goal)
+    {
+        var result = await DialogService.Confirm("Mark this goal as completed?", "Complete Goal",
+            new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+        if (result == true && goal.Id is not null)
+        {
+            await GoalService.MarkGoalCompletedAsync(goal.Id);
+            await LoadGoals();
+            NotificationService.Notify(NotificationSeverity.Success, "Goal marked as completed");
+        }
+    }
+
+    private async Task ReactivateGoal(GoalDto goal)
+    {
+        if (goal.Id is null) return;
+        await GoalService.ReactivateGoalAsync(goal.Id);
+        await LoadGoals();
+        NotificationService.Notify(NotificationSeverity.Success, "Goal reactivated");
+    }
+
+    private async Task DeleteGoal(GoalDto goal)
+    {
+        if (goal.Id is null) return;
+        var result = await DialogService.Confirm("Delete this goal?", "Delete Goal",
+            new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "No" });
+        if (result == true)
+        {
+            await GoalService.DeleteGoalAsync(goal.Id);
+            await LoadGoals();
+            NotificationService.Notify(NotificationSeverity.Success, "Goal deleted");
+        }
+    }
+
+    private async Task EnsureUserAsync()
+    {
+        try
+        {
+            var user = await AuthService.GetCurrentUserAsync();
+            if (user is null)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+            _userId = user.UserId;
+        }
+        finally
+        {
+            _authChecked = true;
+        }
+    }
+}

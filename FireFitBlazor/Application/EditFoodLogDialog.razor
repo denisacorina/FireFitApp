@@ -1,4 +1,4 @@
-﻿@using Radzen.Blazor
+@using Radzen.Blazor
 @inject NavigationManager Navigation
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.AspNetCore.Components.Forms;
@@ -58,40 +58,3 @@
     </ChildContent>
 </RadzenTemplateForm>
 
-@code {
-    [Parameter] public FoodLog EditableLog { get; set; } = default!;
-    private string foodName;
-    private float calories;
-    private float proteins;
-    private float carbs;
-    private float fats;
-    private MealType? mealType;
-    private DateTime timestamp;
-    private FoodLog editableLog = default!;
-    private MealType[] mealTypes = Enum.GetValues<MealType>();
-
-    protected override void OnInitialized()
-    {
-        if (EditableLog != null)
-        {
-            foodName = EditableLog.FoodName;
-            calories = EditableLog.NutritionalInfo.Calories;
-            proteins = EditableLog.NutritionalInfo.Proteins;
-            carbs = EditableLog.NutritionalInfo.Carbs;
-            fats = EditableLog.NutritionalInfo.Fats;
-            mealType = EditableLog.MealType ?? default;
-            timestamp = EditableLog.Timestamp;
-        }
-    }
-
-    private async Task UpdateLog()
-    {
-        EditableLog.FoodName = foodName;
-        EditableLog.MealType = mealType;
-        EditableLog.Timestamp = timestamp;
-        EditableLog.NutritionalInfo = NutritionalInfo.Create(calories, proteins, carbs, fats);
-
-        await FoodLogService.UpdateFoodLogAsync(EditableLog);
-        DialogService.Close(true);
-    }
-}

@@ -1,5 +1,5 @@
-@using Domain.Models  
-@using Application.Services  
+@using FireFitBlazor.Domain.Enums
+@using FireFitBlazor.Application.Services
 @using static FireFitBlazor.Domain.Enums.FoodTrackingEnums  
 @inject IWorkoutService WorkoutService  
 @inject DialogService DialogService  
@@ -7,6 +7,7 @@
 @inject NavigationManager NavigationManager  
 @using static Microsoft.AspNetCore.Components.Web.RenderMode  
 @using FireFitBlazor.Application.DTOs;
+@using FireFitBlazor.Domain.Models
 @rendermode InteractiveServer  
 
 <RadzenStack Gap="1rem">

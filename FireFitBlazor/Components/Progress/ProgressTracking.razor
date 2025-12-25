@@ -1,3 +1,4 @@
+@using BlazorBootstrap
  @using FireFitBlazor.Application.DTOs
 @using FireFitBlazor.Application.Services
 @using Radzen
@@ -6,10 +7,10 @@
 @inject NotificationService NotificationService
 
 <RadzenCard>
-    <CardHeader>
+    <div class="card-header">
         <h3>Progress Tracking</h3>
-    </CardHeader>
-    <CardContent>
+    </div>
+    <div class="card-body">
         <RadzenButton Text="Add New Measurement" Click="@AddNewMeasurement" ButtonStyle="ButtonStyle.Primary" />
 
         <RadzenTabs>
@@ -17,46 +18,46 @@
                 <RadzenTabsItem Text="Current Progress">
                     @if (currentProgress != null)
                     {
-                        <div class="row mt-3">
+                <div class="row mt-3">
                             <div class="col-md-4">
                                 <RadzenCard>
-                                    <CardHeader>
+                                    <div class="card-header">
                                         <h4>Weight Progress</h4>
-                                    </CardHeader>
-                                    <CardContent>
+                                    </div>
+                                    <div class="card-body">
                                         <div class="progress-info">
                                             <div>Starting Weight: @currentProgress.StartingWeight.ToString("N1") kg</div>
                                             <div>Current Weight: @currentProgress.CurrentWeight.ToString("N1") kg</div>
                                             <div>Weight Change: @currentProgress.WeightChange.ToString("N1") kg</div>
                                         </div>
-                                    </CardContent>
+                                    </div>
                                 </RadzenCard>
                             </div>
                             <div class="col-md-4">
                                 <RadzenCard>
-                                    <CardHeader>
+                                    <div class="card-header">
                                         <h4>Body Fat Progress</h4>
-                                    </CardHeader>
-                                    <CardContent>
+                                    </div>
+                                    <div class="card-body">
                                         <div class="progress-info">
                                             <div>Starting Body Fat: @(currentProgress.StartingBodyFatPercentage?.ToString("N1") ?? "N/A")%</div>
                                             <div>Current Body Fat: @(currentProgress.CurrentBodyFatPercentage?.ToString("N1") ?? "N/A")%</div>
                                             <div>Body Fat Change: @(currentProgress.BodyFatChange?.ToString("N1") ?? "N/A")%</div>
                                         </div>
-                                    </CardContent>
+                                    </div>
                                 </RadzenCard>
                             </div>
                             <div class="col-md-4">
                                 <RadzenCard>
-                                    <CardHeader>
+                                    <div class="card-header">
                                         <h4>Last Update</h4>
-                                    </CardHeader>
-                                    <CardContent>
+                                    </div>
+                                    <div class="card-body">
                                         <div class="progress-info">
                                             <div>Last Measurement: @(currentProgress.LastMeasurementDate?.ToString("d") ?? "N/A")</div>
                                             <div>Notes: @(currentProgress.Notes ?? "No notes")</div>
                                         </div>
-                                    </CardContent>
+                                    </div>
                                 </RadzenCard>
                             </div>
                         </div>
@@ -82,7 +83,7 @@
                 </RadzenTabsItem>
             </Tabs>
         </RadzenTabs>
-    </CardContent>
+    </div>
 </RadzenCard>
 
 @code {

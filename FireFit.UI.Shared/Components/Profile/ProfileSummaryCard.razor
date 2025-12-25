@@ -1,0 +1,112 @@
+@using System.Linq
+@using FireFit.Shared.DTOs
+@using FireFit.Shared.Enums
+
+@if (User is null)
+{
+    <div class="text-muted">No profile data available.</div>
+}
+else
+{
+    <div class="profile-summary">
+        <div class="summary-row">
+            <div>
+                <div class="label">Name</div>
+                <div class="value">@User.Name</div>
+            </div>
+            <div>
+                <div class="label">Email</div>
+                <div class="value">@User.Email</div>
+            </div>
+            <div>
+                <div class="label">Age</div>
+                <div class="value">@User.Age</div>
+            </div>
+        </div>
+        <div class="summary-row">
+            <div>
+                <div class="label">Height</div>
+                <div class="value">@User.Height cm</div>
+            </div>
+            <div>
+                <div class="label">Starting Weight</div>
+                <div class="value">@User.StartingWeight:N1 kg</div>
+            </div>
+            <div>
+                <div class="label">Target Weight</div>
+                <div class="value">@User.TargetWeight:N1 kg</div>
+            </div>
+        </div>
+        <div class="summary-row">
+            <div>
+                <div class="label">Goal</div>
+                <div class="value">@User.WeightGoal</div>
+            </div>
+            <div>
+                <div class="label">Activity Level</div>
+                <div class="value">@User.ActivityLevel</div>
+            </div>
+            <div>
+                <div class="label">Macros</div>
+                <div class="value">
+                    @User.DailyCalorieGoal kcal • @User.ProteinGoal:F0P / @User.CarbsGoal:F0C / @User.FatsGoal:F0F
+                </div>
+            </div>
+        </div>
+        @if (User.WorkoutPreferences?.Any() == true)
+        {
+            <div class="workout-list">
+                <div class="label">Workout Schedule</div>
+                <ul>
+                    @foreach (var pref in User.WorkoutPreferences)
+                    {
+                        <li>
+                            <strong>@pref.Type</strong> —
+                            @pref.PreferredDay @pref.PreferredTime:hh\\:mm,
+                            @pref.DurationMinutes min, Intensity @pref.IntensityLevel
+                        </li>
+                    }
+                </ul>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public UserDto? User { get; set; }
+}
+
+<style>
+    .profile-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .summary-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .label {
+        color: #6c757d;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+    }
+
+    .value {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .workout-list ul {
+        padding-left: 1.25rem;
+        margin-bottom: 0;
+    }
+
+    .workout-list li {
+        font-size: 0.95rem;
+        margin-bottom: 0.25rem;
+    }
+</style>

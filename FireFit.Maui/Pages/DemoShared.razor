@@ -1,0 +1,19 @@
+@page "/demo"
+@using Radzen
+@using Radzen.Blazor
+@using FireFit.UI.Shared.Components.Layout
+@using FireFit.UI.Shared.Pages.Goals
+
+<h1>FireFit Mobile</h1>
+
+<p>Using your existing Radzen-based shared components:</p>
+
+<div style="margin: 16px 0;">
+    <BottomNav />
+    <div style="height: 16px"></div>
+    <CircularProgressBar TargetPercent="72" Size="120" />
+    <div style="height: 16px"></div>
+    <GoalManagementMobile />
+    <div style="height: 16px"></div>
+    <RadzenButton Text="Open Meal Detection" Link="/meal-detect-mobile" />
+</div>

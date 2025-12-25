@@ -1,0 +1,193 @@
+.dashboard-container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+.header-label {
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    color: #8892a0;
+    margin-bottom: 0.25rem;
+}
+
+.dashboard-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+    padding: 1.25rem;
+}
+
+.calories-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    align-items: center;
+}
+
+.calories-circle {
+    width: 160px;
+    height: 160px;
+    position: relative;
+}
+
+.circular-chart {
+    display: block;
+    width: 160px;
+    height: 160px;
+}
+
+.circle-bg {
+    fill: none;
+    stroke: #f1f5f9;
+    stroke-width: 3.8;
+}
+
+.circle {
+    fill: none;
+    stroke-width: 3.8;
+    stroke-linecap: round;
+    stroke: #ff6600;
+    transition: stroke-dasharray 0.3s ease;
+}
+
+.circle-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.circle-text h2 {
+    margin: 0;
+    font-size: 1.9rem;
+}
+
+.circle-text p {
+    margin: 0;
+    color: #64748b;
+}
+
+.calorie-details {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.calorie-details .label {
+    display: block;
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+.macros-card h3,
+.insights-card h3,
+.food-card h3,
+.workout-card h3 {
+    margin: 0 0 0.75rem;
+}
+
+.macros-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+}
+
+.macro-header {
+    display: flex;
+    justify-content: space-between;
+    color: #475569;
+    margin-bottom: 0.35rem;
+}
+
+.macro-progress ::deep .rz-progressbar-value {
+    background: linear-gradient(90deg, #ff8c3b, #ff6600);
+}
+
+.insights-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.current-weight {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.food-list,
+.workout-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.food-list li,
+.workout-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.food-list li:last-child,
+.workout-list li:last-child {
+    border-bottom: none;
+}
+
+.workout-meta {
+    text-align: right;
+}
+
+.next-workout {
+    margin: 0 0 0.5rem;
+    color: #475569;
+}
+
+.state-message {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: #475569;
+}
+
+.state-message.error {
+    color: #b42318;
+}
+
+.empty-state {
+    color: #94a3b8;
+    margin: 0;
+}
+
+@media (max-width: 540px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .calorie-details {
+        width: 100%;
+    }
+}

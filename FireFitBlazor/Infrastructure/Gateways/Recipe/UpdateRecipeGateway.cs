@@ -14,7 +14,7 @@ public class UpdateRecipeGateway : BaseGateway<Recipe>, IUpdateRecipeGateway
     {
     }
 
-    public async Task<bool> UpdateAsync(Recipe recipe)
+    public override async Task<bool> UpdateAsync(Recipe recipe)
     {
         try
         {

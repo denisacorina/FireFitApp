@@ -1,0 +1,319 @@
+@page "/meal-detection"
+@using System.Linq
+@using FireFit.Shared.Contracts
+@using FireFit.Shared.DTOs
+@using FireFit.Shared.Enums
+@using Microsoft.AspNetCore.Components.Forms
+@inject IAuthService AuthService
+@inject IImageRecognitionService ImageRecognitionService
+@inject IFoodLogService FoodLogService
+@inject IMediaService? MediaService
+@inject NavigationManager NavigationManager
+@inject NotificationService NotificationService
+
+<RadzenCard>
+    <div class="card-header d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center">
+        <div>
+            <h3 class="mb-1">Meal Detection</h3>
+            <p class="text-muted mb-0">Upload or capture a meal photo and let the service detect ingredients.</p>
+        </div>
+        <div class="ms-md-auto d-flex flex-wrap gap-2 align-items-center">
+            <InputFile OnChange="OnFileSelected" accept="image/*" disabled="@_isBusy" />
+            @if (MediaService is not null)
+            {
+                <RadzenButton Text="Capture Photo" ButtonStyle="ButtonStyle.Secondary" Click="CapturePhoto" Disabled="@_isBusy" />
+            }
+        </div>
+    </div>
+    <div class="card-body">
+        @if (_isBusy)
+        {
+            <div class="text-center my-4">
+                <RadzenProgressBar Mode="ProgressBarMode.Indeterminate" Style="width: 280px;" />
+                <p class="text-muted mt-2">Analyzing meal...</p>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="preview-wrapper mb-3">
+                        @if (_imageDataUrl is not null)
+                        {
+                            <img src="@_imageDataUrl" class="meal-image" />
+                        }
+                        else
+                        {
+                            <div class="placeholder">
+                                <p class="text-muted mb-0">No image selected.</p>
+                            </div>
+                        }
+                    </div>
+
+                    <RadzenFieldset Text="Meal Details">
+                        <div class="mb-3">
+                            <RadzenLabel Text="Meal Name" />
+                            <RadzenTextBox @bind-Value="_mealName" Style="width: 100%;" Placeholder="Optional name..." />
+                        </div>
+                        <div class="mb-3">
+                            <RadzenLabel Text="Meal Type" />
+                            <RadzenDropDown TValue="MealType"
+                                            @bind-Value="_mealType"
+                                            Data="Enum.GetValues<MealType>()"
+                                            Style="width: 100%;" />
+                        </div>
+                        <div class="macros d-flex flex-wrap gap-3">
+                            <div><strong>Calories:</strong> @_totalCalories</div>
+                            <div><strong>Protein:</strong> @_totalProtein:F1 g</div>
+                            <div><strong>Carbs:</strong> @_totalCarbs:F1 g</div>
+                            <div><strong>Fats:</strong> @_totalFats:F1 g</div>
+                        </div>
+                    </RadzenFieldset>
+                </div>
+                <div class="col-md-6">
+                    <RadzenFieldset Text="Detected Ingredients">
+                        @if (_ingredients.Count == 0)
+                        {
+                            <p class="text-muted">No ingredients detected yet. Try uploading an image or add items manually.</p>
+                        }
+                        else
+                        {
+                            @foreach (var ing in _ingredients)
+                            {
+                                <div class="ingredient-item mb-2">
+                                    <div class="flex-grow-1">
+                                        <strong>@ing.Name</strong>
+                                        <div class="text-muted small">
+                                            @FormatMacroText(ing)
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <RadzenButton Icon="remove" Size="ButtonSize.Small" Click="@(() => AdjustQuantity(ing, -10))" Disabled="@_isBusy" />
+                                        <span>@ing.QuantityGrams g</span>
+                                        <RadzenButton Icon="add" Size="ButtonSize.Small" Click="@(() => AdjustQuantity(ing, 10))" Disabled="@_isBusy" />
+                                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => RemoveIngredient(ing))" Disabled="@_isBusy" />
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </RadzenFieldset>
+
+                    <RadzenFieldset Text="Add Manually">
+                        <div class="row g-2">
+                            <div class="col-sm-6">
+                                <RadzenTextBox @bind-Value="_manualName" Placeholder="Ingredient name" Style="width: 100%;" />
+                            </div>
+                            <div class="col-sm-6">
+                                <RadzenNumeric @bind-Value="_manualQuantity" TValue="float" Style="width: 100%;" Placeholder="Quantity (g)" />
+                            </div>
+                            <div class="col-12">
+                                <RadzenButton Text="Add Ingredient" ButtonStyle="ButtonStyle.Secondary" Click="AddManualIngredient" Disabled="@_isBusy" />
+                            </div>
+                        </div>
+                    </RadzenFieldset>
+
+                    <div class="d-grid">
+                        <RadzenButton Text="Save Meal"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      Click="SaveMeal"
+                                      Disabled="@(_ingredients.Count == 0 || _isBusy)" />
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</RadzenCard>
+
+@code {
+    private string? _userId;
+    private bool _isBusy;
+    private string? _imageDataUrl;
+    private readonly List<IngredientDto> _ingredients = new();
+    private string _mealName = string.Empty;
+    private MealType _mealType = MealType.Lunch;
+    private string _manualName = string.Empty;
+    private float _manualQuantity = 100;
+    private float _totalCalories;
+    private float _totalProtein;
+    private float _totalCarbs;
+    private float _totalFats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await AuthService.GetCurrentUserAsync();
+        if (user is null)
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        _userId = user.UserId;
+    }
+
+    private async Task CapturePhoto()
+    {
+        if (MediaService is null)
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Capture unavailable", "Media capture is not configured on this device.");
+            return;
+        }
+
+        await DetectFromStream(() => MediaService.CapturePhotoAsync());
+    }
+
+    private async Task OnFileSelected(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+        await DetectFromStream(async () =>
+        {
+            var stream = file.OpenReadStream(maxAllowedSize: 5 * 1024 * 1024);
+            return stream;
+        });
+    }
+
+    private async Task DetectFromStream(Func<Task<Stream?>> factory)
+    {
+        _isBusy = true;
+        StateHasChanged();
+        try
+        {
+            await using var original = await factory();
+            if (original is null)
+            {
+                NotificationService.Notify(NotificationSeverity.Warning, "No image", "Unable to access the selected image.");
+                return;
+            }
+
+            using var buffer = new MemoryStream();
+            await original.CopyToAsync(buffer);
+            var bytes = buffer.ToArray();
+            _imageDataUrl = $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
+
+            using var sendStream = new MemoryStream(bytes);
+            var detected = await ImageRecognitionService.DetectIngredientsAsync(sendStream) ?? Array.Empty<IngredientDto>();
+            _ingredients.Clear();
+            _ingredients.AddRange(detected.Select(d => Clone(d)));
+            RecalculateTotals();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Detection failed", ex.Message);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private static IngredientDto Clone(IngredientDto dto) => new()
+    {
+        Name = dto.Name,
+        Calories = dto.Calories,
+        Protein = dto.Protein,
+        Fat = dto.Fat,
+        Carbs = dto.Carbs,
+        QuantityGrams = dto.QuantityGrams
+    };
+
+    private void AdjustQuantity(IngredientDto ingredient, int delta)
+    {
+        ingredient.QuantityGrams = Math.Max(0, ingredient.QuantityGrams + delta);
+        RecalculateTotals();
+    }
+
+    private void RemoveIngredient(IngredientDto ingredient)
+    {
+        _ingredients.Remove(ingredient);
+        RecalculateTotals();
+    }
+
+    private void AddManualIngredient()
+    {
+        if (string.IsNullOrWhiteSpace(_manualName))
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Missing name", "Provide a name for the ingredient.");
+            return;
+        }
+
+        _ingredients.Add(new IngredientDto
+        {
+            Name = _manualName.Trim(),
+            QuantityGrams = Math.Max(1, _manualQuantity)
+        });
+        _manualName = string.Empty;
+        _manualQuantity = 100;
+        RecalculateTotals();
+    }
+
+    private void RecalculateTotals()
+    {
+        float calories = 0;
+        float protein = 0;
+        float carbs = 0;
+        float fats = 0;
+
+        foreach (var ing in _ingredients)
+        {
+            var ratio = ing.QuantityGrams / 100f;
+            calories += ing.Calories * ratio;
+            protein += ing.Protein * ratio;
+            carbs += ing.Carbs * ratio;
+            fats += ing.Fat * ratio;
+        }
+
+        _totalCalories = calories;
+        _totalProtein = protein;
+        _totalCarbs = carbs;
+        _totalFats = fats;
+    }
+
+    private async Task SaveMeal()
+    {
+        if (_userId is null)
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Not signed in", "Please sign in before saving meals.");
+            return;
+        }
+
+        if (_ingredients.Count == 0)
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "No ingredients", "Add at least one ingredient before saving.");
+            return;
+        }
+
+        _isBusy = true;
+        try
+        {
+            foreach (var ing in _ingredients)
+            {
+                await FoodLogService.SaveFoodLogAsync(new FoodLogDto
+                {
+                    UserId = _userId,
+                    FoodName = ing.Name,
+                    Calories = (int)(ing.Calories * (ing.QuantityGrams / 100f)),
+                    Proteins = ing.Protein * (ing.QuantityGrams / 100f),
+                    Carbs = ing.Carbs * (ing.QuantityGrams / 100f),
+                    Fats = ing.Fat * (ing.QuantityGrams / 100f),
+                    MealType = _mealType,
+                    TimestampUtc = DateTime.UtcNow
+                });
+            }
+
+            NotificationService.Notify(NotificationSeverity.Success, "Meal saved", $"Logged {_ingredients.Count} ingredients.");
+            _ingredients.Clear();
+            _imageDataUrl = null;
+            RecalculateTotals();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Failed to save meal", ex.Message);
+        }
+        finally
+        {
+            _isBusy = false;
+        }
+    }
+
+    private static string FormatMacroText(IngredientDto ing)
+        => $"{ing.Calories:F0} kcal • {ing.Protein:F1}P / {ing.Carbs:F1}C / {ing.Fat:F1}F";
+}

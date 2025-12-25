@@ -1,48 +1,46 @@
-@using Domain.Models
-@using Application.Services
-@inject IWorkoutService WorkoutService
+@using FireFit.Shared.Enums
+@using FireFit.Shared.DTOs
+@using FireFit.Shared.Contracts
+@inject IWorkoutSessionService WorkoutService
 @inject DialogService DialogService
 @inject NotificationService NotificationService
-@inject NavigationManager NavigationManager
 @using static Microsoft.AspNetCore.Components.Web.RenderMode
-@using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
-@using FireFitBlazor.Application.DTOs;
 @rendermode InteractiveServer
 
 <RadzenStack Gap="1rem">
-    <RadzenTemplateForm Data="@workout" Submit="@FormSubmit" TItem="WorkoutSessionDto">
+    <RadzenTemplateForm Data="@Workout" Submit="@FormSubmit" TItem="WorkoutSessionDto">
         <RadzenStack Gap="1rem">
             <RadzenFormField Text="Workout Type" Variant="Variant.Filled">
                 <RadzenDropDown Data="@WorkoutTypeOptions"
                                 TextProperty="Text"
                                 ValueProperty="Value"
-                                @bind-Value="workout.WorkoutType"
+                                @bind-Value="Workout.WorkoutType"
                                 TValue="WorkoutType"
                                 Name="WorkoutType"
                                 Class="w-100" />
             </RadzenFormField>
 
             <RadzenFormField Text="Start Time" Variant="Variant.Filled">
-                <RadzenDatePicker @bind-Value="@workout.StartTime"
+                <RadzenDatePicker @bind-Value="Workout.StartTime"
                                   Class="w-100"
                                   Name="Date" />
             </RadzenFormField>
 
             <RadzenFormField Text="End Time" Variant="Variant.Filled">
-                <RadzenDatePicker @bind-Value="@workout.EndTime"
+                <RadzenDatePicker @bind-Value="Workout.EndTime"
                                   Class="w-100"
                                   Name="Date" />
             </RadzenFormField>
 
             <RadzenFormField Text="Duration (minutes)" Variant="Variant.Filled">
-                <InputNumber @bind-Value="workout.DurationMinutes"
+                <InputNumber @bind-Value="Workout.DurationMinutes"
                              class="rz-input w-100"
                              min="1"
                              style="padding: 0.5rem; height: 60px;" />
 
             </RadzenFormField>
             <RadzenFormField Text="Calories Burned" Variant="Variant.Filled">
-                <InputNumber @bind-Value="workout.CaloriesBurned"
+                <InputNumber @bind-Value="Workout.CaloriesBurned"
                              class="rz-input w-100"
                              min="1"
                              style="padding: 0.5rem; height: 60px;" />
@@ -51,14 +49,14 @@
 
 
             <RadzenFormField Text="Intensity Level" Variant="Variant.Filled">
-                <InputNumber @bind-Value="workout.IntensityLevel"
+                <InputNumber @bind-Value="Workout.IntensityLevel"
                              class="rz-input w-100"
                              min="1"
                              style="padding: 0.5rem; height: 60px;" />
             </RadzenFormField>
 
             <RadzenFormField Text="Notes" Variant="Variant.Filled">
-                <RadzenTextArea @bind-Value="@workout.Notes"
+                <RadzenTextArea @bind-Value="Workout.Notes"
                                 Class="w-100"
                                 Name="Notes"
                                 Rows="3" />
@@ -78,13 +76,7 @@
 
 @code {
     [Parameter]
-    public WorkoutSessionDto workout { get; set; }
-
-    [Inject]
-    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
-
-    private string? currentUserId;
-    private User? currentUser;
+    public WorkoutSessionDto Workout { get; set; } = new();
 
 
     private IEnumerable<object> WorkoutTypeOptions =>
@@ -94,44 +86,17 @@
            .Select(w => new { Text = w.ToString(), Value = w });
 
 
-    protected override async Task OnInitializedAsync()
-    {
-
-        if (workout != null)
-        {
-            workout = new WorkoutSessionDto
-                {
-                    SessionId = workout.SessionId,
-                    UserId = workout.UserId,
-                    WorkoutType = workout.WorkoutType,
-                    StartTime = workout.StartTime,
-                    EndTime = workout.EndTime,
-                    DurationMinutes = workout.DurationMinutes,
-                    CaloriesBurned = workout.CaloriesBurned,
-                    IntensityLevel = workout.IntensityLevel,
-                    Notes = workout.Notes
-                };
-        }
-    }
-
     private async Task FormSubmit()
     {
         try
         {
-            var updatedWorkout = new WorkoutSessionDto
-                {
-                    SessionId = workout.SessionId,
-                    UserId = currentUserId ?? workout.UserId,
-                    WorkoutType = workout.WorkoutType,
-                    StartTime = workout.StartTime,
-                    EndTime = workout.EndTime,
-                    DurationMinutes = workout.DurationMinutes,
-                    CaloriesBurned = workout.CaloriesBurned,
-                    IntensityLevel = workout.IntensityLevel,
-                    Notes = workout.Notes
-                };
+            if (Workout.SessionId is null)
+            {
+                NotificationService.Notify(NotificationSeverity.Warning, "Missing identifier", "Cannot update this workout because it has no id.");
+                return;
+            }
 
-            await WorkoutService.UpdateWorkout(updatedWorkout);
+            await WorkoutService.UpdateAsync(Workout);
             DialogService.Close(true);
         }
         catch (Exception ex)

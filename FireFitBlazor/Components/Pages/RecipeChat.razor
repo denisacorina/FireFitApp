@@ -6,6 +6,7 @@
 @using FireFitBlazor.Domain.ContextInterfaces
 @using static FireFitBlazor.Domain.Enums.FoodTrackingEnums
 @using Radzen
+@using FireFit.UI.Shared.Components.Layout
 @using Radzen.Blazor
 @using Microsoft.AspNetCore.Components.Web
 @inject RecipeChatService ChatService
@@ -53,7 +54,7 @@ Click="@(() => Navigation.NavigateTo("/dashboard", true))" />
         Click="SendMessage" />
     </RadzenStack>
 </RadzenStack>
-<FireFitBlazor.Components.Layout.BottomNav></FireFitBlazor.Components.Layout.BottomNav>
+<BottomNav />
 
 @code {
     private string userInput = "";

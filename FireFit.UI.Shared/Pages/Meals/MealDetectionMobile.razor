@@ -1,0 +1,79 @@
+@page "/meal-detect-mobile"
+@using FireFit.Shared.Contracts
+@using FireFit.Shared.DTOs
+@inject IMediaService Media
+@inject IImageRecognitionService ImageRecognition
+@inject Radzen.NotificationService Notifications
+
+<h3>Meal Detection (Mobile)</h3>
+
+<div style="display:flex; gap:8px; margin:8px 0;">
+    <RadzenButton Text="Capture Photo" Click="Capture" ButtonStyle="ButtonStyle.Primary" />
+    <RadzenButton Text="Pick Photo" Click="Pick" />
+    <RadzenButton Text="Clear" Click="Clear" ButtonStyle="ButtonStyle.Light" />
+  </div>
+
+@if (_imageDataUrl is not null)
+{
+    <img src="@_imageDataUrl" style="max-width:100%; border-radius:8px;" />
+}
+
+@if (_ingredients?.Any() == true)
+{
+    <h4>Detected Ingredients</h4>
+    <ul>
+        @foreach (var i in _ingredients!)
+        {
+            <li>@i.Name (@i.QuantityGrams g)</li>
+        }
+    </ul>
+}
+
+@code {
+    private string? _imageDataUrl;
+    private IReadOnlyList<IngredientDto>? _ingredients;
+
+    private async Task Capture()
+    {
+        await Detect(async () => await Media.CapturePhotoAsync());
+    }
+
+    private async Task Pick()
+    {
+        await Detect(async () => await Media.PickPhotoAsync());
+    }
+
+    private void Clear()
+    {
+        _imageDataUrl = null;
+        _ingredients = null;
+    }
+
+    private async Task Detect(Func<Task<Stream?>> getStream)
+    {
+        try
+        {
+            using var stream = await getStream();
+            if (stream is null) return;
+
+            // Show preview
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+            _imageDataUrl = $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
+
+            // Send to server
+            using var sendStream = new MemoryStream(bytes);
+            _ingredients = await ImageRecognition.DetectIngredientsAsync(sendStream);
+            if (_ingredients is null || _ingredients.Count == 0)
+            {
+                Notifications.Notify(Radzen.NotificationSeverity.Info, "No ingredients detected");
+            }
+        }
+        catch (Exception ex)
+        {
+            Notifications.Notify(Radzen.NotificationSeverity.Error, "Detection failed", ex.Message);
+        }
+    }
+}
+

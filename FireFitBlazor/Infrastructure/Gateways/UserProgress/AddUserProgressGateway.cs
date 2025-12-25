@@ -15,7 +15,7 @@ public class AddUserProgressGateway : BaseGateway<UserProgress>, IAddUserProgres
     {
     }
 
-    public async Task<bool> AddAsync(UserProgress userProgress)
+    public override async Task<bool> AddAsync(UserProgress userProgress)
     {
         try
         {

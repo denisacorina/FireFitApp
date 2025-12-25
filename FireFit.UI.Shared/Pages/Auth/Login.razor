@@ -1,0 +1,69 @@
+@page "/login"
+@using Radzen
+@using Radzen.Blazor
+@using ButtonType = Radzen.ButtonType;
+@using ButtonStyle = Radzen.ButtonStyle;
+
+<div class="login-page">
+    <div class="login-logo">
+        <img src="images/fire-flame-logo-design-template-vector.png"
+             alt="FireFit logo" />
+        <h2>FireFit</h2>
+    </div>
+
+    <div class="login-container">
+        <RadzenCard Class="login-card">
+            <div class="login-header">
+                <h1>Welcome Back</h1>
+                <p>Sign in to continue to FireFit</p>
+            </div>
+
+            <RadzenTemplateForm Data="@loginModel" Submit="@HandleValidSubmit" TItem="Login.LoginModel">
+                <div class="form-group">
+                    <RadzenLabel Text="Email" Component="Email" />
+                    <RadzenTextBox @bind-Value="loginModel.Email" Name="Email" Style="width: 100%" />
+                    <RadzenRequiredValidator Component="Email" Text="Email is required" />
+                    <RadzenEmailValidator Component="Email" Text="Invalid email address" />
+                </div>
+
+                <div class="form-group">
+                    <RadzenLabel Text="Password" Component="Password" />
+                    <RadzenPassword @bind-Value="loginModel.Password" Name="Password" Style="width: 100%" />
+                    <RadzenRequiredValidator Component="Password" Text="Password is required" />
+                </div>
+
+                <div class="form-group remember-me">
+                    <RadzenCheckBox @bind-Value="loginModel.RememberMe" Name="RememberMe" TValue="bool" />
+                    <RadzenLabel Text="Remember me" Component="RememberMe" />
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(message))
+                {
+                    <div class="alert @(isError ? "alert-danger" : "alert-success")">
+                        @message
+                    </div>
+                }
+
+                <div class="form-group">
+                    <RadzenButton ButtonType="ButtonType.Submit"
+                                  Text="Sign In"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Disabled="@isLoading"
+                                  Style="width: 100%">
+                        @if (isLoading)
+                        {
+                            <RadzenIcon Icon="refresh" Class="spin" />
+                        }
+                    </RadzenButton>
+                </div>
+
+                <div class="form-group">
+                    <RadzenButton Text="Sign in with Google"
+                                  Click="@OnGoogleLogin"
+                                  ButtonStyle="ButtonStyle.Secondary"
+                                  Style="width: 100%" />
+                </div>
+            </RadzenTemplateForm>
+        </RadzenCard>
+    </div>
+</div>

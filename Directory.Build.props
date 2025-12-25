@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <SharedTargetFrameworks Condition="'$(SharedTargetFrameworks)' == ''">net9.0;net8.0</SharedTargetFrameworks>
+  </PropertyGroup>
+</Project>

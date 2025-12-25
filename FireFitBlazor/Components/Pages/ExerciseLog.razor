@@ -1,9 +1,10 @@
 @page "/exercise-log"
-@using Domain.Models
-@using FireFitBlazor.Application.DTOs
-@using Application.Services
+@using FireFitBlazor.Domain.Models
+@using FireFit.Shared.DTOs
+@using FireFit.Shared.Contracts
 @using FireFitBlazor.Components.Dialogs
-@inject IWorkoutService WorkoutService
+@using FireFit.UI.Shared.Components.Workouts
+@inject IWorkoutSessionService WorkoutService
 
 @inject DialogService DialogService
 @inject NotificationService NotificationService
@@ -47,19 +48,19 @@
                     else
                     {
                         <RadzenDataGrid Data="@workoutSessions" 
-                        TItem="WorkoutSession"
+                        TItem="WorkoutSessionDto"
                         AllowFiltering="true"
                         AllowSorting="true"
                         AllowPaging="true"
                         PageSize="5"
                         Class="w-100">
                             <Columns>
-                                <RadzenDataGridColumn TItem="WorkoutSession" Property="WorkoutType" Title="Type" />
-                                <RadzenDataGridColumn TItem="WorkoutSession" Property="StartTime" Title="StartTime" FormatString="{0:d}" />
-                                <RadzenDataGridColumn TItem="WorkoutSession" Property="DurationMinutes" Title="Duration (min)" />
-                                <RadzenDataGridColumn TItem="WorkoutSession" Property="IntensityLevel" Title="Intensity" />
-                                <RadzenDataGridColumn TItem="WorkoutSession" Property="CaloriesBurned" Title="Calories" />
-                                <RadzenDataGridColumn TItem="WorkoutSession" Context="workout" Title="Actions" TextAlign="TextAlign.Center">
+                                <RadzenDataGridColumn TItem="WorkoutSessionDto" Property="WorkoutType" Title="Type" />
+                                <RadzenDataGridColumn TItem="WorkoutSessionDto" Property="StartTime" Title="StartTime" FormatString="{0:d}" />
+                                <RadzenDataGridColumn TItem="WorkoutSessionDto" Property="DurationMinutes" Title="Duration (min)" />
+                                <RadzenDataGridColumn TItem="WorkoutSessionDto" Property="IntensityLevel" Title="Intensity" />
+                                <RadzenDataGridColumn TItem="WorkoutSessionDto" Property="CaloriesBurned" Title="Calories" />
+                                <RadzenDataGridColumn TItem="WorkoutSessionDto" Context="workout" Title="Actions" TextAlign="TextAlign.Center">
                                     <Template Context="workout">
                                         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.Center" Gap="0.5rem">
                                             <RadzenButton Icon="edit" 
@@ -120,7 +121,7 @@
 <RadzenDialog></RadzenDialog>
 
 @code {
-    private List<WorkoutSession> workoutSessions;
+    private List<WorkoutSessionDto>? workoutSessions;
     private int weeklyWorkoutCount;
     private int weeklyWorkoutMinutes;
     private int weeklyCaloriesBurned;
@@ -159,7 +160,8 @@
 
 
 
-        workoutSessions = await WorkoutService.GetWorkoutsByUserId(currentUser.UserId);
+        var sessions = await WorkoutService.GetUserSessionsAsync(currentUser.UserId);
+        workoutSessions = sessions.OrderByDescending(s => s.StartTime).ToList();
 
 
         var today = DateTime.Today;
@@ -207,23 +209,10 @@
         }
     }
 
-    private async Task EditWorkout(WorkoutSession workout)
+    private async Task EditWorkout(WorkoutSessionDto workout)
     {
-        var dto = new WorkoutSessionDto
-            {
-                SessionId = workout.SessionId,
-                UserId = workout.UserId,
-                WorkoutType = workout.WorkoutType,
-                StartTime = workout.StartTime,
-                EndTime = workout.EndTime,
-                DurationMinutes = workout.DurationMinutes,
-                CaloriesBurned = workout.CaloriesBurned,
-                IntensityLevel = workout.IntensityLevel,
-                Notes = workout.Notes
-            };
-
         var result = await DialogService.OpenAsync<EditWorkoutDialog>("Edit Workout",
-            new Dictionary<string, object> { { "Workout", dto } },
+            new Dictionary<string, object> { { "Workout", workout } },
             new DialogOptions
                 {
                     Width = "500px",
@@ -239,7 +228,7 @@
         }
     }
 
-    private async Task DeleteWorkout(WorkoutSession workout)
+    private async Task DeleteWorkout(WorkoutSessionDto workout)
     {
         var result = await DialogService.Confirm("Are you sure you want to delete this workout?",
             "Delete Workout",
@@ -247,7 +236,12 @@
 
         if (result == true)
         {
-            await WorkoutService.DeleteWorkout(workout.SessionId);
+            if (workout.SessionId is null)
+            {
+                NotificationService.Notify(NotificationSeverity.Warning, "Missing identifier", "Cannot delete this workout because it has no id.");
+                return;
+            }
+            await WorkoutService.DeleteAsync(workout.SessionId.Value);
             await LoadWorkoutData();
             NotificationService.Notify(NotificationSeverity.Success, "Workout deleted successfully!");
         }

@@ -12,7 +12,7 @@ public class AddFoodLogGateway : BaseGateway<FoodLog>, IAddFoodLogGateway
     {
     }
 
-    public async Task<bool> AddAsync(FoodLog foodLog)
+    public override async Task<bool> AddAsync(FoodLog foodLog)
     {
         try
         {

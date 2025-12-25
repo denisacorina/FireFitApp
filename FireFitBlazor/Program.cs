@@ -38,6 +38,7 @@ using NETCore.MailKit;
 using NETCore.MailKit.Extensions;
 using Radzen.Blazor.Markdown;
 using NETCore.MailKit.Infrastructure.Internal;
+using FireFit.UI.Shared.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -53,9 +54,56 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
 
-// Add DbContext
+// Add DbContext with provider switching (SqlServer/Sqlite/PostgreSQL)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    var provider = builder.Configuration["DatabaseProvider"]; // Optional override: SqlServer|Sqlite|PostgreSQL
+
+    // Infer provider if not explicitly specified
+    string inferred = provider?.Trim();
+    if (string.IsNullOrWhiteSpace(inferred))
+    {
+        if (!string.IsNullOrWhiteSpace(connectionString))
+        {
+            var cs = connectionString;
+            if (cs.Contains("Host=", StringComparison.OrdinalIgnoreCase) ||
+                cs.Contains("Username=", StringComparison.OrdinalIgnoreCase) ||
+                cs.Contains("User ID=", StringComparison.OrdinalIgnoreCase))
+            {
+                inferred = "PostgreSQL";
+            }
+            else if (cs.Contains("Data Source=", StringComparison.OrdinalIgnoreCase) ||
+                     cs.EndsWith(".db", StringComparison.OrdinalIgnoreCase) ||
+                     cs.Contains("Filename=", StringComparison.OrdinalIgnoreCase))
+            {
+                inferred = "Sqlite";
+            }
+            else
+            {
+                inferred = "SqlServer";
+            }
+        }
+        else
+        {
+            inferred = "SqlServer";
+        }
+    }
+
+    switch (inferred?.ToLowerInvariant())
+    {
+        case "sqlite":
+            options.UseSqlite(connectionString);
+            break;
+        case "postgresql":
+        case "npgsql":
+            options.UseNpgsql(connectionString);
+            break;
+        default:
+            options.UseSqlServer(connectionString);
+            break;
+    }
+});
 
 // Add Identity services
 
@@ -84,7 +132,10 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddScoped<SharedAuthStateProvider>(sp =>
+    new SharedAuthStateProvider(sp.GetRequiredService<FireFit.Shared.Contracts.IAuthService>()));
+builder.Services.AddScoped<AuthenticationStateProvider>(sp =>
+    sp.GetRequiredService<SharedAuthStateProvider>());
 // Add application services
 builder.Services.AddScoped<IRecipeGateway, RecipeGateway>();
 builder.Services.AddScoped<IGoalContext, GoalContext>();
@@ -111,27 +162,20 @@ builder.Services.AddScoped<IGoalContext, GoalContext>();
 //builder.Services.AddScoped<IUpdateGoalContext, UpdateGoalContext>();
 builder.Services.AddScoped<WeightPredictionService>();
 
-//// Add email service configuration
-
-
-//builder.Services.AddMailKit(optionBuilder =>
-//{
-//    optionBuilder.UseMailKit(new MailKitOptions()
-//    {
-//        //get options from sercets.json
-//        Server = builder.Configuration["EmailSettings:SmtpServer"],
-//        Port = Convert.ToInt32(builder.Configuration["EmailSettings:SmtpPort"]),
-//        SenderName = builder.Configuration["EmailSettings:FromName"],
-//        SenderEmail = builder.Configuration["EmailSettings:FromEmail"],
-//        Account = builder.Configuration["EmailSettings:FromEmail"],
-//        Password = builder.Configuration["EmailSettings:SmtpPassword"],
-//        Security = true
-//    });
-//});
-
-
-//builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-//builder.Services.AddScoped<IEmailService, EmailService>();
+// Email service configuration (MailKit)
+builder.Services.AddMailKit(optionBuilder =>
+{
+    optionBuilder.UseMailKit(new MailKitOptions()
+    {
+        Server = builder.Configuration["EmailSettings:SmtpServer"],
+        Port = Convert.ToInt32(builder.Configuration["EmailSettings:SmtpPort"] ?? "587"),
+        SenderName = builder.Configuration["EmailSettings:FromName"],
+        SenderEmail = builder.Configuration["EmailSettings:FromEmail"],
+        Account = builder.Configuration["EmailSettings:SmtpUsername"] ?? builder.Configuration["EmailSettings:FromEmail"],
+        Password = builder.Configuration["EmailSettings:SmtpPassword"],
+        Security = true
+    });
+});
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddHttpClient<IBarcodeProductContext, BarcodeProductContext>();
@@ -142,25 +186,41 @@ builder.Services.AddScoped<IPhotoUploadService, PhotoUploadService>();
 
 builder.Services.AddHttpClient("ServerAPI", client =>
 {
-    client.BaseAddress = new Uri("https://localhost:7128/");
-    //client.BaseAddress = new Uri("http://192.168.100.87:5000/");
+    var baseAddress = builder.Configuration["ServerAPI:BaseAddress"];
+    if (!string.IsNullOrWhiteSpace(baseAddress))
+    {
+        client.BaseAddress = new Uri(baseAddress);
+    }
 });
 
 builder.Services.AddHttpClient("MLAPI", client =>
 {
-    client.BaseAddress = new Uri("http://192.168.0.123:6000/");
+    var baseAddress = builder.Configuration["MLAPI:BaseAddress"];
+    if (!string.IsNullOrWhiteSpace(baseAddress))
+    {
+        client.BaseAddress = new Uri(baseAddress);
+    }
 });
 
 builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("ServerAPI"));
 builder.Services.AddBlazorBootstrap();
 //ObjectDetection.Train();
 
-// Create single instance of sample data from first line of dataset for model input.
-var image = MLImage.CreateFromFile(@"C:\Users\DENI\Downloads\cucumber.jpg");
-ObjectDetection.ModelInput sampleData = new ObjectDetection.ModelInput()
+// Dev-only sample ML code guarded to avoid startup failures in prod
+if (builder.Environment.IsDevelopment())
 {
-    Image = image,
-};
+    try
+    {
+        // Create single instance of sample data from first line of dataset for model input.
+        var image = MLImage.CreateFromFile(@"C:\Users\DENI\Downloads\cucumber.jpg");
+        ObjectDetection.ModelInput sampleData = new ObjectDetection.ModelInput()
+        {
+            Image = image,
+        };
+        // var predictionResult = ObjectDetection.Predict(sampleData);
+    }
+    catch { /* ignore in dev if file missing */ }
+}
 
 //MLModel1.Train();
 
@@ -246,6 +306,20 @@ builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 
 builder.Services.AddHttpClient<OpenFoodFactsService>();
 
+// Register shared abstractions
+builder.Services.AddScoped<FireFit.Shared.Email.IEmailSender, FireFitBlazor.Infrastructure.Email.EmailSenderAdapter>();
+
+// Shared contract adapters for reuse with MAUI client
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IAuthService), typeof(FireFitBlazor.Infrastructure.Adapters.AuthServiceAdapter));
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IProfileService), typeof(FireFitBlazor.Infrastructure.Adapters.ProfileServiceAdapter));
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IFoodLogService), typeof(FireFitBlazor.Infrastructure.Adapters.FoodLogServiceAdapter));
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IGoalService), typeof(FireFitBlazor.Infrastructure.Adapters.GoalServiceAdapter));
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IUserProgressService), typeof(FireFitBlazor.Infrastructure.Adapters.UserProgressServiceAdapter));
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IBodyMeasurementService), typeof(FireFitBlazor.Infrastructure.Adapters.BodyMeasurementServiceAdapter));
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IUserPreferencesService), typeof(FireFitBlazor.Infrastructure.Adapters.UserPreferencesServiceAdapter));
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IImageRecognitionService), typeof(FireFitBlazor.Infrastructure.Adapters.ImageRecognitionServiceAdapter));
+builder.Services.AddScoped(typeof(FireFit.Shared.Contracts.IWorkoutSessionService), typeof(FireFitBlazor.Infrastructure.Adapters.WorkoutSessionServiceAdapter));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -259,6 +333,17 @@ if (!app.Environment.IsDevelopment())
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage(); // <--- Add this
+
+    // Dev-only endpoint to inspect email config (sanitized)
+    app.MapGet("/api/debug/email-config", (IConfiguration cfg) => Results.Json(new
+    {
+        Server = cfg["EmailSettings:SmtpServer"],
+        Port = cfg["EmailSettings:SmtpPort"],
+        FromEmail = cfg["EmailSettings:FromEmail"],
+        FromName = cfg["EmailSettings:FromName"],
+        Username = cfg["EmailSettings:SmtpUsername"],
+        HasPassword = !string.IsNullOrWhiteSpace(cfg["EmailSettings:SmtpPassword"]) // do not return the password
+    }));
 }
 
 //app.UseHttpsRedirection();
@@ -277,9 +362,16 @@ app.MapRazorComponents<App>().AddInteractiveServerRenderMode();
 
 
 //// Ensure database is created and migrations are applied
-
-
+// Apply EF Core migrations automatically at startup (safe for dev/small setups)
+try
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
+catch (Exception ex)
+{
+    app.Logger.LogError(ex, "Error applying database migrations at startup");
+}
 app.Run();
-
-
 

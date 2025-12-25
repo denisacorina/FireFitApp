@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -38,6 +38,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.4">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -53,8 +55,13 @@
     <PackageReference Include="System.Drawing.Common" Version="9.0.4" />
     <PackageReference Include="TensorFlow.Keras" Version="0.15.0" />
     <PackageReference Include="TorchSharp-cuda-windows" Version="0.102.7" />
-	  <PackageReference Include="SciSharp.TensorFlow.Redist" Version="2.16.0" />
-	  <PackageReference Include="TensorFlow.NET" Version="0.150.0" />
-	  <PackageReference Include="TorchSharp-cuda-windows" Version="0.101.5" />
+    <PackageReference Include="SciSharp.TensorFlow.Redist" Version="2.16.0" />
+    <PackageReference Include="TensorFlow.NET" Version="0.150.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FireFit.Shared\FireFit.Shared.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FireFit.UI.Shared\FireFit.UI.Shared.csproj" />
   </ItemGroup>
 </Project>

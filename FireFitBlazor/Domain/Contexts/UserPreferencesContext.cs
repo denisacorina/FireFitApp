@@ -139,4 +139,11 @@ public class UserPreferencesContext : IUserPreferencesContext
             return false;
         }
     }
+
+    public async Task<IReadOnlyList<WorkoutPreference>> GetWorkoutPreferencesAsync(string userId)
+    {
+        return await _context.WorkoutPreferences
+            .Where(wp => wp.UserId == userId)
+            .ToListAsync();
+    }
 }

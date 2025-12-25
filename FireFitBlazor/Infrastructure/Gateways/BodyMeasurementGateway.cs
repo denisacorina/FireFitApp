@@ -13,7 +13,7 @@ namespace FireFitBlazor.Infrastructure.Gateways
         {
         }
 
-        public async Task<bool> AddAsync(BodyMeasurement measurement)
+        public override async Task<bool> AddAsync(BodyMeasurement measurement)
         {
             return await base.AddAsync(measurement);
         }

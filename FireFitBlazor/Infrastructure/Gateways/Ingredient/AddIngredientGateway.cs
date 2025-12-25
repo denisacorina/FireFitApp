@@ -14,7 +14,7 @@ public class AddIngredientGateway : BaseGateway<Ingredient>, IAddIngredientGatew
     {
     }
 
-    public async Task<bool> AddAsync(Ingredient ingredient)
+    public override async Task<bool> AddAsync(Ingredient ingredient)
     {
         try
         {

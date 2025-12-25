@@ -33,7 +33,8 @@ namespace FireFitBlazor.Domain.Models
             int fastingWindow,
             decimal? targetWeight = null,
             decimal? targetBodyFatPercentage = null,
-            DateTime? targetDate = null)
+            DateTime? targetDate = null,
+            DateTime? completedAt = null)
         {
             return new Goal
             {
@@ -47,7 +48,8 @@ namespace FireFitBlazor.Domain.Models
                 TargetBodyFatPercentage = targetBodyFatPercentage,
                 TargetDate = targetDate,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                CompletedAt = completedAt
             };
         }
 

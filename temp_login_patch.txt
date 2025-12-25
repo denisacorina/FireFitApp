@@ -1,0 +1,110 @@
+*** Begin Patch
+*** Add File: FireFit.UI.Shared/Pages/Auth/Login.razor
++@page "/login"
++@using FireFit.Shared.DTOs
++@using FireFit.Shared.Contracts
++@inject IAuthService AuthService
++@inject NavigationManager Navigation
++@inject FireFit.UI.Shared.Authentication.SharedAuthStateProvider AuthStateProvider
++
++<div class="login-page">
++    <div class="login-logo">
++        <img src="images/fire-flame-logo-design-template-vector.png"
++             alt="FireFit logo" />
++        <h2>FireFit</h2>
++    </div>
++
++    <div class="login-container">
++        <RadzenCard Class="login-card">
++            <div class="login-header">
++                <h1>Welcome Back</h1>
++                <p>Sign in to continue to FireFit</p>
++            </div>
++
++            <RadzenTemplateForm Data="@loginModel" Submit="@HandleValidSubmit" TItem="LoginDto">
++                <div class="form-group">
++                    <RadzenLabel Text="Email" Component="Email" />
++                    <RadzenTextBox @bind-Value="loginModel.Email" Name="Email" Style="width: 100%" />
++                    <RadzenRequiredValidator Component="Email" Text="Email is required" />
++                    <RadzenEmailValidator Component="Email" Text="Invalid email address" />
++                </div>
++
++                <div class="form-group">
++                    <RadzenLabel Text="Password" Component="Password" />
++                    <RadzenPassword @bind-Value="loginModel.Password" Name="Password" Style="width: 100%" />
++                    <RadzenRequiredValidator Component="Password" Text="Password is required" />
++                </div>
++
++                <div class="form-group remember-me">
++                    <RadzenCheckBox @bind-Value="loginModel.RememberMe" Name="RememberMe" TValue="bool" />
++                    <RadzenLabel Text="Remember me" Component="RememberMe" />
++                </div>
++
++                @if (!string.IsNullOrWhiteSpace(message))
++                {
++                    <div class="alert @(isError ? "alert-danger" : "alert-success")">
++                        @message
++                    </div>
++                }
++
++                <div class="form-group">
++                    <RadzenButton ButtonType="ButtonType.Submit"
++                                  Text="Sign In"
++                                  ButtonStyle="ButtonStyle.Primary"
++                                  Disabled="@isLoading"
++                                  Style="width: 100%">
++                        @if (isLoading)
++                        {
++                            <RadzenIcon Icon="refresh" Class="spin" />
++                        }
++                    </RadzenButton>
++                </div>
++            </RadzenTemplateForm>
++        </RadzenCard>
++    </div>
++</div>
++
++@code {
++    private readonly LoginDto loginModel = new();
++    private string message = string.Empty;
++    private bool isError;
++    private bool isLoading;
++
++    private async Task HandleValidSubmit()
++    {
++        if (isLoading)
++        {
++            return;
++        }
++
++        message = string.Empty;
++        isError = false;
++        isLoading = true;
++
++        try
++        {
++            var user = await AuthService.LoginAsync(loginModel);
++            if (user is not null)
++            {
++                AuthStateProvider.NotifyUserChanged(user);
++                message = "Login successful. Redirecting...";
++                Navigation.NavigateTo("/dashboard", forceLoad: false);
++            }
++            else
++            {
++                isError = true;
++                message = "Invalid login. Please check your credentials.";
++            }
++        }
++        catch
++        {
++            isError = true;
++            message = "Unable to sign in right now. Please try again.";
++        }
++        finally
++        {
++            isLoading = false;
++        }
++    }
++}
+*** End Patch

@@ -1,0 +1,242 @@
+@using System.Linq
+@using Radzen
+@using Microsoft.AspNetCore.Components.Forms
+@using FireFit.Shared.Contracts
+@using FireFit.Shared.DTOs
+@using FireFit.Shared.Enums
+@inject IWorkoutSessionService WorkoutService
+@inject IProfileService ProfileService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenStack Gap="1rem">
+    <RadzenTemplateForm TItem="WorkoutSessionDto" Data="@workout" Submit="@FormSubmit">
+        <RadzenStack Gap="1rem">
+            <RadzenFormField Text="Workout Type" Variant="Variant.Filled">
+                <RadzenDropDown Data="@WorkoutTypeOptions"
+                                TextProperty="Text"
+                                ValueProperty="Value"
+                                @bind-Value="workout.WorkoutType"
+                                Change="OnWorkoutTypeChanged"
+                                TValue="WorkoutType"
+                                Name="WorkoutType"
+                                Class="w-100" />
+            </RadzenFormField>
+
+            @if (activePreference is not null)
+            {
+                <RadzenAlert Severity="AlertSeverity.Info" Style="width:100%;" Class="schedule-hint">
+                    Next <strong>@workout.WorkoutType</strong> is planned for
+                    <strong>@activePreference.PreferredDay</strong> at
+                    <strong>@activePreference.PreferredTime.ToString(@"hh\:mm")</strong>
+                    · @activePreference.DurationMinutes min · intensity @activePreference.IntensityLevel.
+                    We pre-filled this workout using your saved schedule.
+                </RadzenAlert>
+            }
+            else if (hasSavedPreferences)
+            {
+                <RadzenAlert Severity="AlertSeverity.Warning" Style="width:100%;" Class="schedule-hint">
+                    Select one of your saved workout types to auto-fill the details from your profile.
+                </RadzenAlert>
+            }
+
+            <RadzenFormField Text="Date" Variant="Variant.Filled">
+                <RadzenDatePicker @bind-Value="workoutDate"
+                                  ShowTime="true"
+                                  DateFormat="MMM dd, yyyy HH:mm"
+                                  Class="w-100"
+                                  Name="Date" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Duration (minutes)" Variant="Variant.Filled">
+                <InputNumber @bind-Value="workoutDurationMinutes"
+                             class="rz-input w-100"
+                             min="1"
+                             style="padding: 0.5rem; height: 60px;" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Intensity Level (1-10)" Variant="Variant.Filled">
+                <InputNumber @bind-Value="workoutIntensityLevel"
+                             class="rz-input w-100"
+                             min="1"
+                             max="10"
+                             style="padding: 0.5rem; height: 60px;" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Calories Burned" Variant="Variant.Filled">
+                <InputNumber @bind-Value="workoutCaloriesBurned"
+                             class="rz-input w-100"
+                             min="1"
+                             style="padding: 0.5rem; height: 60px;" />
+            </RadzenFormField>
+
+            <RadzenFormField Text="Notes" Variant="Variant.Filled">
+                <RadzenTextArea @bind-Value="workoutNotes"
+                                Class="w-100"
+                                Name="Notes"
+                                Rows="3" />
+            </RadzenFormField>
+
+            <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="1rem">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              Text="Save"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Disabled="@_saving" />
+                <RadzenButton Text="Cancel"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@Cancel" />
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenTemplateForm>
+</RadzenStack>
+
+@code {
+    [Parameter] public string? UserId { get; set; }
+
+    private readonly WorkoutSessionDto workout = new();
+    private UserDto? profile;
+    private WorkoutPreferenceDto? activePreference;
+    private bool hasSavedPreferences;
+    private bool _saving;
+
+    private DateTime workoutDate = DateTime.Today.AddHours(9);
+    private int workoutDurationMinutes = 45;
+    private int workoutCaloriesBurned = 200;
+    private int workoutIntensityLevel = 5;
+    private string? workoutNotes;
+
+    private IEnumerable<object> WorkoutTypeOptions =>
+        Enum.GetValues<WorkoutType>()
+            .Cast<WorkoutType>()
+            .Where(w => w != WorkoutType.None)
+            .Select(w => new { Text = w.ToString(), Value = w });
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfileAsync();
+    }
+
+    private async Task LoadProfileAsync()
+    {
+        try
+        {
+            profile = await ProfileService.GetAsync();
+            hasSavedPreferences = profile?.WorkoutPreferences?.Any(p => p.IsEnabled) == true;
+
+            if (hasSavedPreferences && profile?.WorkoutPreferences is not null)
+            {
+                var initialPreference = profile.WorkoutPreferences.FirstOrDefault(p => p.IsEnabled);
+                if (initialPreference is not null && workout.WorkoutType == WorkoutType.None)
+                {
+                    workout.WorkoutType = initialPreference.Type;
+                }
+
+                ApplyPreference(workout.WorkoutType);
+            }
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Warning, "Profile unavailable", ex.Message);
+        }
+    }
+
+    private Task OnWorkoutTypeChanged(object value)
+    {
+        if (value is WorkoutType type)
+        {
+            workout.WorkoutType = type;
+            ApplyPreference(type);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private void ApplyPreference(WorkoutType type)
+    {
+        if (profile?.WorkoutPreferences is null)
+        {
+            activePreference = null;
+            return;
+        }
+
+        activePreference = profile.WorkoutPreferences
+            .FirstOrDefault(p => p.IsEnabled && p.Type == type);
+
+        if (activePreference is null)
+        {
+            return;
+        }
+
+        workoutDurationMinutes = activePreference.DurationMinutes;
+        workoutIntensityLevel = activePreference.IntensityLevel;
+        workoutDate = CalculateNextOccurrence(activePreference);
+        if (workoutCaloriesBurned <= 0)
+        {
+            workoutCaloriesBurned = Math.Max(50, activePreference.DurationMinutes * activePreference.IntensityLevel / 2);
+        }
+    }
+
+    private static DateTime CalculateNextOccurrence(WorkoutPreferenceDto preference)
+    {
+        var today = DateTime.Today;
+        var daysAhead = ((int)preference.PreferredDay - (int)today.DayOfWeek + 7) % 7;
+        var targetDate = today.AddDays(daysAhead);
+        return targetDate.Add(preference.PreferredTime);
+    }
+
+    private async Task FormSubmit()
+    {
+        if (_saving)
+        {
+            return;
+        }
+
+        try
+        {
+            _saving = true;
+            var resolvedUserId = string.IsNullOrWhiteSpace(UserId)
+                ? profile?.UserId ?? string.Empty
+                : UserId!;
+
+            if (string.IsNullOrWhiteSpace(resolvedUserId))
+            {
+                NotificationService.Notify(NotificationSeverity.Warning, "Missing user", "You must be signed in to log workouts.");
+                return;
+            }
+
+            var newWorkout = new WorkoutSessionDto
+            {
+                UserId = resolvedUserId,
+                WorkoutType = workout.WorkoutType == WorkoutType.None ? WorkoutType.Strength : workout.WorkoutType,
+                StartTime = workoutDate,
+                DurationMinutes = workoutDurationMinutes,
+                CaloriesBurned = workoutCaloriesBurned,
+                IntensityLevel = workoutIntensityLevel,
+                Notes = workoutNotes ?? string.Empty
+            };
+
+            await WorkoutService.AddAsync(newWorkout);
+            DialogService.Close(true);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Error", $"Failed to add workout: {ex.Message}");
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void Cancel()
+    {
+        DialogService.Close();
+    }
+}
+
+<style>
+    .schedule-hint {
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+</style>

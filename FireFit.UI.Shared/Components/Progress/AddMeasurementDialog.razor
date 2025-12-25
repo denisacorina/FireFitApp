@@ -1,0 +1,127 @@
+@using FireFit.Shared.Contracts
+@using FireFit.Shared.DTOs
+@inject IBodyMeasurementService BodyMeasurementService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenCard>
+    <div class="card-header">
+        <h3 class="mb-0">Add New Measurement</h3>
+    </div>
+    <div class="card-body">
+        <RadzenTemplateForm TItem="BodyMeasurementDto" Data="@measurement" Submit="@OnSubmit">
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Measurement Date" />
+                    <RadzenDatePicker @bind-Value="measurement.TimestampUtc" DateFormat="MMM dd, yyyy" Style="width: 100%;" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Weight (kg)" />
+                    <RadzenNumeric @bind-Value="measurement.Weight" TValue="decimal?" Style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Body Fat %" />
+                    <RadzenNumeric @bind-Value="measurement.BodyFatPercentage" TValue="decimal?" Style="width: 100%;" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Chest (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.Chest" TValue="decimal?" Style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Waist (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.Waist" TValue="decimal?" Style="width: 100%;" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Hips (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.Hips" TValue="decimal?" Style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Left Arm (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.LeftArm" TValue="decimal?" Style="width: 100%;" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Right Arm (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.RightArm" TValue="decimal?" Style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Left Thigh (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.LeftThigh" TValue="decimal?" Style="width: 100%;" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Right Thigh (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.RightThigh" TValue="decimal?" Style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <RadzenLabel Text="Left Calf (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.LeftCalf" TValue="decimal?" Style="width: 100%;" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="Right Calf (cm)" />
+                    <RadzenNumeric @bind-Value="measurement.RightCalf" TValue="decimal?" Style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <RadzenLabel Text="Notes" />
+                    <RadzenTextArea @bind-Value="measurement.Notes" Rows="3" Style="width: 100%;" />
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12 d-flex gap-2">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Text="Save Measurement" ButtonStyle="ButtonStyle.Primary" />
+                    <RadzenButton Text="Cancel" ButtonStyle="ButtonStyle.Light" Click="@Cancel" />
+                </div>
+            </div>
+        </RadzenTemplateForm>
+    </div>
+</RadzenCard>
+
+@code {
+    [Parameter] public string UserId { get; set; } = string.Empty;
+
+    private BodyMeasurementDto measurement = new()
+    {
+        TimestampUtc = DateTime.UtcNow
+    };
+
+    private async Task OnSubmit()
+    {
+        if (string.IsNullOrWhiteSpace(UserId))
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "User missing", "Unable to save measurement without a user.");
+            return;
+        }
+
+        measurement.UserId = UserId;
+
+        try
+        {
+            await BodyMeasurementService.AddAsync(measurement);
+            NotificationService.Notify(NotificationSeverity.Success, "Measurement saved");
+            DialogService.Close(true);
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Failed to save", ex.Message);
+        }
+    }
+
+    private void Cancel() => DialogService.Close(false);
+}

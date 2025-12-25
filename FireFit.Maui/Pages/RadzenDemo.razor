@@ -1,0 +1,11 @@
+@page "/radzen-demo"
+@using Radzen
+@using Radzen.Blazor
+@inject Radzen.NotificationService NotificationService
+
+<h3>Radzen Demo</h3>
+
+<RadzenButton Text="Show Notification"
+              Click="@(() => NotificationService.Notify(Radzen.NotificationSeverity.Success, "Hello", "Radzen works in MAUI!"))"
+              Style="margin-top:12px" />
+

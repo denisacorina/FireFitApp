@@ -1,6 +1,7 @@
 ﻿@page "/ingredient-details/{IngredientId:guid}/{mealType}"
 @inject IFoodLogService FoodLogService
 @inject NavigationManager Navigation
+@using FireFit.UI.Shared.Components.Layout
 @using FireFitBlazor.Domain.Models
 @using Microsoft.AspNetCore.Components.Web
 @using Radzen.Blazor
@@ -48,7 +49,7 @@ Style="cursor: pointer; font-size: 1.5rem; margin-left: 20px;"
     }
 </div>
 
-<FireFitBlazor.Components.Layout.BottomNav />
+<BottomNav />
 
 @code {
     [Parameter] public Guid IngredientId { get; set; }

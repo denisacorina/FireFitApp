@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 using FireFitBlazor.Domain.Models;
 using FireFitBlazor.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using FireFitBlazor.Application.DTOs;
+using FireFit.Shared.DTOs;
+using FireFitBlazor.Infrastructure.Adapters;
 
 namespace Application.Services
 {
@@ -34,9 +35,9 @@ namespace Application.Services
                 .ToListAsync();
         }
 
-        public async Task<WorkoutSession> GetWorkoutById(int id)
+        public async Task<WorkoutSession?> GetWorkoutById(Guid id)
         {
-            return await _context.WorkoutSessions.FindAsync(id);
+            return await _context.WorkoutSessions.FirstOrDefaultAsync(w => w.SessionId == id);
         }
 
         public async Task<WorkoutSession> AddWorkout(WorkoutSessionDto workout)
@@ -49,7 +50,7 @@ namespace Application.Services
 
             var newWorkout = WorkoutSession.Create(
                 workout.UserId,
-                workout.WorkoutType,
+                workout.WorkoutType.ToDomain(),
                 workout.StartTime,
                 workout.StartTime.AddMinutes(workout.DurationMinutes),
                 workout.DurationMinutes,
@@ -62,14 +63,19 @@ namespace Application.Services
             return newWorkout;
         }
 
-        public async Task<WorkoutSession> UpdateWorkout(WorkoutSessionDto workout)
+    public async Task<WorkoutSession> UpdateWorkout(WorkoutSessionDto workout)
+    {
+        if (workout.SessionId is null)
         {
-            var existingWorkout = await _context.WorkoutSessions.FindAsync(workout.SessionId);
-            if (existingWorkout == null)
-                throw new KeyNotFoundException($"Workout with ID {workout.SessionId} not found.");
+            throw new ArgumentException("SessionId is required to update a workout.", nameof(workout));
+        }
+
+        var existingWorkout = await _context.WorkoutSessions.FindAsync(workout.SessionId);
+        if (existingWorkout == null)
+            throw new KeyNotFoundException($"Workout with ID {workout.SessionId} not found.");
 
             var updatedWorkout = existingWorkout.Update(
-                workout.WorkoutType,
+                workout.WorkoutType.ToDomain(),
                 workout.StartTime,
                 workout.EndTime,
                 workout.DurationMinutes,

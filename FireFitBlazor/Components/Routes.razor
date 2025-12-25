@@ -1,4 +1,6 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
+@using FireFit.UI.Shared.Components.Goals
+<Router AppAssembly="typeof(Program).Assembly"
+        AdditionalAssemblies="new[] { typeof(GoalEditorDialog).Assembly }">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
@@ -8,7 +10,7 @@
         <LayoutView Layout="typeof(Layout.MainLayout)">
             <div class="text-center">
                 <h1>Page not found</h1>
-                <p>Sorry, there's nothing at this address.</p>
+                <p>Sorry, there''s nothing at this address.</p>
                 <a href="/login" class="btn btn-primary">Go to Login</a>
             </div>
         </LayoutView>

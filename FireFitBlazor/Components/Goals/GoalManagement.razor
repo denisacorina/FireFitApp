@@ -14,10 +14,10 @@
 
 
 <RadzenCard>
-    <CardHeader>
+    <div class="card-header">
         <h3>My Goals</h3>
-    </CardHeader>
-    <CardContent>
+    </div>
+    <div class="card-body">
         <RadzenButton Text="Create New Goal" Click="@CreateNewGoal" ButtonStyle="ButtonStyle.Primary" />
 
         <RadzenDataGrid @ref="grid" Data="@goals" TItem="GoalDto" AllowPaging="true" PageSize="5" AllowSorting="true">
@@ -54,7 +54,7 @@
                 </RadzenDataGridColumn>
             </Columns>
         </RadzenDataGrid>
-    </CardContent>
+    </div>
 </RadzenCard>
 
 <RadzenDialog></RadzenDialog>
@@ -197,3 +197,4 @@
         };
     }
 } 
+@using BlazorBootstrap

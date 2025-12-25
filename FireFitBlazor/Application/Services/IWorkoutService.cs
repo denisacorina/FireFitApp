@@ -1,4 +1,4 @@
-using FireFitBlazor.Application.DTOs;
+using FireFit.Shared.DTOs;
 using FireFitBlazor.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ public interface IWorkoutService
 {
     Task<List<WorkoutSession>> GetWorkoutsByUserId(string userId);
     Task<List<WorkoutSession>> GetWorkoutsByDateRange(string userId, DateTime startDate, DateTime endDate);
-    Task<WorkoutSession> GetWorkoutById(int id);
+    Task<WorkoutSession?> GetWorkoutById(Guid id);
     Task<WorkoutSession> AddWorkout(WorkoutSessionDto workout);
     Task<WorkoutSession> UpdateWorkout(WorkoutSessionDto workout);
     Task DeleteWorkout(Guid id);

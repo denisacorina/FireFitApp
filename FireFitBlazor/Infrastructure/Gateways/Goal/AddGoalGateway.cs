@@ -14,7 +14,7 @@ public class AddGoalGateway : BaseGateway<Goal>, IAddGoalGateway
     {
     }
 
-    public async Task<bool> AddAsync(Goal goal)
+    public override async Task<bool> AddAsync(Goal goal)
     {
         try
         {

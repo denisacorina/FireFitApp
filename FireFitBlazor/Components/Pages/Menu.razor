@@ -2,28 +2,30 @@
 @using Radzen
 @using Radzen.Blazor
 @inject NavigationManager NavigationManager
-@using Microsoft.AspNetCore.Components.Forms;
-@using FireFitBlazor.Domain.Models
-@inject WeightPredictionService WeightPredictionService
-@inject NavigationManager NavigationManager
-@inject NotificationService NotificationService
-@rendermode RenderMode.InteractiveServer
 
 <div class="dashboard-container">
     <RadzenRow>
         <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/my-profile"))">
+            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/profile"))">
                 <RadzenIcon Icon="account_circle" class="dashboard-icon" />
                 <h3>My Profile</h3>
-                <p>View and edit your personal information</p>
+                <p>Update your bio, preferences, and photo.</p>
             </RadzenCard>
         </RadzenColumn>
 
         <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/exercise-log"))">
-                <RadzenIcon Icon="fitness_center" class="dashboard-icon" />
-                <h3>Log Exercise</h3>
-                <p>Track your workouts and activities</p>
+            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/my-goals"))">
+                <RadzenIcon Icon="flag" class="dashboard-icon" />
+                <h3>Goals</h3>
+                <p>Create and manage your fitness goals.</p>
+            </RadzenCard>
+        </RadzenColumn>
+
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/progress"))">
+                <RadzenIcon Icon="show_chart" class="dashboard-icon" />
+                <h3>Progress Tracking</h3>
+                <p>Log measurements and monitor growth.</p>
             </RadzenCard>
         </RadzenColumn>
 
@@ -31,7 +33,15 @@
             <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/nutrition-analysis"))">
                 <RadzenIcon Icon="restaurant" class="dashboard-icon" />
                 <h3>Nutrition Analysis</h3>
-                <p>Track your meals and nutrition</p>
+                <p>Review meals and macro targets.</p>
+            </RadzenCard>
+        </RadzenColumn>
+
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
+            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/meal-detection"))">
+                <RadzenIcon Icon="photo_camera" class="dashboard-icon" />
+                <h3>Meal Detection</h3>
+                <p>Snap a photo to detect ingredients.</p>
             </RadzenCard>
         </RadzenColumn>
 
@@ -39,201 +49,8 @@
             <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/reports-analytics"))">
                 <RadzenIcon Icon="analytics" class="dashboard-icon" />
                 <h3>Reports & Analytics</h3>
-                <p>View your progress and statistics</p>
-            </RadzenCard>
-        </RadzenColumn>
-
-        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/goals"))">
-                <RadzenIcon Icon="flag" class="dashboard-icon" />
-                <h3>Goals</h3>
-                <p>Set and track your fitness goals</p>
-            </RadzenCard>
-        </RadzenColumn>
-
-        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/measurements"))">
-                <RadzenIcon Icon="straighten" class="dashboard-icon" />
-                <h3>Measurements</h3>
-                <p>Track your body measurements</p>
-            </RadzenCard>
-        </RadzenColumn>
-
-        <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/preferences"))">
-                <RadzenIcon Icon="settings" class="dashboard-icon" />
-                <h3>Preferences</h3>
-                <p>Customize your app settings</p>
+                <p>Discover trends and detailed insights.</p>
             </RadzenCard>
         </RadzenColumn>
     </RadzenRow>
-
-
-        <RadzenRow>
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/my-profile"))">
-                    <RadzenIcon Icon="account_circle" class="dashboard-icon" />
-                    <h3>My Profile</h3>
-                    <p>View and edit your personal information</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/exercise-log"))">
-                    <RadzenIcon Icon="fitness_center" class="dashboard-icon" />
-                    <h3>Log Exercise</h3>
-                    <p>Track your workouts and activities</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/nutrition-analysis"))">
-                    <RadzenIcon Icon="restaurant" class="dashboard-icon" />
-                    <h3>Nutrition Analysis</h3>
-                    <p>Track your meals and nutrition</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/reports-analytics"))">
-                    <RadzenIcon Icon="analytics" class="dashboard-icon" />
-                    <h3>Reports & Analytics</h3>
-                    <p>View your progress and statistics</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/detect-meal"))">
-                    <RadzenIcon Icon="camera_alt" class="dashboard-icon" />
-                    <h3>Food Scanner</h3>
-                    <p>Scan food items for quick logging</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/recipe-chat"))">
-                    <RadzenIcon Icon="chat" class="dashboard-icon" />
-                    <h3>Recipe Chat</h3>
-                    <p>Get personalized recipe recommendations</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/my-goals"))">
-                    <RadzenIcon Icon="flag" class="dashboard-icon" />
-                    <h3>Goals</h3>
-                    <p>Set and track your fitness goals</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/measurement-dialog"))">
-                    <RadzenIcon Icon="straighten" class="dashboard-icon" />
-                    <h3>Measurements</h3>
-                    <p>Track your body measurements</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/daily-log"))">
-                    <RadzenIcon Icon="calendar_today" class="dashboard-icon" />
-                    <h3>Daily Log</h3>
-                    <p>View your daily food and activity log</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/log-food"))">
-                    <RadzenIcon Icon="add_circle" class="dashboard-icon" />
-                    <h3>Log Food</h3>
-                    <p>Add food items to your daily log</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-            <RadzenColumn Size="12" SizeMD="6" SizeLG="4">
-            <RadzenCard class="dashboard-card" @onclick="@(() => NavigationManager.NavigateTo("/add-food"))">
-                    <RadzenIcon Icon="fastfood" class="dashboard-icon" />
-                    <h3>Add Food</h3>
-                    <p>Add new food items to database</p>
-                </RadzenCard>
-            </RadzenColumn>
-
-        </RadzenRow>
-
-
 </div>
-
-<style>
-    .dashboard-container {
-        padding: 1rem;
-    }
-
-    .dashboard-card {
-        height: 100%;
-        cursor: pointer;
-        transition: transform 0.2s ease-in-out;
-        text-align: center;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
-
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .dashboard-icon {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        color: var(--rz-primary);
-    }
-
-    .dashboard-card h3 {
-        margin: 0.5rem 0;
-        font-size: 1.2rem;
-    }
-
-    .dashboard-card p {
-        color: var(--rz-text-secondary-color);
-        margin: 0;
-        font-size: 0.9rem;
-    }
-</style>
-
-@code {
-
-
-    [Inject]
-    public IHttpClientFactory HttpClientFactory { get; set; } = default!;
-    private User? currentUser;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var http = HttpClientFactory.CreateClient("ServerAPI");
-        var response = await http.GetAsync("/api/customauth/me");
-
-        if (!response.IsSuccessStatusCode)
-        {
-            NavigationManager.NavigateTo("/login");
-            return;
-        }
-
-        currentUser = await response.Content.ReadFromJsonAsync<User>();
-
-        if (currentUser == null)
-        {
-            NavigationManager.NavigateTo("/login");
-            return;
-        }
-
-    }
-    // private void NavigateTo(string url)
-    // {
-    //     NavigationManager.NavigateTo(url);
-    // }
-
-    // [Inject]
-    // private NavigationManager NavigationManager { get; set; }
-
-
-} 

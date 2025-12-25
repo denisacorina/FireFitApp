@@ -13,7 +13,7 @@ public class UpdateGoalGateway : BaseGateway<Goal>, IUpdateGoalGateway
     {
     }
 
-    public async Task<bool> UpdateAsync(Goal goal)
+    public override async Task<bool> UpdateAsync(Goal goal)
     {
         try
         {

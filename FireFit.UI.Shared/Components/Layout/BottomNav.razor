@@ -1,0 +1,47 @@
+<nav class="bottom-nav">
+    <NavLink href="/dashboard" class="nav-button" Match="NavLinkMatch.All">
+        <i class="bi bi-house-fill"></i>
+        <span>Home</span>
+    </NavLink>
+
+    <NavLink href="/daily-log" class="nav-button">
+        <i class="bi bi-journal-check"></i>
+        <span>Diary</span>
+    </NavLink>
+
+    <div class="nav-center-button-wrapper">
+        <NavLink href="/log-food" class="nav-center-button">
+            <i class="bi bi-plus-circle"></i>
+        </NavLink>
+    </div>
+
+    <NavLink href="/recipe-chat" class="nav-button">
+        <i class="bi bi-lightbulb-fill"></i>
+        <span>Ideas</span>
+    </NavLink>
+
+    <NavLink href="/profile" class="nav-button">
+        <i class="bi bi-person-fill"></i>
+        <span>Profile</span>
+    </NavLink>
+</nav>
+
+<style>
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background: #fff;
+        border-top: 1px solid #eee;
+        padding: 0.4rem 0.6rem 0.6rem;
+        z-index: 1000;
+    }
+    .nav-button { display: flex; flex-direction: column; align-items: center; color: #666; text-decoration: none; font-size: .85rem; }
+    .nav-center-button-wrapper { position: relative; top: -20px; }
+    .nav-center-button { background: #FF6600; color: #fff; border-radius: 50%; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; }
+</style>
+

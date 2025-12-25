@@ -13,7 +13,7 @@ public class UpdateUserProgressGateway : BaseGateway<UserProgress>, IUpdateUserP
     {
     }
 
-    public async Task<bool> UpdateAsync(UserProgress userProgress)
+    public override async Task<bool> UpdateAsync(UserProgress userProgress)
     {
         try
         {

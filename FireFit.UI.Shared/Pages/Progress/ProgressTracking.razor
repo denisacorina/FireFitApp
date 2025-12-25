@@ -1,0 +1,167 @@
+@page "/progress"
+@using System.Linq
+@using FireFit.Shared.Contracts
+@using FireFit.Shared.DTOs
+@using FireFit.UI.Shared.Components.Progress
+@inject IAuthService AuthService
+@inject IUserProgressService UserProgressService
+@inject IBodyMeasurementService BodyMeasurementService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject NavigationManager NavigationManager
+
+@if (!_authChecked)
+{
+    <div class="d-flex justify-content-center my-4">
+        <RadzenProgressBar Mode="ProgressBarMode.Indeterminate" Style="width: 240px;" />
+    </div>
+}
+else if (_userId is null)
+{
+    <RadzenCard>
+        <div class="card-body">
+            <p class="text-muted">Please sign in to view your progress tracking.</p>
+        </div>
+    </RadzenCard>
+}
+else
+{
+    <RadzenCard>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">Progress Tracking</h3>
+            <RadzenButton Text="Add Measurement" ButtonStyle="ButtonStyle.Primary" Click="@AddMeasurement" Disabled="@_isLoading" />
+        </div>
+        <div class="card-body">
+            @if (_isLoading)
+            {
+                <RadzenProgressBar Mode="ProgressBarMode.Indeterminate" Style="width: 100%; margin-bottom: 16px;" />
+            }
+            else
+            {
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <RadzenCard>
+                            <div class="card-header"><strong>Weight</strong></div>
+                            <div class="card-body">
+                                <div>Starting: @FormatDecimal(_summary?.StartingWeight) kg</div>
+                                <div>Current: @FormatDecimal((_summary?.CurrentWeight ?? _latest?.Weight)) kg</div>
+                                <div class="text-muted">Updated: @FormatDate((_summary?.UpdatedUtc ?? _latest?.TimestampUtc))</div>
+                            </div>
+                        </RadzenCard>
+                    </div>
+                    <div class="col-md-4">
+                        <RadzenCard>
+                            <div class="card-header"><strong>Latest Measurement</strong></div>
+                            <div class="card-body">
+                                @if (_latest is not null)
+                                {
+                                    <div>Date: @_latest.TimestampUtc.ToLocalTime().ToString("MMM dd, yyyy")</div>
+                                    <div>Body Fat: @_latest.BodyFatPercentage?.ToString("N1") ?? "--" %</div>
+                                    <div>Waist: @_latest.Waist?.ToString("N1") ?? "--" cm</div>
+                                }
+                                else
+                                {
+                                    <div>No measurements recorded.</div>
+                                }
+                            </div>
+                        </RadzenCard>
+                    </div>
+                    <div class="col-md-4">
+                        <RadzenCard>
+                            <div class="card-header"><strong>Notes</strong></div>
+                            <div class="card-body">
+                                @_latest?.Notes ?? "Add measurements to capture notes."
+                            </div>
+                        </RadzenCard>
+                    </div>
+                </div>
+
+                <RadzenDataGrid @ref="_grid" Data="@_measurements" TItem="BodyMeasurementDto" AllowPaging="true" PageSize="5" AllowSorting="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="TimestampUtc" Title="Date" FormatString="{0:d}" />
+                        <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="Weight" Title="Weight" FormatString="{0:N1} kg" />
+                        <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="BodyFatPercentage" Title="Body Fat %" FormatString="{0:N1}%" />
+                        <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="Waist" Title="Waist" FormatString="{0:N1} cm" />
+                        <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="Chest" Title="Chest" FormatString="{0:N1} cm" />
+                        <RadzenDataGridColumn TItem="BodyMeasurementDto" Property="Hips" Title="Hips" FormatString="{0:N1} cm" />
+                    </Columns>
+                </RadzenDataGrid>
+            }
+        </div>
+    </RadzenCard>
+}
+
+@code {
+    private RadzenDataGrid<BodyMeasurementDto>? _grid;
+    private IReadOnlyList<BodyMeasurementDto> _measurements = Array.Empty<BodyMeasurementDto>();
+    private BodyMeasurementDto? _latest;
+    private UserProgressDto? _summary;
+    private string? _userId;
+    private bool _authChecked;
+    private bool _isLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await EnsureUserAsync();
+        if (_userId is not null)
+        {
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task EnsureUserAsync()
+    {
+        try
+        {
+            var user = await AuthService.GetCurrentUserAsync();
+            if (user is null)
+            {
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
+            _userId = user.UserId;
+        }
+        finally
+        {
+            _authChecked = true;
+        }
+    }
+
+    private async Task LoadDataAsync()
+    {
+        if (_userId is null) return;
+        _isLoading = true;
+        try
+        {
+            _summary = await UserProgressService.GetAsync(_userId);
+            _measurements = await BodyMeasurementService.GetListAsync(_userId);
+            _latest = _measurements.OrderByDescending(m => m.TimestampUtc).FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(NotificationSeverity.Error, "Failed to load progress", ex.Message);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task AddMeasurement()
+    {
+        if (_userId is null) return;
+        var result = await DialogService.OpenAsync<AddMeasurementDialog>("Add Measurement",
+            new Dictionary<string, object> { ["UserId"] = _userId },
+            new DialogOptions { Width = "480px", Height = "620px" });
+
+        if (result == true)
+        {
+            await LoadDataAsync();
+        }
+    }
+
+    private static string FormatDecimal(decimal? value) => value.HasValue ? value.Value.ToString("N1") : "--";
+
+    private static string FormatDate(DateTime? value) => value.HasValue ? value.Value.ToLocalTime().ToString("MMM dd, yyyy") : "--";
+}

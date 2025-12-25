@@ -1,13 +1,6 @@
 ﻿
-using CsvHelper;
-using FireFitBlazor.Domain.Models;
-using FireFitBlazor.Domain.ValueObjects;
 using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using CsvHelper;
-using System.Globalization;
-using System.IO;
-using FireFitBlazor.Infrastructure.Data;
+using FireFitBlazor.Domain.ValueObjects;
 
 namespace FireFitBlazor.Domain.Models;
 

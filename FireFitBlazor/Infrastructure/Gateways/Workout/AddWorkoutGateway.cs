@@ -14,7 +14,7 @@ public class AddWorkoutGateway : BaseGateway<WorkoutSession>, IAddWorkoutGateway
     {
     }
 
-    public async Task<bool> AddAsync(WorkoutSession workout)
+    public override async Task<bool> AddAsync(WorkoutSession workout)
     {
         try
         {

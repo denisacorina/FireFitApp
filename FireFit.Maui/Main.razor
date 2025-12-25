@@ -1,0 +1,25 @@
+@using System.Reflection
+@using FireFit.UI.Shared.Components.Goals
+@using Microsoft.AspNetCore.Components.Authorization
+
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(Main).Assembly"
+            AdditionalAssemblies="@_additionalAssemblies">
+        <Found Context="routeData">
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there''s nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
+@code {
+    private readonly Assembly[] _additionalAssemblies =
+    {
+        typeof(GoalEditorDialog).Assembly
+    };
+}
