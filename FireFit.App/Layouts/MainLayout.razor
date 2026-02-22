@@ -1,0 +1,29 @@
+@inherits LayoutComponentBase
+
+<RadzenLayout>
+    <RadzenHeader>
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+            <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+            <RadzenLabel Text="FireFit" class="rz-p-2" Style="font-weight:bold;" />
+        </RadzenStack>
+    </RadzenHeader>
+
+    <RadzenSidebar @bind-Expanded="@sidebarExpanded">
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" Path="" />
+            <RadzenPanelMenuItem Text="Diary" Icon="book" Path="diary" />
+            <RadzenPanelMenuItem Text="Recipes" Icon="restaurant" Path="recipes" />
+            <RadzenPanelMenuItem Text="Login" Icon="login" Path="login" />
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+
+    <RadzenBody>
+        <div class="rz-p-4">
+            @Body
+        </div>
+    </RadzenBody>
+</RadzenLayout>
+
+@code {
+    bool sidebarExpanded = true;
+}
