@@ -12,6 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FireFit.App\FireFit.App.csproj" />
     <ProjectReference Include="..\FireFit.AppCore\FireFit.AppCore.csproj" />
     <ProjectReference Include="..\FireFit.Infrastructure\FireFit.Infrastructure.csproj" />
     <ProjectReference Include="..\FireFit.Ui\FireFit.Ui.csproj" />

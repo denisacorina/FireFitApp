@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireFit.Web", "FireFit.Web\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireFit.Maui", "FireFit.Maui\FireFit.Maui.csproj", "{EEF364A3-78A6-490A-9657-84D3B11C4ED2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FireFit.App", "FireFit.App\FireFit.App.csproj", "{2D9DBEB7-518D-48C6-900F-F962C34C0D22}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{EEF364A3-78A6-490A-9657-84D3B11C4ED2}.Release|x64.Build.0 = Release|Any CPU
 		{EEF364A3-78A6-490A-9657-84D3B11C4ED2}.Release|x86.ActiveCfg = Release|Any CPU
 		{EEF364A3-78A6-490A-9657-84D3B11C4ED2}.Release|x86.Build.0 = Release|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Debug|x64.Build.0 = Debug|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Debug|x86.Build.0 = Debug|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Release|x64.ActiveCfg = Release|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Release|x64.Build.0 = Release|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Release|x86.ActiveCfg = Release|Any CPU
+		{2D9DBEB7-518D-48C6-900F-F962C34C0D22}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

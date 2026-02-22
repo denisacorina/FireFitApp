@@ -1,0 +1,38 @@
+@page "/login"
+
+<PageTitle>Login</PageTitle>
+
+<h1>Login</h1>
+
+<RadzenCard class="rz-my-4" Style="max-width: 400px; margin: auto;">
+    <RadzenTemplateForm TItem="LoginModel" Data="@model" Submit="@OnSubmit">
+        <RadzenFieldset Text="Sign In">
+            <div class="rz-p-2">
+                <RadzenLabel Text="Email" Component="Email" />
+                <RadzenTextBox Name="Email" @bind-Value="@model.Email" Style="width:100%;" />
+            </div>
+            <div class="rz-p-2">
+                <RadzenLabel Text="Password" Component="Password" />
+                <RadzenPassword Name="Password" @bind-Value="@model.Password" Style="width:100%;" />
+            </div>
+            <div class="rz-p-2">
+                <RadzenButton ButtonType="ButtonType.Submit" Text="Login" Style="width:100%;" />
+            </div>
+        </RadzenFieldset>
+    </RadzenTemplateForm>
+</RadzenCard>
+
+@code {
+    private LoginModel model = new();
+
+    private void OnSubmit()
+    {
+        // TODO: wire up authentication
+    }
+
+    private class LoginModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}
