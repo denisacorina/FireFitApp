@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\FireFit.Ui\FireFit.Ui.csproj" />
+    <ProjectReference Include="..\FireFit.Infrastructure\FireFit.Infrastructure.csproj" />
+    <ProjectReference Include="..\FireFit.AppCore\FireFit.AppCore.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+</Project>
